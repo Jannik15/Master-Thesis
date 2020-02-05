@@ -6,7 +6,7 @@
 		ColorMask 0
 		Stencil
 		{
-			Ref 2
+			Ref 1
 			Comp Always
 			ZFail Keep
 			Pass Replace
