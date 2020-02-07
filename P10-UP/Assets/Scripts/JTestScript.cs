@@ -5,16 +5,18 @@ using UnityEngine;
 public class JTestScript : MonoBehaviour
 {
     // Purpose: Test swapping shaders AND masks on a button press with minimal design effort
-    private ShaderSwapper swapper; // TODO: Fix null reference on this extension class when used 
+    private ShaderSwapper swapper;
+    private ShaderLocater shaderLocater;
     [SerializeField] private ShaderContainer materialContainer, maskContainer;
     [SerializeField] private GameObject[] rooms;
     private List<List<Renderer>> objectsInRooms;
     private List<List<Renderer>> materialObjects;
     private List<List<Renderer>> maskObjects;
-    [SerializeField] private int roomIndex, materialIndex, maskIndex;
+    public int roomIndex, materialIndex, maskIndex;
 
     void Awake()
     {
+        swapper = new ShaderSwapper();
         objectsInRooms = new List<List<Renderer>>();
         // Find objects in the given rooms and store them in a list
         for (int i = 0; i < rooms.Length; i++)
@@ -24,16 +26,7 @@ public class JTestScript : MonoBehaviour
             objectsInRooms.Add(tempList);
         }
 
-        for (int i = 0; i < objectsInRooms.Count; i++)
-        {
-            Debug.Log(objectsInRooms[i][0].transform.parent.name + " contains " + objectsInRooms[i].Count + " objects!");
-            for (int j = 0; j < objectsInRooms[i].Count; j++)
-            {
-                Debug.Log("Render Child[" + j + "]: " +  objectsInRooms[i][j].gameObject.name);
-            }
-        }
-
-        materialObjects = new List<List<Renderer>>();
+        materialObjects = new List<List<Renderer>>();   
         maskObjects = new List<List<Renderer>>();
         for (int i = 0; i < objectsInRooms.Count; i++)
         {
@@ -74,6 +67,7 @@ public class JTestScript : MonoBehaviour
             }
             SwapShader(materialObjects[roomIndex], materialContainer.shaders[materialIndex]);
             Debug.Log("Swapping shader for " + materialObjects[roomIndex].Count + " materials in room " + roomIndex + " with the shader " + materialContainer.shaders[materialIndex]);
+
         }
         if (Input.GetKeyDown(KeyCode.N)) // Change shader on masks
         {

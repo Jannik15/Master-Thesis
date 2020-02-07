@@ -14,7 +14,7 @@ public class SetNextPortalPosition : MonoBehaviour
         portal = FindStencilPos("MidStencil", potentialPortals); // For forward facing stencils
 
         potentialOppositePortals = GameObject.FindGameObjectsWithTag("EntryPortal"); // Find all Previous portals
-        oppositePortal = FindStencilPos("OppositeMidStencil", potentialOppositePortals); // For bacward facing stencils
+        oppositePortal = FindStencilPos("OppositeMidStencil", potentialOppositePortals); // For backward facing stencils
 
         if (portal != null && oppositePortal != null) // if both stencils are enabled
         {

@@ -14457,7 +14457,7 @@ Mesh:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: pb_Mesh16174
+  m_Name: pb_Mesh33554
   serializedVersion: 10
   m_SubMeshes:
   - serializedVersion: 2
@@ -14678,6 +14678,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: df4d7a1ef5c5b734abb90fa0d76c0593, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  portalTags:
+  - ForwardPortal
+  - BackwardPortal
 --- !u!1 &1885230809
 GameObject:
   m_ObjectHideFlags: 0
@@ -16109,7 +16112,7 @@ GameObject:
   - component: {fileID: 8235418878901140115}
   m_Layer: 0
   m_Name: MidRightPortalXRight
-  m_TagString: ExitPortal
+  m_TagString: ForwardPortal
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
