@@ -65,7 +65,7 @@ public class JTestScript : MonoBehaviour
             {
                 materialIndex = 0;
             }
-            SwapShader(materialObjects[roomIndex], materialContainer.shaders[materialIndex]);
+            SwapShader(materialObjects[roomIndex], materialContainer.shaders[materialIndex], materialIndex);
             Debug.Log("Swapping shader for " + materialObjects[roomIndex].Count + " materials in room " + roomIndex + " with the shader " + materialContainer.shaders[materialIndex]);
 
         }
@@ -76,7 +76,7 @@ public class JTestScript : MonoBehaviour
             {
                 maskIndex = 0;
             }
-            SwapShader(maskObjects[roomIndex], maskContainer.shaders[maskIndex]);
+            SwapShader(maskObjects[roomIndex], maskContainer.shaders[maskIndex], maskIndex);
         }
 
         if (Input.GetKeyDown(KeyCode.R)) // Change the room index
@@ -86,8 +86,8 @@ public class JTestScript : MonoBehaviour
             {
                 roomIndex = 0;
             }
-            SwapShader(materialObjects[roomIndex], materialContainer.shaders[materialIndex]);
-            SwapShader(maskObjects[roomIndex], maskContainer.shaders[maskIndex]);
+            SwapShader(materialObjects[roomIndex], materialContainer.shaders[materialIndex], materialIndex);
+            SwapShader(maskObjects[roomIndex], maskContainer.shaders[maskIndex], maskIndex);
         }
     }
 
@@ -109,13 +109,20 @@ public class JTestScript : MonoBehaviour
     }
 
     // Overload for multidimensional lists (lists containing arrays)
-    public void SwapShader(List<Renderer> objectsToSwap, Shader materialShader)
+    public void SwapShader(List<Renderer> objectsToSwap, Shader materialShader, int StencilVal)
     {
+        //for (int i = 0; i < objectsToSwap.Count; i++)
+        //{
+        //    for (int j = 0; j < objectsToSwap[i].materials.Length; j++)
+        //    {
+        //        objectsToSwap[i].materials[j].shader = materialShader;
+        //    }
+        //}
         for (int i = 0; i < objectsToSwap.Count; i++)
         {
             for (int j = 0; j < objectsToSwap[i].materials.Length; j++)
             {
-                objectsToSwap[i].materials[j].shader = materialShader;
+                objectsToSwap[i].materials[j].SetInt("_StencilValue", StencilVal);
             }
         }
     }
