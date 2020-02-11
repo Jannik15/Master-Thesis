@@ -7,6 +7,7 @@ public class PlayerController : MonoBehaviour {
     public float speed = 10.0f;
     private float translation;
     private float strafe;
+    
 
     // Use this for initialization
     void Start () {
