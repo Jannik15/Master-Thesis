@@ -1,25 +1,20 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using System.Linq.Expressions;
+﻿using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.PlayerLoop;
 
 /// <summary>
 /// This script is tasked with locating the positions of all materials
 /// using stencil shaders, and feed their positions to the relevant shader
 /// </summary>
-public class ShaderLocater : MonoBehaviour
+public class ShaderLocater
 {
     private GameObject[] allPortals;
-    [TagSelector] [SerializeField] private string[] portalTags;
     
-    public void LoadPortals(ref List<GameObject> forwardPortals, ref List<GameObject> backwardPortals)
+    // TODO: Return transforms?
+    public void LoadPortals(List<Portal> forwardPortals, List<Portal> backwardPortals, string[] portalTags)
     {
-        forwardPortals = new List<GameObject>();
-        backwardPortals = new List<GameObject>();
-
         // Store all portals in a list, based on their room index. 2 Lists are required, one for forward portals, and one for backward portals
         allPortals = (GameObject[]) Resources.FindObjectsOfTypeAll(typeof(GameObject));
+        int iterator = 1;
         // TODO: The following can be optimized with Jobs and Burst
         for (int i = 0; i < allPortals.Length; i++)
         {
@@ -27,30 +22,67 @@ public class ShaderLocater : MonoBehaviour
             {
                 if (allPortals[i].CompareTag(portalTags[0]))
                 {
-                    forwardPortals.Add(allPortals[i]);
+                    forwardPortals.Add( new Portal(allPortals[i], iterator));
+                    iterator++;
                 }
                 else if (allPortals[i].CompareTag(portalTags[1]))
                 {
-                    backwardPortals.Add(allPortals[i]);
-                }
-                else
-                {
-                    Debug.Log(allPortals[i].name + "'s tag contained \"Portal\", but did not match the tags listed in the portal tag array.");
+                    backwardPortals.Add(new Portal(allPortals[i], iterator));
+                    iterator++;
                 }
             }
         }
+        Debug.Log("ForwardPortals Count: " + forwardPortals.Count + " | BackwardPortals Count: " + backwardPortals.Count);
     }
 
-    public void UpdateShaderMatrix(List<Renderer> roomMaterials, Transform portal, int roomIndex)
+    public Transform GetPortalTransform(List<GameObject> portalsToCheck, int stencilValue)
+    {
+        Debug.Log(portalsToCheck.Count);
+        for (int i = 0; i < portalsToCheck.Count; i++)
+        {
+            Debug.Log("Checking at index " + i + " object " + portalsToCheck[i].name);
+            Transform child = portalsToCheck[i].transform.GetChild(0);
+            if (child.CompareTag("Mask"))
+            {
+                if (stencilValue == child.GetComponent<Renderer>().material.GetInt("_StencilValue"))
+                {
+                    return portalsToCheck[i].transform;
+
+                }
+            }
+            else
+            {
+                Transform childOfChild = child.GetChild(0);
+                if (childOfChild.CompareTag("Mask"))
+                {
+                    if (stencilValue == childOfChild.GetComponent<Renderer>().material.GetInt("_StencilValue"))
+                    {
+                        return portalsToCheck[i].transform;
+                    }
+                }
+                else
+                {
+                    Debug.Log("Insert debug message here!");
+                    return null;
+                }
+            }
+        }
+        Debug.Log("didnt work");
+        return null;
+    }
+
+    public void UpdateShaderMatrix(List<Renderer> roomMaterials, Transform portal)
     {
         // If everything is grouped in rooms, find forward and backward portals and use their position for the relevant shaders in a matrix
 
         for (int i = 0; i < roomMaterials.Count; i++)
         {
-            for (int j = 0; j < roomMaterials[i].materials.Length; j++)
-            {
-                roomMaterials[i].materials[j].SetMatrix("_ShaderMatrixName", portal.worldToLocalMatrix);
-            }
+            roomMaterials[i].material.SetMatrix("_WorldToPortal", portal.worldToLocalMatrix);
+            //for (int j = 0; j < roomMaterials[i].materials.Length; j++)
+            //{
+            //    Debug.Log("Setting matrix for material of object: " + roomMaterials[i] + " with portal " + portal.name);
+            //    roomMaterials[i].materials[j].SetMatrix("_WorldToPortal", portal.worldToLocalMatrix);
+            //}
         }
         //if (forwardPortals[roomIndex] != null && oppositePortal != null) // if both stencils are enabled
         //{
@@ -86,7 +118,7 @@ public class ShaderLocater : MonoBehaviour
         //}
     }
 
-    private void FindShader(string shaderName)
+    public void FindShader(string shaderName)
     {
         List<Material> allMaterials = new List<Material>();
 

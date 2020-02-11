@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
-namespace Team1_GraduationGame.Editor
+namespace ThisProject.Editor
 {
     [CustomPropertyDrawer(typeof(TagSelectorAttribute))]
     public class TagSelectorDrawer : PropertyDrawer
