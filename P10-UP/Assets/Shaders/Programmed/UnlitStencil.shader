@@ -42,6 +42,7 @@
             };
 
             sampler2D _MainTex;
+			int _StencilValue;
             float4 _MainTex_ST;
 			float4x4 _WorldToPortal;
 
@@ -63,16 +64,18 @@
                 // apply fog
                 UNITY_APPLY_FOG(IN.fogCoord, col);
 
-				//// Discard geometry based on z axis proximity, but not when camera is close enough to the portal
-				if (mul(_WorldToPortal, float4(_WorldSpaceCameraPos, 1.0)).z > 0.2) 
-				{
-					if (mul(_WorldToPortal, IN.worldPos).z > 0.21)
-						discard;
-				}
-				else if (mul(_WorldToPortal, float4(_WorldSpaceCameraPos, 1.0)).z < -0.2) 
-				{
-					if (mul(_WorldToPortal, IN.worldPos).z < -0.21)
-						discard;
+				// Discard geometry based on z axis proximity, but not when camera is close enough to the portal
+				if (_StencilValue > 0) {
+					if (mul(_WorldToPortal, float4(_WorldSpaceCameraPos, 1.0)).z > 0.2)
+					{
+						if (mul(_WorldToPortal, float4(IN.worldPos, 1.0)).z > 0.21)
+							discard;
+					}
+					else if (mul(_WorldToPortal, float4(_WorldSpaceCameraPos, 1.0)).z < -0.2)
+					{
+						if (mul(_WorldToPortal, float4(IN.worldPos, 1.0)).z < -0.21)
+							discard;
+					}
 				}
 
                 return col;

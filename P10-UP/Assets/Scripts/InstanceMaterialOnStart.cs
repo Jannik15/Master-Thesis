@@ -2,23 +2,32 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-[RequireComponent(typeof(Renderer))]
 public class InstanceMaterialOnStart : MonoBehaviour
 {
-    private Material[] materials, storedMaterials;
+    private Material[] materials;
+    private List<Material> childMaterials;
+    private Renderer[] childRenderers;
     void Start()
     {
-        storedMaterials = GetComponent<Renderer>().materials;
-        materials = GetComponent<Renderer>().materials;
-        for (int i = 0; i < materials.Length; i++)
+        Renderer render = GetComponent<Renderer>();
+        if (render != null)
         {
-            materials[i] = Material.Instantiate(materials[i]);
-        }
-    }
+            materials = render.materials;
 
-    // Update is called once per frame
-    void Update()
-    {
-        
+            for (int i = 0; i < materials.Length; i++)
+            {
+                materials[i] = Instantiate(materials[i]);
+            }
+        }
+        childRenderers = GetComponentsInChildren<Renderer>();
+        childMaterials = new List<Material>();
+        for (int i = 0; i < childRenderers.Length; i++)
+        {
+            childMaterials.AddRange(childRenderers[i].materials);
+        }
+        for (int i = 0; i < childMaterials.Count; i++)
+        {
+            childMaterials[i] = Instantiate(childMaterials[i]);
+        }
     }
 }
