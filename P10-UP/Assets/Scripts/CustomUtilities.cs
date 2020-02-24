@@ -5,24 +5,6 @@ public static class CustomUtilities
 {
     #region Renderer
     /// <summary>
-    /// Initialize portals by providing the tag for the gameobjects that serve as portals.
-    /// </summary>
-    /// <param name="portalTag"></param>
-    /// <returns></returns>
-    public static List<Portal> InitializePortals(string portalTag)
-    {
-        List<Portal> portals = new List<Portal>();
-        GameObject[] allPortals = (GameObject[])Resources.FindObjectsOfTypeAll(typeof(GameObject)); // TODO: Pass Portal objects after generation
-        for (int i = 0; i < allPortals.Length; i++)
-        {
-            if (allPortals[i].CompareTag(portalTag))
-            {
-                portals.Add(new Portal(allPortals[i]));
-            }
-        }
-        return portals;
-    }
-    /// <summary>
     /// Update the stencil value for materials in a list of renderers.
     /// </summary>
     /// <param name="roomMaterials"></param>
@@ -36,15 +18,30 @@ public static class CustomUtilities
                 roomMaterials[i].materials[j].SetInt("_StencilValue", newStencilValue);
             }
         }
-
-        // TODO: Could update the room connections (forward portal masks) using the newStencilValue
     }
     /// <summary>
-    /// Update the stencil value for materials in a list of renderers.
+    /// Update the stencil value for materials in a list of renderers in a gameobject and its children.
     /// </summary>
     /// <param name="room"></param>
     /// <param name="newStencilValue"></param>
-    public static void UpdateRoomStencil(GameObject room, int newStencilValue)
+    public static void UpdateStencils(GameObject parent, int newStencilValue)
+    {
+        Renderer[] renderersInRoom = parent.GetComponentsInChildren<Renderer>();
+        for (int i = 0; i < renderersInRoom.Length; i++)
+        {
+            for (int j = 0; j < renderersInRoom[i].materials.Length; j++)
+            {
+                renderersInRoom[i].materials[j].SetInt("_StencilValue", newStencilValue);
+            }
+        }
+    }
+
+    /// <summary>
+    /// Update the stencil value for materials in a list of renderers in a room. Also updates their shader matrix with the portal transform.
+    /// </summary>
+    /// <param name="room"></param>
+    /// <param name="newStencilValue"></param>
+    public static void UpdateRoomStencil(GameObject room, int newStencilValue, Transform portal)
     {
         Renderer[] renderersInRoom = room.GetComponentsInChildren<Renderer>();
         for (int i = 0; i < renderersInRoom.Length; i++)
@@ -52,6 +49,7 @@ public static class CustomUtilities
             for (int j = 0; j < renderersInRoom[i].materials.Length; j++)
             {
                 renderersInRoom[i].materials[j].SetInt("_StencilValue", newStencilValue);
+                renderersInRoom[i].materials[j].SetMatrix("_WorldToPortal", portal.worldToLocalMatrix);
             }
         }
     }
@@ -311,5 +309,29 @@ public static class CustomUtilities
         return Vector3.SqrMagnitude(a - b) < 0.0001;
     }
 
+    #endregion
+
+    #region Deprecated
+    /*
+    /// <summary>
+    /// Initialize portals by providing the tag for the gameobjects that serve as portals.
+    /// </summary>
+    /// <param name="portalTag"></param>
+    /// <returns></returns>
+    public static List<Portal> InitializePortals(string portalTag)
+    {
+        List<Portal> portals = new List<Portal>();
+        GameObject[] allPortals = (GameObject[])Resources.FindObjectsOfTypeAll(typeof(GameObject)); // TODO: Pass Portal objects after generation
+        for (int i = 0; i < allPortals.Length; i++)
+        {
+            if (allPortals[i].CompareTag(portalTag))
+            {
+                portals.Add(new Portal(allPortals[i]));
+            }
+        }
+        return portals;
+    }
+
+    */
     #endregion
 }

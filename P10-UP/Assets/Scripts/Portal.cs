@@ -14,9 +14,10 @@ public class Portal : MonoBehaviour
     /// and the stencil values can be assigned using SetPortalStencils().
     /// </summary>
     /// <param name="portal"></param>
-    public Portal(GameObject portal)
+    public Portal(GameObject portal, GameObject connectedRoom)
     {
         this.portal = portal;
+        this.connectedRoom = connectedRoom;
 
         Transform portalTransform = portal.transform;
         for (int i = 0; i < portalTransform.childCount; i++)
@@ -55,7 +56,10 @@ public class Portal : MonoBehaviour
         return backwardStencilValue;
     }
 
-    //public GameObject 
+    public GameObject GetConnectedRoom()
+    {
+        return connectedRoom;
+    }
 
     public Renderer[] GetForwardMasks()
     {

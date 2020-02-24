@@ -3,42 +3,34 @@ using System;
 
 public class PortalCollisionHandler : MonoBehaviour
 {
-    private PortalManager portalManager;
     private Vector3 playerPos;
     private Portal thisPortal;
-
     private GridPortalDemo proceduralLayout;
 
     // Start is called before the first frame update
     void Start()
     {
         proceduralLayout = FindObjectOfType<GridPortalDemo>();
-        portalManager = FindObjectOfType<PortalManager>();
-        if (portalManager == null)
-            Debug.LogError("Missing portalManager in the scene!\nAdd a PortalManager to an empty GameObject to use this script.");
-
-
     }
 
     private void OnTriggerEnter(Collider portalCollider)
     {
-        if (portalCollider.CompareTag(portalManager.GetPortalTag()))
+        if (portalCollider.CompareTag("Portal"))
         {
-            //* TODO: Simply get the portals from procedural portal generator
             thisPortal = portalCollider.GetComponent<Portal>(); 
-            //*/
+
             Debug.Log("Entered a portal");
             thisPortal.SwitchActiveSubPortal();
 
 
             // TODO: Switch the world here
-            //proceduralLayout.SwitchWorld();
+            proceduralLayout.SwitchWorld(thisPortal);
         }
     }
 
     private void OnTriggerExit(Collider portalCollider)
     {
-        if (portalCollider.CompareTag(portalManager.GetPortalTag()))
+        if (portalCollider.CompareTag("Portal"))
         {
             Debug.Log("Exited a portal");
             thisPortal.SwitchActiveSubPortal();
@@ -49,8 +41,8 @@ public class PortalCollisionHandler : MonoBehaviour
             }
             else // Incorrectly exited the portal, revert changes made OnTriggerEnter
             {
+
             }
-            thisPortal = null;
         }
     }
 }

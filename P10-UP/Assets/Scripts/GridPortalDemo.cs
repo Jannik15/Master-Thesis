@@ -1,13 +1,14 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using Oculus.Platform;
 using UnityEngine;
 
 public class GridPortalDemo : MonoBehaviour
 {
     [SerializeField] private GameObject portalPrefab;
-    public List<GameObject> portals = new List<GameObject>();
+    public List<Portal> portals = new List<Portal>();
     public List<GameObject> rooms = new List<GameObject>();
-    public int currentRoom; // Functions as the index in rooms, tracking which room the player is in
+    public GameObject currentRoom; // Functions as the index in rooms, tracking which room the player is in
     private List<Tile> roomTiles = new List<Tile>();
     private List<Tile> portalTiles = new List<Tile>();
     private Vector2 portalPlacement;
@@ -18,7 +19,7 @@ public class GridPortalDemo : MonoBehaviour
         for (int i = 0; i < roomPrefabs.Length; i++)
         {
             rooms.Add(Instantiate(roomPrefabs[i]));
-            CustomUtilities.UpdateRoomStencil(rooms[i], i);
+            CustomUtilities.UpdateStencils(rooms[i], i);
         }
         roomTiles.AddRange(rooms[0].GetComponentsInChildren<Tile>());
         for (int j = 0; j < roomTiles.Count; j++)
@@ -29,14 +30,19 @@ public class GridPortalDemo : MonoBehaviour
             }
         }
         
-        portals.Add(Instantiate(portalPrefab, portalTiles[Random.Range(0, portalTiles.Count)].transform.position, Quaternion.Euler(0,Random.Range(0,360),0)));
+        portals.Add(new Portal(Instantiate(portalPrefab, portalTiles[Random.Range(0, portalTiles.Count)].transform.position, Quaternion.Euler(0,Random.Range(0,360),0)),rooms[1]));
 
 
     }
 
+    /// <summary>
+    /// Update the current rooms stencil value to the new rooms, then set the new rooms stencil value to 0 and set the current room to the new room.
+    /// </summary>
+    /// <param name="portal"></param>
     public void SwitchWorld(Portal portal)
     {
-        CustomUtilities.UpdateRoomStencil(rooms[currentRoom], 0);    // Previous room to current rooms stencil value
-        //CustomUtilities.UpdateRoomStencil(, 0);    // Current rooms stencil value to 0
+        CustomUtilities.UpdateStencils(currentRoom, CustomUtilities.GetStencil(portal.GetConnectedRoom()));
+        CustomUtilities.UpdateStencils(portal.GetConnectedRoom(), 0);
+        currentRoom = portal.GetConnectedRoom();
     }
 }

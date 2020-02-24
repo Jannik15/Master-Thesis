@@ -14,7 +14,7 @@ public class JTestScript : MonoBehaviour
 
     void Awake()
     {
-        portals = CustomUtilities.InitializePortals(portalTag);
+        //portals = CustomUtilities.InitializePortals(portalTag);
         transform.Reset();
         objectsInRooms = new List<List<Renderer>>();
         for (int i = 0; i < rooms.Length; i++)
