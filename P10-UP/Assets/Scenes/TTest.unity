@@ -1984,10 +1984,20 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 2331480836859931567, guid: dfc971848a6a7764fafa6c5a9a0bb0b1,
+        type: 3}
+      propertyPath: m_Layer
+      value: 9
+      objectReference: {fileID: 0}
     - target: {fileID: 2331480837119068690, guid: dfc971848a6a7764fafa6c5a9a0bb0b1,
         type: 3}
       propertyPath: m_Name
       value: Player
+      objectReference: {fileID: 0}
+    - target: {fileID: 2331480837119068690, guid: dfc971848a6a7764fafa6c5a9a0bb0b1,
+        type: 3}
+      propertyPath: m_Layer
+      value: 9
       objectReference: {fileID: 0}
     - target: {fileID: 2331480837119068702, guid: dfc971848a6a7764fafa6c5a9a0bb0b1,
         type: 3}
@@ -2048,6 +2058,16 @@ PrefabInstance:
         type: 3}
       propertyPath: m_LocalPosition.y
       value: 0.32
+      objectReference: {fileID: 0}
+    - target: {fileID: 6567134520587087954, guid: dfc971848a6a7764fafa6c5a9a0bb0b1,
+        type: 3}
+      propertyPath: m_Layer
+      value: 9
+      objectReference: {fileID: 0}
+    - target: {fileID: 9205334478108937472, guid: dfc971848a6a7764fafa6c5a9a0bb0b1,
+        type: 3}
+      propertyPath: m_Layer
+      value: 9
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: dfc971848a6a7764fafa6c5a9a0bb0b1, type: 3}
@@ -2251,7 +2271,7 @@ GameObject:
   - component: {fileID: 1347093078}
   - component: {fileID: 1347093077}
   - component: {fileID: 1347093076}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Plane (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -14501,7 +14521,7 @@ Mesh:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: pb_Mesh33738
+  m_Name: pb_Mesh34098
   serializedVersion: 10
   m_SubMeshes:
   - serializedVersion: 2
@@ -14858,7 +14878,7 @@ GameObject:
   - component: {fileID: 1611515433}
   - component: {fileID: 1611515432}
   - component: {fileID: 1611515437}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Plane
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -27254,7 +27274,7 @@ Mesh:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: pb_Mesh33782
+  m_Name: pb_Mesh34142
   serializedVersion: 10
   m_SubMeshes:
   - serializedVersion: 2
@@ -27441,14 +27461,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 76dee0f24d345e446b80d1db77f39dde, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  materialContainer: {fileID: 11400000, guid: ac5df8103901eb746bc9ec51582174d1, type: 2}
-  maskContainer: {fileID: 11400000, guid: 3f9de018158f97440b3ccd42eba0d2f9, type: 2}
   rooms:
   - {fileID: 1422003057}
   - {fileID: 1788756379}
+  stencilMaxValue: 1
+  portalTag: 
   roomIndex: 0
-  materialIndex: 0
-  maskIndex: 0
 --- !u!4 &1858142004
 Transform:
   m_ObjectHideFlags: 0
@@ -27475,9 +27493,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: df4d7a1ef5c5b734abb90fa0d76c0593, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  portalTags:
-  - ForwardPortal
-  - BackwardPortal
 --- !u!1 &1888787128
 GameObject:
   m_ObjectHideFlags: 0
