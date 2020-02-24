@@ -2,7 +2,7 @@
 
 public class Portal : MonoBehaviour
 {
-    private GameObject connectRoom;
+    private GameObject connectedRoom;
     private GameObject portal;
     private GameObject forwardPortal, backwardPortal;
     private int forwardStencilValue, backwardStencilValue;
@@ -54,6 +54,8 @@ public class Portal : MonoBehaviour
     {
         return backwardStencilValue;
     }
+
+    //public GameObject 
 
     public Renderer[] GetForwardMasks()
     {

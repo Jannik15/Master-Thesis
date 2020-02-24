@@ -25,17 +25,14 @@ public class PortalCollisionHandler : MonoBehaviour
         if (portalCollider.CompareTag(portalManager.GetPortalTag()))
         {
             //* TODO: Simply get the portals from procedural portal generator
-            thisPortal = new Portal(portalCollider.gameObject); 
+            thisPortal = portalCollider.GetComponent<Portal>(); 
             //*/
             Debug.Log("Entered a portal");
             thisPortal.SwitchActiveSubPortal();
 
 
-
             // TODO: Switch the world here
-            proceduralLayout.SwitchWorld();
-            CustomUtilities.UpdateRoomStencil(proceduralLayout.rooms[proceduralLayout.currentRoom],0);    // Previous room to current rooms stencil value
-            CustomUtilities.UpdateRoomStencil(proceduralLayout.rooms[proceduralLayout.currentRoom], 0);    // Current rooms stencil value to 0
+            //proceduralLayout.SwitchWorld();
         }
     }
 
@@ -55,10 +52,5 @@ public class PortalCollisionHandler : MonoBehaviour
             }
             thisPortal = null;
         }
-    }
-
-    private void SwitchWorld()
-    {
-
     }
 }

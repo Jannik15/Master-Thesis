@@ -5,9 +5,9 @@ using UnityEngine;
 public class GridPortalDemo : MonoBehaviour
 {
     [SerializeField] private GameObject portalPrefab;
-    public List<Portal> portals = new List<Portal>();
+    public List<GameObject> portals = new List<GameObject>();
     public List<GameObject> rooms = new List<GameObject>();
-    public int currentRoom;
+    public int currentRoom; // Functions as the index in rooms, tracking which room the player is in
     private List<Tile> roomTiles = new List<Tile>();
     private List<Tile> portalTiles = new List<Tile>();
     private Vector2 portalPlacement;
@@ -29,13 +29,14 @@ public class GridPortalDemo : MonoBehaviour
             }
         }
         
-        Instantiate(portalPrefab, portalTiles[Random.Range(0, portalTiles.Count)].transform.position, Quaternion.Euler(0,Random.Range(0,360),0), rooms[0].transform);
+        portals.Add(Instantiate(portalPrefab, portalTiles[Random.Range(0, portalTiles.Count)].transform.position, Quaternion.Euler(0,Random.Range(0,360),0)));
 
 
     }
 
-    public void SwitchWorld()
+    public void SwitchWorld(Portal portal)
     {
-
+        CustomUtilities.UpdateRoomStencil(rooms[currentRoom], 0);    // Previous room to current rooms stencil value
+        //CustomUtilities.UpdateRoomStencil(, 0);    // Current rooms stencil value to 0
     }
 }

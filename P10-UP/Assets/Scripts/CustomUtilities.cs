@@ -72,6 +72,17 @@ public static class CustomUtilities
         }
     }
 
+    /// <summary>
+    /// Get the stencil value of the first renderer object in the gameobject.
+    /// </summary>
+    /// <param name="obj"></param>
+    /// <returns></returns>
+    public static int GetStencil(GameObject obj)
+    {
+        Renderer rendererInObj = obj.GetComponentInChildren<Renderer>();
+        return rendererInObj.material.GetInt("_StencilValue");
+    }
+
     #endregion
 
     #region Collections    
