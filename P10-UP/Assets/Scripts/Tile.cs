@@ -19,8 +19,13 @@ public class Tile : MonoBehaviour
         material = GetComponent<Renderer>().sharedMaterial;
     }
 
-    public TileGeneration.TileType GeTileType()
+    public TileGeneration.TileType GetTileType()
     {
         return type;
+    }
+
+    public Vector2 GetPosition()
+    {
+        return position;
     }
 }

@@ -55,13 +55,29 @@ public static class CustomUtilities
     }
 
     /// <summary>
-    /// Update the shader matrix _WorldToPortal for each renderer material in the given list of renderers, with the relevant portal transform.
+    /// Update the shader matrix _WorldToPortal for each renderer material in the given list of renderers, with the relevant portal transform (Portals that are looking at them).
     /// </summary>
     /// <param name="roomMaterials"></param>
     /// <param name="portal"></param>
     public static void UpdateShaderMatrix(List<Renderer> roomMaterials, Transform portal)
     {
         for (int i = 0; i < roomMaterials.Count; i++)
+        {
+            for (int j = 0; j < roomMaterials[i].materials.Length; j++)
+            {
+                roomMaterials[i].materials[j].SetMatrix("_WorldToPortal", portal.worldToLocalMatrix);
+            }
+        }
+    }
+    /// <summary>
+    /// Update the shader matrix _WorldToPortal for each renderer material in the given list of renderers, with the relevant portal transform (Portals that are looking at them).
+    /// </summary>
+    /// <param name="room"></param>
+    /// <param name="portal"></param>
+    public static void UpdateShaderMatrix(GameObject room, Transform portal)
+    {
+        Renderer[] roomMaterials = room.GetComponentsInChildren<Renderer>();
+        for (int i = 0; i < roomMaterials.Length; i++)
         {
             for (int j = 0; j < roomMaterials[i].materials.Length; j++)
             {

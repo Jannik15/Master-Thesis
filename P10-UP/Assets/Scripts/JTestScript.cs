@@ -39,7 +39,7 @@ public class JTestScript : MonoBehaviour
             {
                 if (portals[i].GetForwardStencilValue() == stencilMaterialIterator - 1)
                 {
-                    CustomUtilities.UpdateShaderMatrix(materialObjects[roomIndex], portals[i].GetTransform());
+                    //CustomUtilities.UpdateShaderMatrix(materialObjects[roomIndex], portals[i].GetTransform());
                     Debug.Log("Changed stencil value for portal to " + stencilMaterialIterator);
                     break;
                 }
@@ -68,8 +68,8 @@ public class JTestScript : MonoBehaviour
             CustomUtilities.UpdateRoomStencil(maskObjects[roomIndex], stencilMaskIterator);
         }
 
-        CustomUtilities.UpdateShaderMatrix(objectsInRooms[0], portals[0].GetTransform());
-        CustomUtilities.UpdateShaderMatrix(objectsInRooms[1], portals[0].GetTransform());
+        //CustomUtilities.UpdateShaderMatrix(objectsInRooms[0], portals[0].GetTransform());
+        //CustomUtilities.UpdateShaderMatrix(objectsInRooms[1], portals[0].GetTransform());
 
     }
 }

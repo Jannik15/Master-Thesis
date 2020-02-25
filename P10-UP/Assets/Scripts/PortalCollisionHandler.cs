@@ -19,11 +19,10 @@ public class PortalCollisionHandler : MonoBehaviour
         {
             thisPortal = portalCollider.GetComponent<Portal>(); 
 
-            Debug.Log("Entered a portal");
             thisPortal.SwitchActiveSubPortal();
 
 
-            // TODO: Switch the world here
+            // Switch world
             proceduralLayout.SwitchWorld(thisPortal);
         }
     }
@@ -32,16 +31,16 @@ public class PortalCollisionHandler : MonoBehaviour
     {
         if (portalCollider.CompareTag("Portal"))
         {
-            Debug.Log("Exited a portal");
             thisPortal.SwitchActiveSubPortal();
             Vector3 offset = transform.position - portalCollider.transform.position;
             if (Vector3.Dot(offset, portalCollider.transform.forward) > 0.0f) // Correctly exited portal
             {
                 thisPortal.SetActive(false);
+                thisPortal.GetConnectedPortal().SetActive(true);
             }
             else // Incorrectly exited the portal, revert changes made OnTriggerEnter
             {
-
+                proceduralLayout.UndoSwitchWorld();
             }
         }
     }

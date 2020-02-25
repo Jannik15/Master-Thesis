@@ -2,24 +2,20 @@
 
 public class Portal : MonoBehaviour
 {
-    private GameObject connectedRoom;
-    private GameObject portal;
+    [SerializeField] private GameObject connectedRoom;
+    [SerializeField] private GameObject connectedPortal;
     private GameObject forwardPortal, backwardPortal;
     private int forwardStencilValue, backwardStencilValue;
     private Renderer[] portalForwardMasks, portalBackwardMasks;
+    [SerializeField] private int portalId;
 
-    /// <summary>
-    /// Initialize Portal object by assigning stencil values to its forward and backward masks.
-    /// During this initialization, the masks are exposed and can be retrieved with GetForward(or Backward)Masks(),
-    /// and the stencil values can be assigned using SetPortalStencils().
-    /// </summary>
-    /// <param name="portal"></param>
-    public Portal(GameObject portal, GameObject connectedRoom)
+    public void AssignValues(GameObject connectedRoom, GameObject connectedPortal, int portalId)
     {
-        this.portal = portal;
         this.connectedRoom = connectedRoom;
+        this.connectedPortal = connectedPortal;
+        this.portalId = portalId;
 
-        Transform portalTransform = portal.transform;
+        Transform portalTransform = gameObject.transform;
         for (int i = 0; i < portalTransform.childCount; i++)
         {
             GameObject child = portalTransform.GetChild(i).gameObject;
@@ -36,16 +32,6 @@ public class Portal : MonoBehaviour
         }
     }
 
-    public GameObject GetPortal()
-    {
-        return portal;
-    }
-
-    public Transform GetTransform()
-    {
-        return portal.transform;
-    }
-
     public int GetForwardStencilValue()
     {
         return forwardStencilValue;
@@ -60,6 +46,10 @@ public class Portal : MonoBehaviour
     {
         return connectedRoom;
     }
+    public GameObject GetConnectedPortal()
+    {
+        return connectedPortal;
+    }
 
     public Renderer[] GetForwardMasks()
     {
@@ -73,7 +63,7 @@ public class Portal : MonoBehaviour
 
     public void SetActive(bool portal)
     {
-        this.portal.SetActive(portal);
+        this.gameObject.SetActive(portal);
         if (backwardPortal.activeSelf)
         {
             forwardPortal.SetActive(true);
