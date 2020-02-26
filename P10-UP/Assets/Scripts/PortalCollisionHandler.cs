@@ -17,6 +17,7 @@ public class PortalCollisionHandler : MonoBehaviour
     {
         if (portalCollider.CompareTag("Portal"))
         {
+            Debug.Log("Entered collider");
             thisPortal = portalCollider.GetComponent<Portal>(); 
 
             thisPortal.SwitchActiveSubPortal();
@@ -31,6 +32,7 @@ public class PortalCollisionHandler : MonoBehaviour
     {
         if (portalCollider.CompareTag("Portal"))
         {
+            Debug.Log("Exited collider");
             thisPortal.SwitchActiveSubPortal();
             Vector3 offset = transform.position - portalCollider.transform.position;
             if (Vector3.Dot(offset, portalCollider.transform.forward) > 0.0f) // Correctly exited portal
