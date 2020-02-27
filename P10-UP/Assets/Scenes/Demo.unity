@@ -351,12 +351,6 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 4b094dc35c82e1b49ad1db546b125350, type: 3}
---- !u!4 &613312722 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 9166948171861680882, guid: 3a9064795fb6a8e43ac24a5669b62d7c,
-    type: 3}
-  m_PrefabInstance: {fileID: 9166948171399891488}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &651172090
 GameObject:
   m_ObjectHideFlags: 0
@@ -564,68 +558,6 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: dfc971848a6a7764fafa6c5a9a0bb0b1, type: 3}
---- !u!1 &976978942
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 976978943}
-  - component: {fileID: 976978945}
-  - component: {fileID: 976978944}
-  m_Layer: 0
-  m_Name: PortalCollisionHandler
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &976978943
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 976978942}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
-  m_Father: {fileID: 613312722}
-  m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &976978944
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 976978942}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: dcdefb9c5ff8e4a429bbf2376c7447a0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!143 &976978945
-CharacterController:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 976978942}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Height: 0.05
-  m_Radius: 0.05
-  m_SlopeLimit: 45
-  m_StepOffset: 0.3
-  m_SkinWidth: 0.08
-  m_MinMoveDistance: 0.001
-  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1001 &1326562013
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -869,16 +801,6 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: VrPlayer
-      objectReference: {fileID: 0}
-    - target: {fileID: 9166948172951206549, guid: 3a9064795fb6a8e43ac24a5669b62d7c,
-        type: 3}
-      propertyPath: m_IsActive
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 9166948172951206553, guid: 3a9064795fb6a8e43ac24a5669b62d7c,
-        type: 3}
-      propertyPath: m_Enabled
-      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 9166948172951206554, guid: 3a9064795fb6a8e43ac24a5669b62d7c,
         type: 3}

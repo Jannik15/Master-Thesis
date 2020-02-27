@@ -1,11 +1,10 @@
 ﻿using System.Collections.Generic;
-using ICSharpCode.NRefactory.Ast;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 public class GridEditor : EditorWindow
 {
-    // TODO:    - Assign data to tiles upon generation (and grid?) (Talk with thomas first)
     // TODO:    - Walkable bool (how to represent?)
     // TODO:    - Add bool for changing materials with selection from the container, or just the entire library
     // TODO:    - Button for creating a new grid while in the grid designer (Go back functionality)
@@ -44,6 +43,11 @@ public class GridEditor : EditorWindow
         window.minSize = new Vector2(250, 240);
         window.titleContent = new GUIContent("Grid Editor");
         buttonParams = new[] {GUILayout.Width(buttonSize.x), GUILayout.Height(buttonSize.y)};
+    }
+
+    private void OnEnable()
+    {
+        rootVisualElement.RegisterCallback<MouseDownEvent>(OnMouseDown);
     }
 
     private void OnInspectorUpdate()
@@ -169,6 +173,8 @@ public class GridEditor : EditorWindow
     private void DrawGrid()
     {
         /// Detect if a tile has been clicked 
+        
+        
         currentEvent = Event.current;
         if (currentEvent.type == EventType.MouseDown && currentEvent.button == 0 || currentEvent.button == 1) // TODO: Make right click work as dropdown
         {
@@ -246,6 +252,58 @@ public class GridEditor : EditorWindow
         {
             ReturnToGridOptions();
         }
+    }
+
+    private void HandleMouseClick()
+    {
+
+    }
+    private void HandleLeftClick()
+    {
+
+    }
+
+    private void OnMouseDown(MouseDownEvent mouseEvent)
+    {
+        if (mouseEvent.button == 0) // Left click to select the tile
+        {
+
+        }
+        else if (mouseEvent.button == 1) // Right click to create dropdown menu of tile options for that tile
+        {
+
+        }
+    }
+
+    private void HandleRightClick(MouseUpEvent evt)
+    {
+        if (evt.button != (int)MouseButton.RightMouse)
+            return;
+
+        var targetElement = evt.target as VisualElement;
+        if (targetElement == null)
+            return;
+
+        var menu = new GenericMenu();
+
+        int menuItemValue = 5;
+
+        // Add a single menu item
+        bool isSelected = true;
+        menu.AddItem(new GUIContent("some menu item name"), isSelected,
+            value => ChangeValueFromMenu(value),
+            menuItemValue);
+
+        // Get position of menu on top of target element.
+        var menuPosition = new Vector2(targetElement.layout.xMin, targetElement.layout.height);
+        var menuRect = new Rect(menuPosition, Vector2.zero);
+
+        menu.DropDown(menuRect);
+    }
+
+    private void ChangeValueFromMenu(object menuItem)
+    {
+        //doSomethingWithValue(menuItem as int);
     }
 
     private void ReturnToGridOptions() // BUG: Event error reappears using this method
