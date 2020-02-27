@@ -5,7 +5,13 @@ using UnityEngine;
 public class ObjectSpawner : MonoBehaviour
 {
     public GameObject ball;
+    public float shootForce = 1.0f;
     [SerializeField] private MaterialContainer materials;
+
+   void Start(){
+
+
+   }        
 
     void Update () {
 
@@ -16,11 +22,11 @@ public class ObjectSpawner : MonoBehaviour
         }
         if (OVRInput.Get(OVRInput.Button.Two))
         {
-            Spawning();
+            Shooting();
         }
         if (Input.GetKeyDown(KeyCode.O)) 
         {
-            Spawning();
+            Shooting();
         }
     }
 
@@ -30,7 +36,24 @@ public class ObjectSpawner : MonoBehaviour
         if (materials.materials.Length > 0)
         {
             Renderer ballRenderer = newBall.GetComponent<Renderer>();
-            ballRenderer.material = materials.materials[Random.Range(0, materials.materials.Length)];
+            ballRenderer.material = materials.materials[Random.Range(0, materials.materials.Length)];         
         }
     }
+
+    private void Shooting()
+    {
+        GameObject newBall = Instantiate(ball, transform.position, transform.rotation);
+        Rigidbody rb = newBall.GetComponent<Rigidbody>();
+    
+        if (materials.materials.Length > 0)
+        {
+            Renderer ballRenderer = newBall.GetComponent<Renderer>();
+            ballRenderer.material = materials.materials[Random.Range(0, materials.materials.Length)];
+            if (rb != null)
+                rb.AddForce(transform.forward * shootForce);            
+        }
+    }
+
+
 }
+
