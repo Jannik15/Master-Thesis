@@ -2,6 +2,7 @@
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
+using UnityEditor.Experimental.UIElements;
 
 public class GridEditor : EditorWindow
 {
@@ -13,7 +14,7 @@ public class GridEditor : EditorWindow
     // TODO:    - Cleanup code 
 
     private Grid grid;
-    private TileGeneration selectedTile;
+    private static TileGeneration selectedTile;
     private int selectedTileNum = 0;
     private TileGeneration[,] gridTiles;
     private List<TileGeneration> gridTilesList = new List<TileGeneration>();
@@ -47,7 +48,7 @@ public class GridEditor : EditorWindow
 
     private void OnEnable()
     {
-        rootVisualElement.RegisterCallback<MouseDownEvent>(OnMouseDown);
+        rootVisualElement.RegisterCallback<MouseDownEvent>(OnMouseClick);
     }
 
     private void OnInspectorUpdate()
@@ -60,20 +61,20 @@ public class GridEditor : EditorWindow
 
     private void OnGUI()
     {
-        if (!_guiInit) /// GUI Variables have not been initialized
+        if (!_guiInit) // GUI Variables have not been initialized
         {
             textCenteringStyle = new GUIStyle(GUI.skin.label) { alignment = TextAnchor.MiddleCenter };
             _guiInit = true;
         }
 
-        /// Variables that can change during use
+        // Variables that can change during use
         screenMiddle = new Vector2(position.width / 2.0f, position.height / 2.0f);
         
-        if (!_gridDesign) /// Paint grid generation menu
+        if (!_gridDesign) // Paint grid generation menu
         {
             DrawGridOptionsPanel();
         }
-        else if (grid == null) /// Paint grid editor
+        else if (grid == null) // Paint grid editor
         {
             grid = new Grid(gridDimensions.x, gridDimensions.y, cellSize);
             materials = new List<Material>();
@@ -118,11 +119,11 @@ public class GridEditor : EditorWindow
         Vector2 matContainerSize = new Vector2(335, 20);
         baseMaterialContainer = (MaterialContainer)EditorGUI.ObjectField(new Rect(screenMiddle-matContainerSize/2 - new Vector2(0,70), matContainerSize), "Add a Material container:", baseMaterialContainer, typeof(MaterialContainer));
         
-        /// Grid input
+        // Grid input
         gridDimensions = EditorGUI.Vector2IntField(new Rect(screenMiddle - new Vector2(110, 100) / 2, new Vector2(110, 15)), "Grid dimensions:", 
             new Vector2Int(Mathf.Clamp(gridDimensions.x,0,10),Mathf.Clamp(gridDimensions.y,0,10))); // Clamped to max 10
 
-        /// Tile size input
+        // Tile size input
         Vector2 tileSize = new Vector2(110, 30);
         GUILayout.BeginArea(new Rect(screenMiddle - tileSize / 2 + new Vector2(0, tileSize.y / 2), new Vector2(tileSize.x, 160)));
         GUILayout.BeginHorizontal();
@@ -131,7 +132,7 @@ public class GridEditor : EditorWindow
         GUILayout.EndHorizontal();
         GUILayout.EndArea();
 
-        /// Button
+        // Button
         GUILayout.BeginArea(new Rect(screenMiddle - buttonSize / 2 + new Vector2(0, buttonSize.y / 2), new Vector2(buttonSize.x, 160)));
         GUILayout.Space(30);
         if (baseMaterialContainer != null)
@@ -172,28 +173,20 @@ public class GridEditor : EditorWindow
 
     private void DrawGrid()
     {
-        /// Detect if a tile has been clicked 
-        
-        
-        currentEvent = Event.current;
-        if (currentEvent.type == EventType.MouseDown && currentEvent.button == 0 || currentEvent.button == 1) // TODO: Make right click work as dropdown
+        /// Detect if a tile has been clicked
+        if (Event.current.type == EventType.MouseUp)
         {
-            for (int i = 0; i < tileRectangles.Count; i++)
+            MouseUpEvent mouseEvent = MouseUpEvent.GetPooled(Event.current);
+            if (mouseEvent != null)
             {
-                if (tileRectangles[i].Contains(currentEvent.mousePosition))
-                {
-                    selectedTileNum = i;
-                    selectedTile = gridTilesList[i];
-                    currentEvent.Use();
-                }
+                OnMouseClick(mouseEvent);
             }
         }
-
 
         Vector2 matContainerSize = new Vector2(335, 20);
         manualMaterialContainer = (MaterialContainer)EditorGUI.ObjectField(new Rect(screenMiddle - matContainerSize / 2 - new Vector2(0, 200), matContainerSize), "Material container:", manualMaterialContainer, typeof(MaterialContainer));
 
-        /// Area for Buttons for saving or instantiating the Grid, and selected tile options
+        // Area for Buttons for saving or instantiating the Grid, and selected tile options
         Vector2 areaSize = new Vector2(200, 300);
         GUILayout.BeginArea(new Rect(screenMiddle - areaSize / 2 - new Vector2(300, 0), areaSize));
         if (selectedTile != null)
@@ -233,7 +226,7 @@ public class GridEditor : EditorWindow
         }
         GUILayout.EndArea();
 
-        /// Draw grid tiles with their respective materials and types
+        // Draw grid tiles with their respective materials and types
         tileRectangles.Clear();
         for (int x = 0; x < gridTiles.GetLength(0); x++)
         {
@@ -247,7 +240,7 @@ public class GridEditor : EditorWindow
             }
         }
 
-        /// Return to option menu
+        // Return to options menu
         if (_reset)
         {
             ReturnToGridOptions();
@@ -263,18 +256,60 @@ public class GridEditor : EditorWindow
 
     }
 
-    private void OnMouseDown(MouseDownEvent mouseEvent)
+    private void OnMouseClick(MouseDownEvent mouseEvent)
     {
         if (mouseEvent.button == 0) // Left click to select the tile
         {
-
+            for (int i = 0; i < tileRectangles.Count; i++)
+            {
+                if (tileRectangles[i].Contains(mouseEvent.mousePosition))
+                {
+                    selectedTileNum = i;
+                    selectedTile = gridTilesList[i];
+                }
+            }
         }
         else if (mouseEvent.button == 1) // Right click to create dropdown menu of tile options for that tile
         {
-
+            for (int i = 0; i < tileRectangles.Count; i++)
+            {
+                if (tileRectangles[i].Contains(mouseEvent.mousePosition))
+                {
+                    selectedTileNum = i;
+                    selectedTile = gridTilesList[i];
+                }
+            }
+            Debug.Log("Right click registered!");
+            CustomDropDown.Show(this, mouseEvent.mousePosition, selectedTile);
         }
     }
 
+    private void OnMouseClick(MouseUpEvent mouseEvent)
+    {
+        if (mouseEvent.button == 0) // Left click to select the tile
+        {
+            for (int i = 0; i < tileRectangles.Count; i++)
+            {
+                if (tileRectangles[i].Contains(mouseEvent.mousePosition))
+                {
+                    selectedTileNum = i;
+                    selectedTile = gridTilesList[i];
+                }
+            }
+        }
+        else if (mouseEvent.button == 1) // Right click to create dropdown menu of tile options for that tile
+        {
+            for (int i = 0; i < tileRectangles.Count; i++)
+            {
+                if (tileRectangles[i].Contains(mouseEvent.mousePosition))
+                {
+                    selectedTileNum = i;
+                    selectedTile = gridTilesList[i];
+                }
+            }
+            CustomDropDown.Show(this, mouseEvent.mousePosition, selectedTile);
+        }
+    }
     private void HandleRightClick(MouseUpEvent evt)
     {
         if (evt.button != (int)MouseButton.RightMouse)
@@ -306,6 +341,11 @@ public class GridEditor : EditorWindow
         //doSomethingWithValue(menuItem as int);
     }
 
+    public static void SetSelectedTileType(TileGeneration.TileType newType)
+    {
+        selectedTile.SetTileType(newType);
+    }
+
     private void ReturnToGridOptions() // BUG: Event error reappears using this method
     {
         tileRectangles.Clear();
@@ -315,5 +355,55 @@ public class GridEditor : EditorWindow
         gridTilesList.Clear();
         _gridDesign = false;
         _reset = false;
+    }
+}
+
+class CustomDropDown : EditorWindow
+{
+    static Vector2 s_DefaultSize = new Vector2(100,23 * 5);
+    private static TileGeneration.TileType _startingType, _selectedType;
+    private static EditorWindow hostWindow;
+    public static void Show(EditorWindow host, Vector2 displayPosition, TileGeneration selectedTile)
+    {
+        _selectedType = selectedTile.GetTileType();
+        _startingType = _selectedType;
+        hostWindow = host;
+        var window = CreateInstance<CustomDropDown>();
+        var position = GetPosition(host, displayPosition);
+        window.position = new Rect(position + host.position.position, s_DefaultSize);
+        window.ShowPopup();
+        window.Focus();
+    }
+
+    private static Vector2 GetPosition(EditorWindow host, Vector2 displayPosition)
+    {
+        var x = displayPosition.x;
+        var y = displayPosition.y;
+
+        // Searcher overlaps with the right boundary.
+        if (x + s_DefaultSize.x >= host.position.size.x)
+            x -= s_DefaultSize.x;
+
+        // Searcher overlaps with the bottom boundary.
+        if (y + s_DefaultSize.y >= host.position.size.y)
+            y -= s_DefaultSize.y;
+
+        return new Vector2(x, y);
+    }
+
+    private void OnGUI()
+    {
+        if (focusedWindow != this)
+        {
+            this.Close();
+        }
+        _selectedType = (TileGeneration.TileType)EditorGUILayout.EnumPopup("", _selectedType);
+
+        if (_selectedType != _startingType)
+        {
+            GridEditor.SetSelectedTileType(_selectedType);
+            GetWindow(typeof(GridEditor)).Focus();
+            this.Close();
+        }
     }
 }

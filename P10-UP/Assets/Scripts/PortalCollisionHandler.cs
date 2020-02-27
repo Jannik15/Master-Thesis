@@ -21,7 +21,6 @@ public class PortalCollisionHandler : MonoBehaviour
 
             thisPortal.SwitchActiveSubPortal();
 
-
             // Switch world
             proceduralLayout.SwitchWorld(thisPortal);
         }
