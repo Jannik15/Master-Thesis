@@ -1,8 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
 using UnityEditor.Experimental.UIElements;
+using Random = UnityEngine.Random;
 
 public class GridEditor : EditorWindow
 {
@@ -36,8 +38,15 @@ public class GridEditor : EditorWindow
     private static GUILayoutOption[] buttonParams = new GUILayoutOption[2]; 
     private static GUIStyle textCenteringStyle;
     private Event currentEvent;
+    private int leftClickDragSelection, leftClickDragTileTypeIndex, leftClickDragIsWalkableSelection;
+    private TileGeneration.TileType leftClickDragTileType;
+    private bool leftClickDragIsWalkable;
+    private Material leftClickDragMaterial;
+    private string[] leftClickDragLabels = { "Empty", "Tile Type", "Is Walkable", "Material" };
+    private string[] tileTypeLabels = Enum.GetNames(typeof(TileGeneration.TileType));
+    private string[] boolValuesAsLabels = { "True", "False"};
 
-     [MenuItem("Tools/Grid Editor", false, 10)]
+    [MenuItem("Tools/Grid Editor", false, 10)]
     private static void OpenWindow()
     {
         GridEditor window = GetWindow<GridEditor>();
@@ -45,12 +54,6 @@ public class GridEditor : EditorWindow
         window.titleContent = new GUIContent("Grid Editor");
         buttonParams = new[] {GUILayout.Width(buttonSize.x), GUILayout.Height(buttonSize.y)};
     }
-
-    private void OnEnable()
-    {
-        rootVisualElement.RegisterCallback<MouseDownEvent>(OnMouseClick);
-    }
-
     private void OnInspectorUpdate()
     {
         if (focusedWindow == this && mouseOverWindow == this)
@@ -183,12 +186,51 @@ public class GridEditor : EditorWindow
             }
         }
 
+        if (Event.current.type == EventType.MouseDrag && Event.current.button == 0)
+        {
+            MouseMoveEvent mouseDragEvent = MouseMoveEvent.GetPooled(Event.current);
+            if (mouseDragEvent != null)
+            {
+                OnMouseLeftClickDrag(mouseDragEvent);
+            }
+        }   
+
         Vector2 matContainerSize = new Vector2(335, 20);
         manualMaterialContainer = (MaterialContainer)EditorGUI.ObjectField(new Rect(screenMiddle - matContainerSize / 2 - new Vector2(0, 200), matContainerSize), "Material container:", manualMaterialContainer, typeof(MaterialContainer));
 
+        Vector2 areaSizeLeft = new Vector2(150, 300);
+        GUILayout.BeginArea(new Rect(screenMiddle - areaSizeLeft / 2 - new Vector2(300, 0), areaSizeLeft));
+        GUILayout.Label("Left-click drag selection");
+        leftClickDragSelection = GUILayout.SelectionGrid(leftClickDragSelection, leftClickDragLabels, 1);
+
+        switch (leftClickDragSelection)
+        {
+            case 0:
+                break;  
+            case 1:
+                leftClickDragTileTypeIndex = GUILayout.SelectionGrid(leftClickDragTileTypeIndex, tileTypeLabels, 1, EditorStyles.radioButton, new GUILayoutOption[] { GUILayout.Width(75 * tileTypeLabels.Length) });
+                leftClickDragTileType = (TileGeneration.TileType)leftClickDragTileTypeIndex;
+                break;
+            case 2:
+                leftClickDragIsWalkableSelection = GUILayout.SelectionGrid(leftClickDragIsWalkableSelection, boolValuesAsLabels, boolValuesAsLabels.Length, EditorStyles.radioButton);
+                if (leftClickDragIsWalkableSelection == 0)
+                {
+                    leftClickDragIsWalkable = true;
+                }
+                else
+                {
+                    leftClickDragIsWalkable = false;
+                }
+                break;
+            case 3: // TODO: Also add only select materials from currently selected materialContainer
+                EditorGUIUtility.labelWidth = 50;
+                leftClickDragMaterial = (Material)EditorGUILayout.ObjectField("Material:", leftClickDragMaterial, typeof(Material), new GUILayoutOption[] { GUILayout.ExpandWidth(true)});
+                break;
+        }
+        GUILayout.EndArea();
         // Area for Buttons for saving or instantiating the Grid, and selected tile options
-        Vector2 areaSize = new Vector2(200, 300);
-        GUILayout.BeginArea(new Rect(screenMiddle - areaSize / 2 - new Vector2(300, 0), areaSize));
+        Vector2 areaSizeRight = new Vector2(200, 300);
+        GUILayout.BeginArea(new Rect(screenMiddle - areaSizeRight / 2 + new Vector2(300, 0), areaSizeRight));
         if (selectedTile != null)
         {
             GUILayout.Label("Tile " + selectedTileNum + ": [" + selectedTile.GetCoordinates().x + "," + selectedTile.GetCoordinates().y + "]");
@@ -247,40 +289,27 @@ public class GridEditor : EditorWindow
         }
     }
 
-    private void HandleMouseClick()
+    private void OnMouseLeftClickDrag(MouseMoveEvent mouseDragEvent)
     {
-
-    }
-    private void HandleLeftClick()
-    {
-
-    }
-
-    private void OnMouseClick(MouseDownEvent mouseEvent)
-    {
-        if (mouseEvent.button == 0) // Left click to select the tile
+        for (int i = 0; i < tileRectangles.Count; i++)
         {
-            for (int i = 0; i < tileRectangles.Count; i++)
+            if (tileRectangles[i].Contains(mouseDragEvent.mousePosition))
             {
-                if (tileRectangles[i].Contains(mouseEvent.mousePosition))
+                switch (leftClickDragSelection)
                 {
-                    selectedTileNum = i;
-                    selectedTile = gridTilesList[i];
+                    case 0:
+                        break;
+                    case 1:
+                        gridTilesList[i].SetTileType(leftClickDragTileType);
+                        break;
+                    case 2:
+                        gridTilesList[i].SetWalkable(leftClickDragIsWalkable);
+                        break;
+                    case 3:
+                        gridTilesList[i].AssignMaterial(leftClickDragMaterial);
+                        break;
                 }
             }
-        }
-        else if (mouseEvent.button == 1) // Right click to create dropdown menu of tile options for that tile
-        {
-            for (int i = 0; i < tileRectangles.Count; i++)
-            {
-                if (tileRectangles[i].Contains(mouseEvent.mousePosition))
-                {
-                    selectedTileNum = i;
-                    selectedTile = gridTilesList[i];
-                }
-            }
-            Debug.Log("Right click registered!");
-            CustomDropDown.Show(this, mouseEvent.mousePosition, selectedTile);
         }
     }
 
