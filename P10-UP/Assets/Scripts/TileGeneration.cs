@@ -70,7 +70,7 @@ public class TileGeneration
         return material;
     }
 
-    public void InstantiateTile(Transform parent)
+    public Tile InstantiateTile(Transform parent)
     {
         GameObject gameObject = GameObject.CreatePrimitive(PrimitiveType.Quad);
 
@@ -97,5 +97,6 @@ public class TileGeneration
         gameObject.AddComponent<Tile>();
         Tile objectTile = gameObject.GetComponent<Tile>();
         objectTile.AssignAllValues(isWalkable, tileType);
+        return objectTile;
     }
 }

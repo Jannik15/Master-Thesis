@@ -8,14 +8,12 @@ using Random = UnityEngine.Random;
 
 public class GridEditor : EditorWindow
 {
-    // TODO:    - Walkable bool (how to represent?)
     // TODO:    - Add bool for changing materials with selection from the container, or just the entire library
-    // TODO:    - Button for creating a new grid while in the grid designer (Go back functionality)
     // TODO:    - Window resizing (empty space on the right side)
     // TODO:    - Loading a grid??? monkaS
     // TODO:    - Cleanup code 
 
-    private Grid grid;
+    private GridGeneration grid;
     private static TileGeneration selectedTile;
     private int selectedTileNum = 0;
     private TileGeneration[,] gridTiles;
@@ -79,7 +77,7 @@ public class GridEditor : EditorWindow
         }
         else if (grid == null) // Paint grid editor
         {
-            grid = new Grid(gridDimensions.x, gridDimensions.y, cellSize);
+            grid = new GridGeneration(gridDimensions.x, gridDimensions.y, cellSize);
             materials = new List<Material>();
             tileSize = cellSize * 100;
             if (baseMaterialContainer != null)
@@ -124,7 +122,7 @@ public class GridEditor : EditorWindow
         
         // Grid input
         gridDimensions = EditorGUI.Vector2IntField(new Rect(screenMiddle - new Vector2(110, 100) / 2, new Vector2(110, 15)), "Grid dimensions:", 
-            new Vector2Int(Mathf.Clamp(gridDimensions.x,0,10),Mathf.Clamp(gridDimensions.y,0,10))); // Clamped to max 10
+            new Vector2Int(Mathf.Clamp(gridDimensions.x,0,25),Mathf.Clamp(gridDimensions.y,0,25))); // Clamped to max 10
 
         // Tile size input
         Vector2 tileSize = new Vector2(110, 30);
@@ -277,7 +275,10 @@ public class GridEditor : EditorWindow
                 Rect rect = new Rect(screenMiddle.x - (gridTiles.GetLength(0) / 2.0f * tileSize) + x * tileSize, screenMiddle.y - (gridTiles.GetLength(1) / 2.0f * tileSize) + y * tileSize, tileSize, tileSize);
                 EditorGUI.DrawPreviewTexture(rect, gridTiles[x, y].GetMaterialTexture());
                 EditorGUI.LabelField(rect, gridTiles[x,y].GetTileType().ToString(), textCenteringStyle);
-
+                if (!gridTiles[x, y].IsWalkable())
+                {
+                    EditorGUI.DrawRect(new Rect(screenMiddle.x - (gridTiles.GetLength(0) / 2.0f * tileSize) + x * tileSize + tileSize * 0.4f, screenMiddle.y - (gridTiles.GetLength(1) / 2.0f * tileSize) + y * tileSize, tileSize * 0.2f, tileSize * 0.2f), Color.red);
+                }
                 tileRectangles.Add(rect);
             }
         }
@@ -339,43 +340,13 @@ public class GridEditor : EditorWindow
             CustomDropDown.Show(this, mouseEvent.mousePosition, selectedTile);
         }
     }
-    private void HandleRightClick(MouseUpEvent evt)
-    {
-        if (evt.button != (int)MouseButton.RightMouse)
-            return;
-
-        var targetElement = evt.target as VisualElement;
-        if (targetElement == null)
-            return;
-
-        var menu = new GenericMenu();
-
-        int menuItemValue = 5;
-
-        // Add a single menu item
-        bool isSelected = true;
-        menu.AddItem(new GUIContent("some menu item name"), isSelected,
-            value => ChangeValueFromMenu(value),
-            menuItemValue);
-
-        // Get position of menu on top of target element.
-        var menuPosition = new Vector2(targetElement.layout.xMin, targetElement.layout.height);
-        var menuRect = new Rect(menuPosition, Vector2.zero);
-
-        menu.DropDown(menuRect);
-    }
-
-    private void ChangeValueFromMenu(object menuItem)
-    {
-        //doSomethingWithValue(menuItem as int);
-    }
 
     public static void SetSelectedTileType(TileGeneration.TileType newType)
     {
         selectedTile.SetTileType(newType);
     }
 
-    private void ReturnToGridOptions() // BUG: Event error reappears using this method
+    private void ReturnToGridOptions()
     {
         tileRectangles.Clear();
         materials.Clear();
