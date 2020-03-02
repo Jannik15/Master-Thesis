@@ -22,7 +22,7 @@ public class SimpleShoot : MonoBehaviour
 
     void Update()
     {
-        if (OVRInput.GetDown(OVRInput.Button.One))
+        if (OVRInput.GetDown(OVRInput.RawButton.RIndexTrigger))
         {
             GetComponent<Animator>().SetTrigger("Fire");
         }
