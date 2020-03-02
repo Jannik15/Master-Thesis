@@ -16,7 +16,8 @@ public class Tile : MonoBehaviour
         this.type = type;
         position = new Vector2(transform.position.x, transform.position.z);
         cellSize = transform.lossyScale.x;
-        material = GetComponent<Renderer>().sharedMaterial;
+        if (GetComponent<Renderer>() != null)
+            material = GetComponent<Renderer>().sharedMaterial;
     }
 
     public TileGeneration.TileType GetTileType()

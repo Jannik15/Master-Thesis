@@ -44,10 +44,20 @@ public class TileGeneration
             //material
         }
     }
-    
+
     public void AssignMaterial(Material material)
     {
         this.material = material;
+    }
+
+    public bool IsWalkable()
+    {
+        return isWalkable;
+    }
+
+    public void SetWalkable(bool isWalkable)
+    {
+        this.isWalkable = isWalkable;
     }
 
     public Texture GetMaterialTexture()
