@@ -20,14 +20,6 @@ public class ObjectSpawner : MonoBehaviour
         {
             Spawning();
         }
-        if (OVRInput.Get(OVRInput.Button.Two))
-        {
-            Shooting();
-        }
-        if (Input.GetKeyDown(KeyCode.O)) 
-        {
-            Shooting();
-        }
     }
 
     private void Spawning()
