@@ -2,56 +2,61 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Grid
+public class Grid : MonoBehaviour
 {
-    private TileGeneration[,] tiles;
-    private int gridSizeX, gridSizeY;
-    private float cellSize;
+    private Tile[,] tiles;
+    [SerializeField] private int xTiles, yTiles;
+    [SerializeField] private List<Tile> tileList;
 
-    public Grid(int gridSizeX, int gridSizeY, float cellSize)
+    private void Awake()
     {
-        this.gridSizeX = gridSizeX;
-        this.gridSizeY = gridSizeY;
-        this.cellSize = cellSize;
-        tiles = new TileGeneration[gridSizeX, gridSizeY];
-
-        for (int i = 0; i < tiles.GetLength(0); i++)
+        if (tiles == null)
         {
-            float x = cellSize / 2.0f - gridSizeX / 2.0f * cellSize + i * cellSize;
-            for (int j = 0; j < tiles.GetLength(1); j++)
+            tiles = new Tile[xTiles,yTiles];
+            int iterator = 0;
+            for (int x = 0; x < xTiles; x++)
             {
-                float y = cellSize / 2.0f - gridSizeY / 2.0f * cellSize + j * cellSize;
-                tiles[i, j] = new TileGeneration(cellSize, new Vector2(x, y));
+                for (int y = 0; y < yTiles; y++)
+                {
+                    tiles[x, y] = tileList[iterator];
+                    Debug.Log(tiles[x,y].GetPosition());
+                    iterator++;
+                }
             }
         }
     }
 
-    public GameObject GetGrid(string gridName)
+    public void Initialize(Tile[,] tiles)
     {
-        GameObject gridObject = new GameObject(gridName);
-        foreach (TileGeneration tile in tiles)
+        this.tiles = tiles;
+        xTiles = tiles.GetLength(0);
+        yTiles = tiles.GetLength(1);
+        tileList = new List<Tile>();
+        for (int x = 0; x < tiles.GetLength(0); x++)
         {
-            tile.InstantiateTile(gridObject.transform);
-        }
-        return gridObject;
-    }
-
-    public void InstantiateGrid()
-    {
-        GameObject gridObject = new GameObject("Grid");
-        foreach (TileGeneration tile in tiles)
-        {
-            tile.InstantiateTile(gridObject.transform);
+            for (int y = 0; y < tiles.GetLength(1); y++)
+            {
+                tileList.Add(tiles[x,y]);
+            }
         }
     }
 
-    public TileGeneration GetTile(int x, int y)
+    public Tile[,] GetTilesAsArray()
+    {
+        return tiles;
+    }
+    public List<Tile> GetTilesAsList()
+    {
+        return tileList;
+    }
+
+    public Tile GetTile(int x, int y)
     {
         return tiles[x, y];
     }
 
-    public TileGeneration[,] GetAllTiles()
+    public Tile GetTile(int i)
     {
-        return tiles;
+        return tileList[i];
     }
 }

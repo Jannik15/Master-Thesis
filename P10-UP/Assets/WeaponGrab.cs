@@ -10,7 +10,6 @@ public class WeaponGrab : MonoBehaviour
     OVRGrabber oVRGrabber;
     SimpleShoot simpleShoot;
     Rigidbody rb;
-    public Camera camera;
     public Shader highlightMaterial;
     private bool holdingGunRight = false;
     private bool holdingGunLeft = false;

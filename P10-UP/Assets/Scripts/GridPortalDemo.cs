@@ -10,18 +10,25 @@ public class GridPortalDemo : MonoBehaviour
     [SerializeField] private GameObject portalPrefab;
     public List<Portal> portals = new List<Portal>();
     public List<GameObject> rooms = new List<GameObject>();
+    public List<GameObject> grids;
+    public GameObject startingGrid;
     public GameObject currentRoom, previousRoom; // Functions as the index in rooms, tracking which room the player is in
     private List<Tile> roomTiles = new List<Tile>(), otherRoomTiles = new List<Tile>();
     private List<Tile> portalTiles = new List<Tile>(), otherPortalTiles = new List<Tile>();
     private List<Vector2> possiblePortalPositions = new List<Vector2>();
-    private Vector2 portalPlacement;
     private int roomIterator, portalIterator;
 
-    private void Start()
+    private void Start() // To uncomment a demo block, simply put a '/' in front of the '/*'
     {
+        /* Demo 1
         GameObject[] roomPrefabs = Resources.LoadAll<GameObject>("Grids/");
         ProcedurallyLinearlyGenerateRooms(roomPrefabs);
         currentRoom = rooms[0];
+        //*/
+
+        //* Demo 2
+        ProcedurallyGenerateRooms(grids);
+        //*/
     }
 
     private void ProcedurallyLinearlyGenerateRooms(GameObject[] allRooms)
@@ -132,6 +139,19 @@ public class GridPortalDemo : MonoBehaviour
             {
                 portals[j].SetActive(false);
             }
+        }
+    }
+
+    private void ProcedurallyGenerateRooms(List<GameObject> grids)
+    {
+        // TODO: Add grids randomly only add grids if they have portal tiles corresponding to previous grid, then place portals and do the connection.
+        // TODO: Look at defining portal zones. If 3+ Zones, try creating another path, try diverging in the generation
+        int gridLength = grids.Count;
+        for (int i = 0; i < gridLength; i++)
+        {
+            int index = Random.Range(0, grids.Count);
+            Instantiate(grids[index]);
+            grids.RemoveAt(index);
         }
     }
 
