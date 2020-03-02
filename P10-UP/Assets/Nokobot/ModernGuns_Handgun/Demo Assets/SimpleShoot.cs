@@ -20,12 +20,10 @@ public class SimpleShoot : MonoBehaviour
             barrelLocation = transform;
     }
 
+
     void Update()
     {
-        if (OVRInput.GetDown(OVRInput.RawButton.RIndexTrigger))
-        {
-            GetComponent<Animator>().SetTrigger("Fire");
-        }
+
     }
 
     void Shoot()
