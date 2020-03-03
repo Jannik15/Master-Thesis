@@ -18,10 +18,10 @@ public class ObjectSpawner : MonoBehaviour
     void Update () {
 
 
-        if (OVRInput.GetDown(OVRInput.Button.One))
-        {
-            Spawning();
-        }
+        //if (OVRInput.GetDown(OVRInput.Button.One))
+       // {
+         //   Spawning();
+       // }
     }
 
     private void Spawning()
