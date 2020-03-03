@@ -242,7 +242,7 @@ public class GridEditor : EditorWindow
         }
         if (GUILayout.Button("Save Grid as Prefab", buttonParams))
         {
-            string savePrefabPath = EditorUtility.SaveFilePanelInProject("Save Grid as Prefab", "UnnamedGrid.prefab", "prefab", "Please select file name to save the grid to:");
+            string savePrefabPath = EditorUtility.SaveFilePanelInProject("Save Grid as Prefab", "UnnamedGrid.prefab", "prefab", "Please select file name to save the grid to:","Assets/Prefabs/Grids/");
             if (!string.IsNullOrEmpty(savePrefabPath))
             {
                 string[] fullPathString = savePrefabPath.Split(new char[] { '/' });

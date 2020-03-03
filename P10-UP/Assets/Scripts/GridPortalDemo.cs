@@ -1,8 +1,11 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using Oculus.Platform;
 using Unity.Mathematics;
+using UnityEditor;
 using UnityEngine;
+using UnityEngine.Networking;
 using Random = UnityEngine.Random;
 
 public class GridPortalDemo : MonoBehaviour
@@ -11,7 +14,6 @@ public class GridPortalDemo : MonoBehaviour
     public List<Portal> portals = new List<Portal>();
     public List<GameObject> rooms = new List<GameObject>();
     public List<GameObject> grids;
-    public GameObject startingGrid;
     public GameObject currentRoom, previousRoom; // Functions as the index in rooms, tracking which room the player is in
     private List<Tile> roomTiles = new List<Tile>(), otherRoomTiles = new List<Tile>();
     private List<Tile> portalTiles = new List<Tile>(), otherPortalTiles = new List<Tile>();
@@ -151,8 +153,111 @@ public class GridPortalDemo : MonoBehaviour
         {
             int index = Random.Range(0, grids.Count);
             Instantiate(grids[index]);
+
+            
+            
+            Grid grid = grids[index].GetComponent<Grid>();
+            Tile[,] gridTiles = grid.GetTilesAsArray();
+            
+            
+            
+            for (int x = 0; x < gridTiles.GetLength(0); x++)
+            {
+                for (int y = 0; y < gridTiles.GetLength(1); y++)
+                {
+                    if (gridTiles[x, y].GetTileType() == TileGeneration.TileType.Portal)
+                    {
+                        CheckSurroundingTiles(gridTiles, x, y);
+                    }
+                }
+            }
             grids.RemoveAt(index);
         }
+    }
+
+    private List<List<Tile>> PortalZones(List<Tile> remainingPortals)
+    {
+        List<List<Tile>> portalZones = new List<List<Tile>>();
+        float tileSize = remainingPortals[0].transform.localScale.x;
+
+        portalZones[0] = new List<Tile>();
+        portalZones[0].Add(remainingPortals[0]);
+        remainingPortals.RemoveAt(0);
+
+        List<int> connections = new List<int>();
+        while (remainingPortals.Count > 0)
+        {
+            bool portalAssignedToZone = false;
+            for (int j = 0; j < portalZones.Count; j++)
+            {
+                for (int k = 0; k < portalZones[j].Count; k++)
+                {
+                    if (Vector2.Distance(remainingPortals[0].GetPosition(), portalZones[j][k].GetPosition()) <= tileSize)
+                    {
+                        portalZones[j].Add(remainingPortals[0]);
+                        remainingPortals.RemoveAt(0);
+                        portalAssignedToZone = true;
+                        connections.Add(j);
+                    }
+                }
+            }
+
+            if (!portalAssignedToZone)
+            {
+                connections = connections.Distinct().ToList();
+                if (connections.Count > 1)
+                {   
+                    connections.Sort();
+                    for (int i = 1; i < connections.Count ; i++)
+                    {
+                        portalZones[connections[0]].AddRange(portalZones[connections[i]]);
+                        portalZones[connections[i]] = null;
+                    }
+                }
+                else if (connections.Count == 0)
+                {
+                    portalZones[portalZones.Count] = new List<Tile>();
+                    portalZones[portalZones.Count].Add(remainingPortals[0]);
+                    remainingPortals.RemoveAt(0);
+                }
+            }
+        }
+
+        return portalZones;
+    }
+
+
+
+    private List<Tile> CheckSurroundingTiles(Tile[,] tiles, int xIndex, int yIndex)
+    {
+        List<Tile> surroundingTiles = new List<Tile>();
+        List<Tile> portalTiles = new List<Tile> {tiles[xIndex, yIndex]};
+        if (xIndex > 0)
+        {
+            surroundingTiles.Add(tiles[xIndex - 1, yIndex]);
+        }
+        if (xIndex < tiles.GetLength(1) - 1)
+        {
+            surroundingTiles.Add(tiles[xIndex + 1, yIndex]);
+        }
+        if (yIndex > 0)
+        {
+            surroundingTiles.Add(tiles[xIndex, yIndex - 1]);
+        }
+        if (yIndex < tiles.GetLength(1) - 1)
+        {
+            surroundingTiles.Add(tiles[xIndex, yIndex + 1]);
+        }
+        for (int i = 0; i < surroundingTiles.Count; i++)
+        {
+            if (surroundingTiles[i].GetTileType() == TileGeneration.TileType.Portal)
+            {
+                portalTiles.Add(surroundingTiles[i]);
+            }
+        }
+
+
+        return portalTiles;
     }
 
     /// <summary>
