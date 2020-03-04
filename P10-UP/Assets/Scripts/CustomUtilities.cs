@@ -4,6 +4,19 @@ using UnityEngine;
 public static class CustomUtilities
 {
     #region Renderer
+
+    public static void InstantiateMaterials(GameObject parent)
+    {
+        Renderer[] renderersInRoom = parent.GetComponentsInChildren<Renderer>();
+        for (int i = 0; i < renderersInRoom.Length; i++)
+        {
+            for (int j = 0; j < renderersInRoom[i].materials.Length; j++)
+            {
+                renderersInRoom[i].materials[j] = Material.Instantiate(renderersInRoom[i].materials[j]);
+            }
+        }
+    }
+
     /// <summary>
     /// Update the stencil value for materials in a list of renderers.
     /// </summary>
@@ -16,22 +29,6 @@ public static class CustomUtilities
             for (int j = 0; j < roomMaterials[i].materials.Length; j++)
             {
                 roomMaterials[i].materials[j].SetInt("_StencilValue", newStencilValue);
-            }
-        }
-    }
-    /// <summary>
-    /// Update the stencil value for materials in a list of renderers in a gameobject and its children.
-    /// </summary>
-    /// <param name="room"></param>
-    /// <param name="newStencilValue"></param>
-    public static void UpdateStencils(GameObject parent, int newStencilValue)
-    {
-        Renderer[] renderersInRoom = parent.GetComponentsInChildren<Renderer>();
-        for (int i = 0; i < renderersInRoom.Length; i++)
-        {
-            for (int j = 0; j < renderersInRoom[i].materials.Length; j++)
-            {
-                renderersInRoom[i].materials[j].SetInt("_StencilValue", newStencilValue);
             }
         }
     }
@@ -50,6 +47,23 @@ public static class CustomUtilities
             {
                 renderersInRoom[i].materials[j].SetInt("_StencilValue", newStencilValue);
                 renderersInRoom[i].materials[j].SetMatrix("_WorldToPortal", portal.worldToLocalMatrix);
+            }
+        }
+    }
+
+    /// <summary>
+    /// Update the stencil value for materials in a list of renderers in a gameobject and its children.
+    /// </summary>
+    /// <param name="room"></param>
+    /// <param name="newStencilValue"></param>
+    public static void UpdateStencils(GameObject parent, int newStencilValue)
+    {
+        Renderer[] renderersInRoom = parent.GetComponentsInChildren<Renderer>();
+        for (int i = 0; i < renderersInRoom.Length; i++)
+        {
+            for (int j = 0; j < renderersInRoom[i].materials.Length; j++)
+            {
+                renderersInRoom[i].materials[j].SetInt("_StencilValue", newStencilValue);
             }
         }
     }

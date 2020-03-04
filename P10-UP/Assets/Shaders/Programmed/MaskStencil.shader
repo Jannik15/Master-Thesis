@@ -2,7 +2,7 @@
 {
     Properties
     {
-		_StencilValue("Stencil Value", Range(1,255)) = 1
+		_StencilValue("Stencil Value", Range(0,255)) = 1
     }
 	SubShader
 	{

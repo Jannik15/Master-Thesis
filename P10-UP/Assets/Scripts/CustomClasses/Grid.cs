@@ -5,6 +5,7 @@ using UnityEngine;
 public class Grid : MonoBehaviour
 {
     private Tile[,] tiles;
+    private List<List<Tile>> portalZones;
     [SerializeField] private int xTiles, yTiles;
     [SerializeField] private List<Tile> tileList;
 
@@ -19,7 +20,6 @@ public class Grid : MonoBehaviour
                 for (int y = 0; y < yTiles; y++)
                 {
                     tiles[x, y] = tileList[iterator];
-                    Debug.Log(tiles[x,y].GetPosition());
                     iterator++;
                 }
             }
@@ -58,5 +58,24 @@ public class Grid : MonoBehaviour
     public Tile GetTile(int i)
     {
         return tileList[i];
+    }
+
+    public List<List<Tile>> GetPortalZones()
+    {
+        return portalZones;
+    }
+
+    public List<Tile> GetPortalZone(int index)
+    {
+        return portalZones[index];
+    }
+
+    public void SetPortalZones(List<List<Tile>> newPortalZones)
+    {
+        portalZones = newPortalZones;
+    }
+    public void SetPortalZone(List<Tile> newPortalZone, int index)
+    {
+        portalZones[index] = newPortalZone;
     }
 }
