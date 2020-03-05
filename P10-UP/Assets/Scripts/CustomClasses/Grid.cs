@@ -9,22 +9,22 @@ public class Grid : MonoBehaviour
     [SerializeField] private int xTiles, yTiles;
     [SerializeField] private List<Tile> tileList;
 
-    private void Awake()
-    {
-        if (tiles == null)
-        {
-            tiles = new Tile[xTiles,yTiles];
-            int iterator = 0;
-            for (int x = 0; x < xTiles; x++)
-            {
-                for (int y = 0; y < yTiles; y++)
-                {
-                    tiles[x, y] = tileList[iterator];
-                    iterator++;
-                }
-            }
-        }
-    }
+    //private void Awake()
+    //{
+    //    if (tiles == null)
+    //    {
+    //        tiles = new Tile[xTiles, yTiles];
+    //        int iterator = 0;
+    //        for (int x = 0; x < xTiles; x++)
+    //        {
+    //            for (int y = 0; y < yTiles; y++)
+    //            {
+    //                tiles[x, y] = tileList[iterator];
+    //                iterator++;
+    //            }
+    //        }
+    //    }
+    //}
 
     public void Initialize(Tile[,] tiles)
     {
