@@ -34,12 +34,11 @@ public class PortalCollisionHandler : MonoBehaviour
             Vector3 offset = transform.position - portalCollider.transform.position;
             if (Vector3.Dot(offset, portalCollider.transform.forward) > 0.0f) // Correctly exited portal
             {
-                thisPortal.SetActive(false);
-                thisPortal.GetConnectedPortal().SetActive(true);
+                proceduralLayout.FinalizeWorldSwitch(thisPortal);
             }
             else // Incorrectly exited the portal, revert changes made OnTriggerEnter
             {
-                proceduralLayout.UndoSwitchWorld();
+                proceduralLayout.UndoSwitchWorld(thisPortal);
             }
         }
     }

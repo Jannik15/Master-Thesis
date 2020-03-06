@@ -2,15 +2,15 @@
 
 public class Portal : MonoBehaviour
 {
-    [SerializeField] private GameObject inRoom;
-    [SerializeField] private GameObject connectedRoom;
-    [SerializeField] private GameObject connectedPortal;
+    [SerializeField] private Room inRoom;
+    [SerializeField] private Room connectedRoom;
+    [SerializeField] private Portal connectedPortal;
     private GameObject forwardPortal, backwardPortal;
     private int forwardStencilValue, backwardStencilValue;
     private Renderer[] portalForwardMasks, portalBackwardMasks;
     [SerializeField] private int portalId;
 
-    public void AssignValues(GameObject inRoom, GameObject connectedRoom, GameObject connectedPortal, int portalId)
+    public void AssignValues(Room inRoom, Room connectedRoom, Portal connectedPortal, int portalId)
     {
         this.inRoom = inRoom;
         this.connectedRoom = connectedRoom;
@@ -44,16 +44,16 @@ public class Portal : MonoBehaviour
         return backwardStencilValue;
     }
 
-    public GameObject GetRoom()
+    public Room GetRoom()
     {
         return inRoom;
     }
 
-    public GameObject GetConnectedRoom()
+    public Room GetConnectedRoom()
     {
         return connectedRoom;
     }
-    public GameObject GetConnectedPortal()
+    public Portal GetConnectedPortal()
     {
         return connectedPortal;
     }

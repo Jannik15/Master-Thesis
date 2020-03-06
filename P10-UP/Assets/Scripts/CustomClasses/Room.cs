@@ -5,17 +5,36 @@ using UnityEngine;
 public class Room
 {
     public readonly GameObject room;
+    private int roomId;
     private List<Portal> portalsInRoom, portalsToRoom;
-    public Room(GameObject room, List<Portal> portalsInRoom, List<Portal> portalsToRoom)
+    public Room(GameObject room, int roomId)
     {
         this.room = room;
+        this.roomId = roomId;
         portalsInRoom = new List<Portal>();
         portalsToRoom = new List<Portal>();
     }
 
-    public void AddPortalToRoom()
+    public int GetRoomId()
     {
+        return roomId;
+    }
 
+    public void AddPortalInRoom(Portal portal)
+    {
+        if (portalsInRoom == null)
+        {
+            portalsInRoom = new List<Portal>();
+        }
+        portalsInRoom.Add(portal);
+    }
+    public void AddPortalToRoom(Portal portal)
+    {
+        if (portalsToRoom == null)
+        {
+            portalsToRoom = new List<Portal>();
+        }
+        portalsToRoom.Add(portal);
     }
 
     public Portal GetPortalInRoom(int index)
