@@ -15,6 +15,7 @@ public class PortalCollisionHandler : MonoBehaviour
 
     private void OnTriggerEnter(Collider portalCollider)
     {
+        Debug.Log(gameObject.name + " (parent=" + transform.parent.name + ") entered collider: " + portalCollider.gameObject.name + " (tag=" + portalCollider.tag + ")");
         if (portalCollider.CompareTag("Portal"))
         {
             thisPortal = portalCollider.GetComponent<Portal>(); 
@@ -28,6 +29,7 @@ public class PortalCollisionHandler : MonoBehaviour
 
     private void OnTriggerExit(Collider portalCollider)
     {
+        Debug.Log(gameObject.name + " (parent=" + transform.parent.name + ") exited collider: " + portalCollider.gameObject.name + " (tag=" + portalCollider.tag + ")");
         if (portalCollider.CompareTag("Portal"))
         {
             thisPortal.SwitchActiveSubPortal();

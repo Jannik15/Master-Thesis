@@ -32,6 +32,8 @@ public class Portal : MonoBehaviour
                 portalBackwardMasks = child.GetComponentsInChildren<Renderer>();
             }
         }
+        SetForwardStencilValue(connectedRoom.GetRoomId());
+        SetBackwardStencilValue(inRoom.GetRoomId());
     }
 
     public int GetForwardStencilValue()

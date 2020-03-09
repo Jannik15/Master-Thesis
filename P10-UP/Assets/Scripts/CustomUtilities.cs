@@ -54,16 +54,35 @@ public static class CustomUtilities
     /// <summary>
     /// Update the stencil value for materials in a list of renderers in a gameobject and its children.
     /// </summary>
-    /// <param name="room"></param>
+    /// <param name="parent"></param>
     /// <param name="newStencilValue"></param>
-    public static void UpdateStencils(GameObject parent, int newStencilValue)
+    public static void UpdateStencils(GameObject parent, int newStencilValue, bool setRenderQueue)
     {
         Renderer[] renderersInRoom = parent.GetComponentsInChildren<Renderer>();
-        for (int i = 0; i < renderersInRoom.Length; i++)
+        if (setRenderQueue)
         {
-            for (int j = 0; j < renderersInRoom[i].materials.Length; j++)
+            int newRenderQueueValue = 2300;
+            if (newStencilValue == 0)
             {
-                renderersInRoom[i].materials[j].SetInt("_StencilValue", newStencilValue);
+                newRenderQueueValue = 2000;
+            }
+            for (int i = 0; i < renderersInRoom.Length; i++)
+            {
+                for (int j = 0; j < renderersInRoom[i].materials.Length; j++)
+                {
+                    renderersInRoom[i].materials[j].SetInt("_StencilValue", newStencilValue);
+                    renderersInRoom[i].materials[j].renderQueue = newRenderQueueValue;
+                }
+            }
+        }
+        else
+        {
+            for (int i = 0; i < renderersInRoom.Length; i++)
+            {
+                for (int j = 0; j < renderersInRoom[i].materials.Length; j++)
+                {
+                    renderersInRoom[i].materials[j].SetInt("_StencilValue", newStencilValue);
+                }
             }
         }
     }
