@@ -11,6 +11,7 @@ public class WeaponGrab : MonoBehaviour
     SimpleShoot simpleShoot;
     Rigidbody rb;
     public Shader highlightMaterial;
+    public Camera camera;
     private bool holdingGunRight = false;
     private bool holdingGunLeft = false;
     private Vector3 gunPositionRight = new Vector3(0.0481f,0.0184f,-0.01927197f);
@@ -91,10 +92,10 @@ public class WeaponGrab : MonoBehaviour
             _selection = null;
         }
 
-       //var ray = camera.ScreenPointToRay(Input.mousePosition);
+       var ray = camera.ScreenPointToRay(Input.mousePosition);
         RaycastHit hit;
-        if(Physics.Raycast(transform.position, transform.forward, out hit, Mathf.Infinity))   //Vr (Not tested)
-        //if(Physics.Raycast(ray, out hit))
+        //if(Physics.Raycast(transform.position, transform.forward, out hit, Mathf.Infinity))   //Vr (Not tested)
+        if(Physics.Raycast(ray, out hit))
         {
             if(hit.transform.CompareTag("Weapon"))
             {
@@ -122,7 +123,7 @@ public class WeaponGrab : MonoBehaviour
         }
 
         //Right Hand Drop
-        if (OVRInput.GetDown(OVRInput.Button.Two) && currentGunRight != null || Input.GetKeyDown(KeyCode.H) && gun != null) 
+        if (OVRInput.GetDown(OVRInput.Button.Two) && currentGunRight != null || Input.GetKeyDown(KeyCode.H) && currentGunRight != null) 
         {
             if(holdingGunRight == true){
                 DropRight();
@@ -150,7 +151,7 @@ public class WeaponGrab : MonoBehaviour
             }
         }
         //Left Hand Drop
-        if (OVRInput.GetDown(OVRInput.Button.Four) && currentGunLeft != null || Input.GetKeyDown(KeyCode.J) && gun != null) 
+        if (OVRInput.GetDown(OVRInput.Button.Four) && currentGunLeft != null || Input.GetKeyDown(KeyCode.J) && currentGunLeft != null) 
         {
             if(holdingGunLeft == true){
                 DropLeft();
