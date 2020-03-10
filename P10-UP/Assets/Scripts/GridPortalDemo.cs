@@ -192,8 +192,18 @@ public class GridPortalDemo : MonoBehaviour
                 CustomUtilities.UpdateShaderMatrix(portalsInRoom[i].GetConnectedRoom().room, portalsInRoom[i].transform);
             }
         }
-        // Step 3: Update shader matrix for previous room with the current portals transform (backward stencils)
+        //Step 3: Disable portals in the previous room, except for the current portal
+        for (int i = 0; i < previousRoom.GetPortalsInRoom().Count; i++)
+        {
+            if (previousRoom.GetPortalsInRoom()[i] != portal)
+            {
+                previousRoom.GetPortalsInRoom()[i].SetActive(false);
+            }
+        }
+        // Step 4: Update shader matrix for previous room with the current portals transform (backward stencils)
         CustomUtilities.UpdateShaderMatrix(previousRoom.room, portal.transform);
+
+
     }
 
     /// <summary>
@@ -203,14 +213,10 @@ public class GridPortalDemo : MonoBehaviour
     /// <param name="portal"></param>
     public void FinalizeWorldSwitch(Portal portal) // Successful world switch
     {
-        // Step 1: Enable the connected portal and disable all portals in the previous room
+        // Step 1: Enable the connected portal and disable the current portal from the previous room
         Portal connectedPortal = portal.GetConnectedPortal();
         connectedPortal.SetActive(true);
-        for (int i = 0; i < previousRoom.GetPortalsInRoom().Count; i++)
-        {
-            previousRoom.GetPortalsInRoom()[i].SetActive(false);
-        }
-
+        portal.SetActive(false);
         // Step 2: Update shader matrix for previous room with the connected portals transform
         CustomUtilities.UpdateShaderMatrix(previousRoom.room, connectedPortal.transform);
     }
