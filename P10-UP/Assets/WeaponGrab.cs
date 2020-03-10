@@ -11,6 +11,7 @@ public class WeaponGrab : MonoBehaviour
     SimpleShoot simpleShoot;
     Rigidbody rbR;
     Rigidbody rbL;
+    public LayerMask layerMask;
     public Transform trackingSpace;
     public Shader highlightMaterialR;
     public Shader highlightMaterialL;
@@ -102,8 +103,8 @@ public class WeaponGrab : MonoBehaviour
     private void OnDrawGizmosSelected()
     {
         Gizmos.color = Color.red;
-        Debug.DrawLine(transform.position, transform.position + camera.transform.forward * 5);
-        Gizmos.DrawWireSphere(transform.position + camera.transform.forward * 5, 0.35f);
+        Debug.DrawLine(transform.position, transform.position + transform.forward * 5);
+        Gizmos.DrawWireSphere(transform.position + transform.forward * 5, 0.35f);
     }
 
     void Start()
@@ -124,11 +125,11 @@ public class WeaponGrab : MonoBehaviour
         if (_selectionR != null)
         {
             Renderer[] selectionRendererR = _selectionR.GetComponentsInChildren<Renderer>();
-
             for (int i = 0; i < selectionRendererR.Length; i++)
             {
                 for (int j = 0; j < selectionRendererR[i].materials.Length; j++)
                 {
+                    selectionRendererR[i].materials[j].shader = null;
                     selectionRendererR[i].materials[j].shader = defaultMaterial;
                 }
             }
@@ -145,6 +146,7 @@ public class WeaponGrab : MonoBehaviour
             {
                 for (int j = 0; j < selectionRendererL[i].materials.Length; j++)
                 {
+                    selectionRendererL[i].materials[j].shader = null;
                     selectionRendererL[i].materials[j].shader = defaultMaterial;
                 }
             }
@@ -158,8 +160,10 @@ public class WeaponGrab : MonoBehaviour
 
             //var ray = camera.ScreenPointToRay(Input.mousePosition);
             RaycastHit hitRight;
-            //if(Physics.Raycast(transform.position, transform.forward, out hit, Mathf.Infinity))   //Vr (Not tested)
-            if (Physics.SphereCast(transform.position, 0.35f, transform.forward, out hitRight, 5))
+            //if(Physics.Raycast(transform.position, transform.forward, out hitRight, 5, layerMask))   //Vr (Not tested)
+            if (Physics.SphereCast(transform.position, 0.15f, transform.forward, out hitRight, 5, layerMask))
+            //if (Physics.CapsuleCast(transform.position + (transform.up * 0.5f), transform.position + (transform.up * -0.5f), 0.15f, transform.forward, out hitRight, 5, layerMask))
+
 
             //if (Physics.SphereCast(camera.transform.position, 0.3f, camera.transform.forward, out hit, 10)) // Non VR
             {
@@ -175,7 +179,6 @@ public class WeaponGrab : MonoBehaviour
 
                     if (selectionRendererR != null)
                     {
-                        defaultMaterial = selectionRendererR[0].material.shader;
                         for (int i = 0; i < selectionRendererR.Length; i++)
                         {
                             for (int j = 0; j < selectionRendererR[i].materials.Length; j++)
@@ -217,7 +220,7 @@ public class WeaponGrab : MonoBehaviour
             //var ray = camera.ScreenPointToRay(Input.mousePosition);
             RaycastHit hitLeft;
             //if(Physics.Raycast(transform.position, transform.forward, out hit, Mathf.Infinity))   //Vr (Not tested)
-            if (Physics.SphereCast(transform.position, 0.35f, transform.forward, out hitLeft, 5))
+            if (Physics.SphereCast(transform.position, 0.15f, transform.forward, out hitLeft, 5, layerMask))
 
             //if (Physics.SphereCast(camera.transform.position, 0.3f, camera.transform.forward, out hit, 10)) // Non VR
             {
@@ -232,7 +235,6 @@ public class WeaponGrab : MonoBehaviour
 
                     if (selectionRendererL != null)
                     {
-                        defaultMaterial = selectionRendererL[0].material.shader;
                         for (int i = 0; i < selectionRendererL.Length; i++)
                         {
                             for (int j = 0; j < selectionRendererL[i].materials.Length; j++)
