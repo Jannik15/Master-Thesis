@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public static class CustomUtilities
@@ -132,6 +133,123 @@ public static class CustomUtilities
 
     #endregion
 
+    #region Transform
+
+    /// <summary>
+    /// Change the parent from the currentParent to the newParent, for any objects that have a matching tag.
+    /// </summary>
+    /// <param name="currentParent"></param>
+    /// <param name="newParent"></param>
+    /// <param name="tag"></param>
+    public static void ChangeParentWithTag(Transform currentParent, Transform newParent, string tag)
+    {
+        for (int i = 0; i < currentParent.childCount; i++)
+        {
+            if (currentParent.GetChild(i).CompareTag(tag))
+            {
+                currentParent.GetChild(i).parent = newParent;
+            }
+        }
+    }
+
+    #endregion
+
+    #region Tiles
+    /// <summary>
+    /// Returns a double-list of Portal positions, referred to as portal zones. Takes a list of portal tiles, and a size variable for the distance between tiles.
+    /// If the tileSize is equal to the size of the tiles, the zones will only consist of horizontally and vertically neighboring tiles. If increased, it can include horizontally neighboring tiles.
+    /// </summary>
+    /// <param name="remainingPortals"></param>
+    /// <param name="tileSize"></param>
+    /// <returns></returns>
+    public static List<List<Vector2>> PortalZones(List<Vector2> remainingPortals, float tileSize)
+    {
+        List<List<Vector2>> portalZones = new List<List<Vector2>>();
+        portalZones.Add(new List<Vector2>());
+        portalZones[0].Add(remainingPortals[0]);
+        remainingPortals.RemoveAt(0);
+
+        List<int> connections = new List<int>();
+        for (int i = 0; i < remainingPortals.Count; i++)
+        {
+            for (int j = 0; j < portalZones.Count; j++)
+            {
+                for (int k = 0; k < portalZones[j].Count; k++)
+                {
+                    if (Vector2.Distance(remainingPortals[i], portalZones[j][k]) <= tileSize) // TODO: Convert to Distancesq <= tileSize * tileSize and test
+                    {
+                        connections.Add(j);
+                    }
+                }
+            }
+
+            if (connections.Count > 0)
+            {
+                connections = connections.Distinct().ToList();
+                if (connections.Count > 1)
+                {
+                    connections.Sort();
+                    portalZones[connections[0]].Add(remainingPortals[i]);
+                    for (int j = 1; j < connections.Count; j++)
+                    {
+                        portalZones[connections[0]].AddRange(portalZones[connections[j]]);
+                        portalZones.RemoveAt(connections[j]);
+                    }
+                }
+                else // (connections.Count == 1)
+                {
+                    portalZones[connections[0]].Add(remainingPortals[i]);
+                }
+            }
+            else //(connections.Count == 0)
+            {
+                portalZones.Add(new List<Vector2>());
+                portalZones[portalZones.Count - 1].Add(remainingPortals[i]);
+            }
+            connections.Clear();
+        }
+        return portalZones;
+    }
+
+    /// <summary>
+    /// [DEPRECATED] Returns a list of surrounding tiles to the input tiles (horizontally and vertically)
+    /// </summary>
+    /// <param name="tiles"></param>
+    /// <param name="xIndex"></param>
+    /// <param name="yIndex"></param>
+    /// <returns></returns>
+    public static List<Tile> CheckSurroundingTiles(Tile[,] tiles, int xIndex, int yIndex)
+    {
+        List<Tile> surroundingTiles = new List<Tile>();
+        List<Tile> portalTiles = new List<Tile> { tiles[xIndex, yIndex] };
+        if (xIndex > 0)
+        {
+            surroundingTiles.Add(tiles[xIndex - 1, yIndex]);
+        }
+        if (xIndex < tiles.GetLength(1) - 1)
+        {
+            surroundingTiles.Add(tiles[xIndex + 1, yIndex]);
+        }
+        if (yIndex > 0)
+        {
+            surroundingTiles.Add(tiles[xIndex, yIndex - 1]);
+        }
+        if (yIndex < tiles.GetLength(1) - 1)
+        {
+            surroundingTiles.Add(tiles[xIndex, yIndex + 1]);
+        }
+        for (int i = 0; i < surroundingTiles.Count; i++)
+        {
+            if (surroundingTiles[i].GetTileType() == TileGeneration.TileType.Portal)
+            {
+                portalTiles.Add(surroundingTiles[i]);
+            }
+        }
+
+        return portalTiles;
+    }
+
+    #endregion
     #region Collections    
     /// <summary>
     /// Add all renderers in the given object's hierarchy to the given list using depth-first search.
