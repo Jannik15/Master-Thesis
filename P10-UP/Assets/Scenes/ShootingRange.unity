@@ -98,7 +98,7 @@ LightmapSettings:
     m_TrainingDataDestination: TrainingData
     m_LightProbeSampleCountMultiplier: 4
   m_LightingDataAsset: {fileID: 0}
-  m_UseShadowmask: 1
+  m_UseShadowmask: 0
 --- !u!196 &4
 NavMeshSettings:
   serializedVersion: 2
@@ -136,7 +136,7 @@ PrefabInstance:
     - target: {fileID: 2331480837119068690, guid: dfc971848a6a7764fafa6c5a9a0bb0b1,
         type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2331480837119068702, guid: dfc971848a6a7764fafa6c5a9a0bb0b1,
         type: 3}
@@ -195,6 +195,36 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: dfc971848a6a7764fafa6c5a9a0bb0b1, type: 3}
+--- !u!1 &176571670
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 176571671}
+  m_Layer: 9
+  m_Name: GameObject
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &176571671
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 176571670}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 478310724}
+  m_RootOrder: 1
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &247849190
 GameObject:
   m_ObjectHideFlags: 0
@@ -530,6 +560,12 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 4896801035141906, guid: 5e93b18aeba68324cb0c6196b3791c1d,
     type: 3}
   m_PrefabInstance: {fileID: 735034284}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &478310724 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 3356914829595283446, guid: 09ab851a8a30a9f43ba7deb50cdb0680,
+    type: 3}
+  m_PrefabInstance: {fileID: 5882161307592853768}
   m_PrefabAsset: {fileID: 0}
 --- !u!1 &508145792
 GameObject:
@@ -1066,7 +1102,7 @@ PrefabInstance:
     - target: {fileID: 114258639798283212, guid: 3a041205f62419f439a714f534390f0d,
         type: 3}
       propertyPath: shotPower
-      value: 1000
+      value: 500
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 3a041205f62419f439a714f534390f0d, type: 3}
@@ -1836,7 +1872,7 @@ PrefabInstance:
     - target: {fileID: 114258639798283212, guid: 3a041205f62419f439a714f534390f0d,
         type: 3}
       propertyPath: shotPower
-      value: 1000
+      value: 500
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 3a041205f62419f439a714f534390f0d, type: 3}
@@ -2022,8 +2058,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d7f9eaa981f008f42a1fefe497130b1d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  highlightMaterial: {fileID: -6465566751694194690, guid: 726a445609af6c74f89caa69bc30e12b,
-    type: 3}
+  trackingSpace: {fileID: 0}
+  highlightMaterialR: {fileID: 0}
+  highlightMaterialL: {fileID: 0}
   camera: {fileID: 2085219652}
   rightHandModel: {fileID: 9166948171582251494}
   leftHandModel: {fileID: 9166948171495474727}
@@ -2033,6 +2070,7 @@ MonoBehaviour:
   LeftHandHighlightMaterial: {fileID: 2100000, guid: c5d588c47ee29c849a3089b584d5fe1a,
     type: 2}
   handRight: 1
+  defaultMaterial: {fileID: 0}
   gun: {fileID: 0}
   currentGunRight: {fileID: 0}
   currentGunLeft: {fileID: 0}
@@ -2105,6 +2143,12 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 62ac2dedd4921ce4ea0ea96f5f51a8c7, type: 3}
+--- !u!4 &1517306315 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 3356914829474119138, guid: 09ab851a8a30a9f43ba7deb50cdb0680,
+    type: 3}
+  m_PrefabInstance: {fileID: 5882161307592853768}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1535391791
 GameObject:
   m_ObjectHideFlags: 0
@@ -2321,7 +2365,7 @@ PrefabInstance:
     - target: {fileID: 114258639798283212, guid: 3a041205f62419f439a714f534390f0d,
         type: 3}
       propertyPath: shotPower
-      value: 1000
+      value: 500
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 3a041205f62419f439a714f534390f0d, type: 3}
@@ -2575,7 +2619,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d7f9eaa981f008f42a1fefe497130b1d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  highlightMaterial: {fileID: 4800000, guid: efc49c7290e65f64487ff3489311b72b, type: 3}
+  trackingSpace: {fileID: 0}
+  highlightMaterialR: {fileID: 0}
+  highlightMaterialL: {fileID: 0}
   camera: {fileID: 0}
   rightHandModel: {fileID: 0}
   leftHandModel: {fileID: 0}
@@ -2583,6 +2629,7 @@ MonoBehaviour:
   RightHandHighlightMaterial: {fileID: 0}
   LeftHandHighlightMaterial: {fileID: 0}
   handRight: 0
+  defaultMaterial: {fileID: 0}
   gun: {fileID: 0}
   currentGunRight: {fileID: 0}
   currentGunLeft: {fileID: 0}
@@ -3004,6 +3051,23 @@ PrefabInstance:
       propertyPath: LeftHandHighlightMaterial
       value: 
       objectReference: {fileID: 2100000, guid: c5d588c47ee29c849a3089b584d5fe1a, type: 2}
+    - target: {fileID: 3356914829151774818, guid: 09ab851a8a30a9f43ba7deb50cdb0680,
+        type: 3}
+      propertyPath: trackingSpace
+      value: 
+      objectReference: {fileID: 1517306315}
+    - target: {fileID: 3356914829151774818, guid: 09ab851a8a30a9f43ba7deb50cdb0680,
+        type: 3}
+      propertyPath: highlightMaterialL
+      value: 
+      objectReference: {fileID: -6465566751694194690, guid: 95cff898a5603c747a75c66dfcc9adc3,
+        type: 3}
+    - target: {fileID: 3356914829151774818, guid: 09ab851a8a30a9f43ba7deb50cdb0680,
+        type: 3}
+      propertyPath: highlightMaterialR
+      value: 
+      objectReference: {fileID: -6465566751694194690, guid: 726a445609af6c74f89caa69bc30e12b,
+        type: 3}
     - target: {fileID: 3356914829506855169, guid: 09ab851a8a30a9f43ba7deb50cdb0680,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -3072,6 +3136,16 @@ PrefabInstance:
     - target: {fileID: 3356914829506855182, guid: 09ab851a8a30a9f43ba7deb50cdb0680,
         type: 3}
       propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3356914829595283446, guid: 09ab851a8a30a9f43ba7deb50cdb0680,
+        type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3356914829595283446, guid: 09ab851a8a30a9f43ba7deb50cdb0680,
+        type: 3}
+      propertyPath: m_LocalPosition.z
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5882161308225492104, guid: 09ab851a8a30a9f43ba7deb50cdb0680,
@@ -3110,6 +3184,23 @@ PrefabInstance:
       propertyPath: LeftHandHighlightMaterial
       value: 
       objectReference: {fileID: 2100000, guid: c5d588c47ee29c849a3089b584d5fe1a, type: 2}
+    - target: {fileID: 5882161308225492104, guid: 09ab851a8a30a9f43ba7deb50cdb0680,
+        type: 3}
+      propertyPath: trackingSpace
+      value: 
+      objectReference: {fileID: 1517306315}
+    - target: {fileID: 5882161308225492104, guid: 09ab851a8a30a9f43ba7deb50cdb0680,
+        type: 3}
+      propertyPath: highlightMaterialR
+      value: 
+      objectReference: {fileID: -6465566751694194690, guid: 726a445609af6c74f89caa69bc30e12b,
+        type: 3}
+    - target: {fileID: 5882161308225492104, guid: 09ab851a8a30a9f43ba7deb50cdb0680,
+        type: 3}
+      propertyPath: highlightMaterialL
+      value: 
+      objectReference: {fileID: -6465566751694194690, guid: 95cff898a5603c747a75c66dfcc9adc3,
+        type: 3}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 09ab851a8a30a9f43ba7deb50cdb0680, type: 3}
 --- !u!114 &6254387468563046389

@@ -11,7 +11,9 @@ public class WeaponGrab : MonoBehaviour
     SimpleShoot simpleShoot;
     Rigidbody rbR;
     Rigidbody rbL;
-    public Shader highlightMaterial;
+    public Transform trackingSpace;
+    public Shader highlightMaterialR;
+    public Shader highlightMaterialL;
     public Camera camera;
     public GameObject rightHandModel;
     public GameObject leftHandModel;
@@ -25,7 +27,7 @@ public class WeaponGrab : MonoBehaviour
     private Vector3 gunRotationRight = new Vector3(0f, 9.126f, 90f);
     private Vector3 gunPositionLeft = new Vector3(-0.03830f,0.03422651f,-0.03557706f);
     private Vector3 gunRotationLeft = new Vector3(0f, -9.126f, -90f);
-    private Shader defaultMaterial = null;
+    public Shader defaultMaterial;
     
     private Transform _selectionR;
     private Transform _selectionL;
@@ -62,7 +64,8 @@ public class WeaponGrab : MonoBehaviour
         oVRGrabber.enabled = true; //on
         rbR.isKinematic = false;
         currentGunRight.transform.parent = null;
-        rbR.AddForce(OVRInput.GetLocalControllerVelocity(OVRInput.Controller.RTouch));
+        rbR.velocity = trackingSpace.rotation * OVRInput.GetLocalControllerVelocity(OVRInput.Controller.RTouch);
+        rbR.angularVelocity = OVRInput.GetLocalControllerAngularVelocity(OVRInput.Controller.RTouch);
         gun = null;
         currentGunRight = null;
     }
@@ -90,7 +93,8 @@ public class WeaponGrab : MonoBehaviour
         oVRGrabber.enabled = true; //on
         rbL.isKinematic = false;
         currentGunLeft.transform.parent = null;
-        rbL.velocity = OVRInput.GetLocalControllerVelocity(OVRInput.Controller.LTouch);
+        rbL.velocity = trackingSpace.rotation * OVRInput.GetLocalControllerVelocity(OVRInput.Controller.LTouch);
+        rbL.angularVelocity = OVRInput.GetLocalControllerAngularVelocity(OVRInput.Controller.LTouch);
         gun = null;
         currentGunLeft = null;
     }
@@ -119,13 +123,13 @@ public class WeaponGrab : MonoBehaviour
         //Pickup Raycasting
         if (_selectionR != null)
         {
-            Renderer[] selectionRenderer = _selectionR.GetComponentsInChildren<Renderer>();
+            Renderer[] selectionRendererR = _selectionR.GetComponentsInChildren<Renderer>();
 
-            for (int i = 0; i < selectionRenderer.Length; i++)
+            for (int i = 0; i < selectionRendererR.Length; i++)
             {
-                for (int j = 0; j < selectionRenderer[i].materials.Length; j++)
+                for (int j = 0; j < selectionRendererR[i].materials.Length; j++)
                 {
-                    selectionRenderer[i].materials[j].shader = defaultMaterial;
+                    selectionRendererR[i].materials[j].shader = defaultMaterial;
                 }
             }
             rightHandModel.GetComponent<Renderer>().material = HandDefaultMaterial;
@@ -135,13 +139,13 @@ public class WeaponGrab : MonoBehaviour
 
         if (_selectionL != null)
         {
-            Renderer[] selectionRenderer = _selectionL.GetComponentsInChildren<Renderer>();
+            Renderer[] selectionRendererL = _selectionL.GetComponentsInChildren<Renderer>();
 
-            for (int i = 0; i < selectionRenderer.Length; i++)
+            for (int i = 0; i < selectionRendererL.Length; i++)
             {
-                for (int j = 0; j < selectionRenderer[i].materials.Length; j++)
+                for (int j = 0; j < selectionRendererL[i].materials.Length; j++)
                 {
-                    selectionRenderer[i].materials[j].shader = defaultMaterial;
+                    selectionRendererL[i].materials[j].shader = defaultMaterial;
                 }
             }
             leftHandModel.GetComponent<Renderer>().material = HandDefaultMaterial;
@@ -155,7 +159,7 @@ public class WeaponGrab : MonoBehaviour
             //var ray = camera.ScreenPointToRay(Input.mousePosition);
             RaycastHit hitRight;
             //if(Physics.Raycast(transform.position, transform.forward, out hit, Mathf.Infinity))   //Vr (Not tested)
-            if (Physics.SphereCast(transform.position, 0.1f, transform.forward, out hitRight, 10))
+            if (Physics.SphereCast(transform.position, 0.35f, transform.forward, out hitRight, 5))
 
             //if (Physics.SphereCast(camera.transform.position, 0.3f, camera.transform.forward, out hit, 10)) // Non VR
             {
@@ -165,18 +169,18 @@ public class WeaponGrab : MonoBehaviour
                     gun = hitRight.collider.transform.parent.gameObject;
 
                     var selectionR = hitRight.transform;
-                    Renderer[] selectionRenderer = selectionR.GetComponentsInChildren<Renderer>();
+                    Renderer[] selectionRendererR = selectionR.GetComponentsInChildren<Renderer>();
 
 
 
-                    if (selectionRenderer != null)
+                    if (selectionRendererR != null)
                     {
-                        defaultMaterial = selectionRenderer[0].material.shader;
-                        for (int i = 0; i < selectionRenderer.Length; i++)
+                        defaultMaterial = selectionRendererR[0].material.shader;
+                        for (int i = 0; i < selectionRendererR.Length; i++)
                         {
-                            for (int j = 0; j < selectionRenderer[i].materials.Length; j++)
+                            for (int j = 0; j < selectionRendererR[i].materials.Length; j++)
                             {
-                                selectionRenderer[i].materials[j].shader = highlightMaterial;
+                                selectionRendererR[i].materials[j].shader = highlightMaterialR;
                             }
                         }
                     rightHandModel.GetComponent<Renderer>().material = RightHandHighlightMaterial;
@@ -213,28 +217,27 @@ public class WeaponGrab : MonoBehaviour
             //var ray = camera.ScreenPointToRay(Input.mousePosition);
             RaycastHit hitLeft;
             //if(Physics.Raycast(transform.position, transform.forward, out hit, Mathf.Infinity))   //Vr (Not tested)
-            if (Physics.SphereCast(transform.position, 0.1f, transform.forward, out hitLeft, 10))
+            if (Physics.SphereCast(transform.position, 0.35f, transform.forward, out hitLeft, 5))
 
             //if (Physics.SphereCast(camera.transform.position, 0.3f, camera.transform.forward, out hit, 10)) // Non VR
             {
                 if (hitLeft.transform.CompareTag("Weapon"))
                 {
-                    Debug.Log("Weapon Hit");
                     gun = hitLeft.collider.transform.parent.gameObject;
 
                     var selectionL = hitLeft.transform;
-                    Renderer[] selectionRenderer = selectionL.GetComponentsInChildren<Renderer>();
+                    Renderer[] selectionRendererL = selectionL.GetComponentsInChildren<Renderer>();
 
 
 
-                    if (selectionRenderer != null)
+                    if (selectionRendererL != null)
                     {
-                        defaultMaterial = selectionRenderer[0].material.shader;
-                        for (int i = 0; i < selectionRenderer.Length; i++)
+                        defaultMaterial = selectionRendererL[0].material.shader;
+                        for (int i = 0; i < selectionRendererL.Length; i++)
                         {
-                            for (int j = 0; j < selectionRenderer[i].materials.Length; j++)
+                            for (int j = 0; j < selectionRendererL[i].materials.Length; j++)
                             {
-                                selectionRenderer[i].materials[j].shader = highlightMaterial;
+                                selectionRendererL[i].materials[j].shader = highlightMaterialL;
                             }
                         }
                         leftHandModel.GetComponent<Renderer>().material = LeftHandHighlightMaterial;
