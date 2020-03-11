@@ -29,6 +29,7 @@ public class WeaponGrab : MonoBehaviour
     private Vector3 gunPositionLeft = new Vector3(-0.03830f,0.03422651f,-0.03557706f);
     private Vector3 gunRotationLeft = new Vector3(0f, -9.126f, -90f);
     public Shader defaultMaterial;
+    public Color rightHighlight, leftHighlight;
     
     private Transform _selectionR;
     private Transform _selectionL;
@@ -169,7 +170,6 @@ public class WeaponGrab : MonoBehaviour
             {
                 if (hitRight.transform.CompareTag("Weapon"))
                 {
-                    Debug.Log("Weapon Hit");
                     gun = hitRight.collider.transform.parent.gameObject;
 
                     var selectionR = hitRight.transform;
@@ -184,6 +184,7 @@ public class WeaponGrab : MonoBehaviour
                             for (int j = 0; j < selectionRendererR[i].materials.Length; j++)
                             {
                                 selectionRendererR[i].materials[j].shader = highlightMaterialR;
+                                selectionRendererR[i].materials[j].SetColor("outlineColor", rightHighlight);
                             }
                         }
                     rightHandModel.GetComponent<Renderer>().material = RightHandHighlightMaterial;
@@ -240,6 +241,7 @@ public class WeaponGrab : MonoBehaviour
                             for (int j = 0; j < selectionRendererL[i].materials.Length; j++)
                             {
                                 selectionRendererL[i].materials[j].shader = highlightMaterialL;
+                                selectionRendererL[i].materials[j].SetColor("outlineColor", leftHighlight);
                             }
                         }
                         leftHandModel.GetComponent<Renderer>().material = LeftHandHighlightMaterial;
