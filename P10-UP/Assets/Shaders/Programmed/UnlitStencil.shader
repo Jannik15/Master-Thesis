@@ -66,16 +66,6 @@
 
 				// Discard geometry based on z axis proximity, but not when camera is close enough to the portal
 				if (_StencilValue > 0) {
-					//if (mul(_WorldToPortal, float4(_WorldSpaceCameraPos, 1.0)).z > 0.2)
-					//{
-					//	if (mul(_WorldToPortal, float4(IN.worldPos, 1.0)).z > 0.21)
-					//		discard;
-					//}
-					//else if (mul(_WorldToPortal, float4(_WorldSpaceCameraPos, 1.0)).z < -0.2)
-					//{
-					//	if (mul(_WorldToPortal, float4(IN.worldPos, 1.0)).z < -0.21)
-					//		discard;
-					//}
 					if (mul(_WorldToPortal, float4(_WorldSpaceCameraPos, 1.0)).z > 0.1)
 					{
 						if (mul(_WorldToPortal, float4(IN.worldPos, 1.0)).z > 0.11)
