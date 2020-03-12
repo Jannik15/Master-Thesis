@@ -5,12 +5,15 @@ using UnityEngine;
 public class Room
 {
     public readonly GameObject room;
+    public  Grid roomGrid;
     private int roomId;
     private List<Portal> portalsInRoom, portalsToRoom;
-    public Room(GameObject room, int roomId)
+    private Grid grid;
+    public Room(GameObject room, int roomId, Grid grid)
     {
         this.room = room;
         this.roomId = roomId;
+        this.roomGrid = grid;
         portalsInRoom = new List<Portal>();
         portalsToRoom = new List<Portal>();
     }

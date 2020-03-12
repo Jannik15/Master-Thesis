@@ -8,6 +8,7 @@ public class GridPortalDemo : MonoBehaviour
     public List<GameObject> grids;
     public List<Room> rooms = new List<Room>();
     public List<Portal> portals = new List<Portal>();
+    [SerializeField] private List<GameObject> sceneryObjects;
     [SerializeField] private GameObject portalPrefab;
     [SerializeField] private GameObject depthClearer;
     [SerializeField] private int roomAmount = 10;
@@ -56,7 +57,7 @@ public class GridPortalDemo : MonoBehaviour
         {
             int index = Random.Range(0, grids.Count);
             roomObject = Instantiate(grids[index]);
-            Grid grid = grids[index].GetComponent<Grid>();
+            Grid grid = roomObject.GetComponent<Grid>();
             gridTiles.Clear();
             gridTiles.AddRange(grid.GetTilesAsList());
             portalTilesLocations.Clear();
@@ -99,7 +100,18 @@ public class GridPortalDemo : MonoBehaviour
                 if (possiblePortalPositions.Count > 0)
                 {
                     roomId++;     // RoomId = stencil value of the room, and the index + 1 of the room in the roomList
-                    rooms.Add(new Room(roomObject, roomId + 1));
+                    rooms.Add(new Room(roomObject, roomId + 1, grid));
+
+                    for (int j = 0; j < gridTiles.Count; j++)
+                    {
+                        if (gridTiles[j].GetTileType() == TileGeneration.TileType.Scenery)
+                        {
+                            if (Random.Range(0, 2) < 1)
+                            {
+                                Instantiate(sceneryObjects[Random.Range(0, sceneryObjects.Count)], gridTiles[j].GetPosition().ToVector3XZ(), Quaternion.identity, rooms[roomId].room.transform);
+                            }
+                        }
+                    }
 
                     // Create portals connecting the two rooms
                     float randomRotation = Random.Range(0, 360);
@@ -141,7 +153,7 @@ public class GridPortalDemo : MonoBehaviour
             }
             else
             {
-                rooms.Add(new Room(roomObject, roomId + 1));
+                rooms.Add(new Room(roomObject, roomId + 1, grid));
             }
 
             for (int i = 0; i < previousPortalZones.Count; i++) // TODO: Might be unnecessary - Test for optimization
