@@ -70,6 +70,25 @@ public class Portal : MonoBehaviour
         return portalBackwardMasks;
     }
 
+    public void SetMaskShader(Shader shader)
+    {
+        Renderer[] renderers = gameObject.GetComponentsInChildren<Renderer>();
+        for (int i = 0; i < renderers.Length; i++)
+        {
+            renderers[i].material.shader = shader;
+        }
+    }
+    public void SetMaskShader(Shader shader, int stencilValue, int renderQueue)
+    {
+        Renderer[] renderers = gameObject.GetComponentsInChildren<Renderer>();
+        for (int i = 0; i < renderers.Length; i++)
+        {
+            renderers[i].material.shader = shader;
+            renderers[i].material.SetInt("_StencilValue", stencilValue);
+            renderers[i].material.renderQueue = renderQueue;
+        }
+    }
+
     public void SetActive(bool portal)
     {
         this.gameObject.SetActive(portal);

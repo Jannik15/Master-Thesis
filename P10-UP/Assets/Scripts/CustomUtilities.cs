@@ -57,33 +57,15 @@ public static class CustomUtilities
     /// </summary>
     /// <param name="parent"></param>
     /// <param name="newStencilValue"></param>
-    public static void UpdateStencils(GameObject parent, int newStencilValue, bool setRenderQueue)
+    public static void UpdateStencils(GameObject parent, int newStencilValue, int renderQueue)
     {
         Renderer[] renderersInRoom = parent.GetComponentsInChildren<Renderer>();
-        if (setRenderQueue)
+        for (int i = 0; i < renderersInRoom.Length; i++)
         {
-            int newRenderQueueValue = 2300;
-            if (newStencilValue == 0)
+            for (int j = 0; j < renderersInRoom[i].materials.Length; j++)
             {
-                newRenderQueueValue = 2000;
-            }
-            for (int i = 0; i < renderersInRoom.Length; i++)
-            {
-                for (int j = 0; j < renderersInRoom[i].materials.Length; j++)
-                {
-                    renderersInRoom[i].materials[j].SetInt("_StencilValue", newStencilValue);
-                    renderersInRoom[i].materials[j].renderQueue = newRenderQueueValue;
-                }
-            }
-        }
-        else
-        {
-            for (int i = 0; i < renderersInRoom.Length; i++)
-            {
-                for (int j = 0; j < renderersInRoom[i].materials.Length; j++)
-                {
-                    renderersInRoom[i].materials[j].SetInt("_StencilValue", newStencilValue);
-                }
+                renderersInRoom[i].materials[j].SetInt("_StencilValue", newStencilValue);
+                renderersInRoom[i].materials[j].renderQueue = renderQueue;
             }
         }
     }
@@ -120,8 +102,18 @@ public static class CustomUtilities
         }
     }
 
+    public static void UpdatePortalAndItsConnectedRoom(Portal portal, int newStencilValue, int baseRenderQueueValue, Shader portalShader , bool enablePortal)
+    {
+        portal.SetActive(enablePortal);
+        portal.SetMaskShader(portalShader, newStencilValue, baseRenderQueueValue + 100);
+
+        portal.GetConnectedRoom().gameObject.SetActive(true);
+        UpdateShaderMatrix(portal.GetConnectedRoom().gameObject, portal.transform);
+        UpdateStencils(portal.GetConnectedRoom().gameObject, newStencilValue, baseRenderQueueValue + 300);
+    }
+
     /// <summary>
-    /// Get the stencil value of the first renderer object in the gameobject.
+    /// Get the stencil value of the first renderer object in the gameObject.
     /// </summary>
     /// <param name="obj"></param>
     /// <returns></returns>
@@ -250,6 +242,7 @@ public static class CustomUtilities
     }
 
     #endregion
+
     #region Collections    
     /// <summary>
     /// Add all renderers in the given object's hierarchy to the given list using depth-first search.
@@ -262,6 +255,22 @@ public static class CustomUtilities
         allRenderes.AddRange(objToSearch.GetComponentsInChildren<Renderer>(true));
         return allRenderes;
     }
+    #endregion
+
+    #region Layers and Tags
+
+    public static int LayerMaskToLayer(LayerMask layerMask)
+    {
+        int layerNumber = 0;
+        int layer = layerMask.value;
+        while (layer > 0)
+        {
+            layer = layer >> 1;
+            layerNumber++;
+        }
+        return layerNumber - 1;
+    }
+
     #endregion
 
     #region P8-Utils

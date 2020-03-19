@@ -1,23 +1,28 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
-public class GridPortalDemo : MonoBehaviour
+public class ProceduralLayoutGeneration : MonoBehaviour
 {
     // Inspector variables
     public List<GameObject> grids;
     public List<Room> rooms = new List<Room>();
-    public List<Portal> portals = new List<Portal>();
+
     [SerializeField] private List<GameObject> sceneryObjects;
     [SerializeField] private GameObject portalPrefab;
     [SerializeField] private GameObject depthClearer;
     [SerializeField] private int roomAmount = 10;
+    [SerializeField] private Shader currentRoomMask, otherRoomMask;
+    [SerializeField] private LayerMask currentRoomLayer, differentRoomLayer;
 
     // Public non-inspector variables
     [HideInInspector] public Room currentRoom, previousRoom; // Room cannot currently be displayed in the inspector, requires a CustomInspectorDrawer implementation.
 
     // Private variables
     private List<Vector2> possiblePortalPositions = new List<Vector2>();
+    private List<Portal> portals = new List<Portal>();
+    private List<List<Portal>> portalsConnectedToPreviousRoom = new List<List<Portal>>();
     private GameObject roomObject; // Functions as the index in rooms, tracking which room the player is in
     private Transform portalParent;
     private int roomId, portalIterator;
@@ -30,18 +35,27 @@ public class GridPortalDemo : MonoBehaviour
 
         //* Depth clearing
         Transform depthParent = depthClearer.transform.parent;
-        for (int i = 1; i < rooms.Count; i++)
+        for (int i = 2; i < 21; i++)
         {
             GameObject newDepthClearer = Instantiate(depthClearer);
             newDepthClearer.transform.parent = depthParent;
-            newDepthClearer.name = newDepthClearer.name + "_" + (i + 1);
-            newDepthClearer.GetComponent<Renderer>().material.SetInt("_StencilValue", i + 1);
+            newDepthClearer.name = newDepthClearer.name.Split('_')[0] + "_" + i;
+            newDepthClearer.GetComponent<Renderer>().material.SetInt("_StencilValue", i);
+            if (i % 5 == 0)
+            {
+                newDepthClearer.GetComponent<Renderer>().material.renderQueue = 2200;
+            }
+            else
+            {
+                newDepthClearer.GetComponent<Renderer>().material.renderQueue = 2500;
+            }
+
         }
         //*/
-        CustomUtilities.UpdateStencils(rooms[0].room,0, true);
-        CustomUtilities.UpdateShaderMatrix(rooms[1].room, rooms[1].GetPortalsToRoom()[0].transform);
+
+        SwitchCurrentRoom(rooms[0], null);
     }
-    
+
     private void ProcedurallyGenerateRooms(List<GameObject> grids)
     {
         // TODO: Stop portals from spawning too close to grid edge (if they do, they should be turned such that the edge is perpendicular to them)
@@ -108,7 +122,7 @@ public class GridPortalDemo : MonoBehaviour
                         {
                             if (Random.Range(0, 2) < 1)
                             {
-                                Instantiate(sceneryObjects[Random.Range(0, sceneryObjects.Count)], gridTiles[j].GetPosition().ToVector3XZ(), Quaternion.identity, rooms[roomId].room.transform);
+                                Instantiate(sceneryObjects[Random.Range(0, sceneryObjects.Count)], gridTiles[j].GetPosition().ToVector3XZ(), Quaternion.identity, rooms[roomId].gameObject.transform);
                             }
                         }
                     }
@@ -135,19 +149,25 @@ public class GridPortalDemo : MonoBehaviour
                     CustomUtilities.InstantiateMaterials(oppositePortal);
 
                     // Change the parent for objects surrounding portals to the rooms, so the stencils can be changed 
-                    CustomUtilities.ChangeParentWithTag(oppositePortal.transform, rooms[roomId].room.transform, "PortalObjects");
-                    CustomUtilities.ChangeParentWithTag(portal.transform, rooms[roomId - 1].room.transform, "PortalObjects");
+                    CustomUtilities.ChangeParentWithTag(oppositePortal.transform, rooms[roomId].gameObject.transform, "PortalObjects");
+                    CustomUtilities.ChangeParentWithTag(portal.transform, rooms[roomId - 1].gameObject.transform, "PortalObjects");
 
-                    // Set stencil values for rooms and portals, and update shader matrix with the new portal locations
-                    CustomUtilities.UpdateStencils(rooms[roomId].room, roomId + 1, true);
-                    CustomUtilities.UpdateStencils(rooms[roomId - 1].room, roomId, true);
+                    // Set layer for room and portal
+                    rooms[roomId].SetLayer(CustomUtilities.LayerMaskToLayer(differentRoomLayer));
+                    portal.layer = CustomUtilities.LayerMaskToLayer(differentRoomLayer);
+                    oppositePortal.layer = CustomUtilities.LayerMaskToLayer(differentRoomLayer);
+
 
                     possiblePortalPositions.Clear();
+                    if (rooms.Count > 3)
+                    {
+                        rooms[roomId].gameObject.SetActive(false);
+                    }
                 }
                 else // If false, no portal tiles were overlapping - undo generation and try another room
                 {
                     Destroy(roomObject);
-                    roomObject = rooms[roomId].room;
+                    roomObject = rooms[roomId].gameObject;
                     continue;
                 }
             }
@@ -155,7 +175,7 @@ public class GridPortalDemo : MonoBehaviour
             {
                 rooms.Add(new Room(roomObject, roomId + 1, grid));
             }
-
+            
             for (int i = 0; i < previousPortalZones.Count; i++) // TODO: Might be unnecessary - Test for optimization
             {
                 previousPortalZones[i].Clear();
@@ -166,95 +186,109 @@ public class GridPortalDemo : MonoBehaviour
 
         for (int j = 0; j < portals.Count; j++)
         {
-            //if (j % 2 != 0)
-            //{
-            //    portals[j].SetActive(false);
-            //}
             if (j > 0)
             {
                 portals[j].SetActive(false);
             }
         }
         roomId = 1;
-        currentRoom = rooms[roomId - 1];
+        currentRoom = rooms[0];
     }
 
     #region World switching on portal collision
     /// <summary>
-    /// Step 1/2 in switching world with portals. Should occur when player enters a portal.
-    /// Updates the current rooms stencil value to the new rooms, then set the new rooms stencil value to 0 and set the current room to the new room.
+    /// TODO
     /// </summary>
-    /// <param name="portal"></param>
-    public void SwitchWorld(Portal portal)
+    /// <param name="newCurrentRoom"></param>
+    /// <param name="currentPortal"></param>
+    public void SwitchCurrentRoom(Room newCurrentRoom, Portal currentPortal)
     {
+        // Set current room and previous room | get the portals from the current room
         previousRoom = currentRoom;
-        currentRoom = portal.GetConnectedRoom();
-
-        Debug.Log("World switch registered. Current room id is: " + currentRoom.GetRoomId() + " with name " + currentRoom.room.name);
-        // Step 1: Change previous room stencil from 0 to its room id, and current room stencil to 0
-        CustomUtilities.UpdateStencils(previousRoom.room, previousRoom.GetRoomId(), true);
-        CustomUtilities.UpdateStencils(currentRoom.room, 0, true);
-        // Step 2: Enable portals in new room that are not at the same position as the current portal, and update the shader matrix of the room they are connected with
-        List<Portal> portalsInRoom = currentRoom.GetPortalsInRoom();
-        for (int i = 0; i < portalsInRoom.Count; i++)
-        {
-            if (portalsInRoom[i] != portal.GetConnectedPortal())
-            {
-                portalsInRoom[i].SetActive(true);
-                CustomUtilities.UpdateShaderMatrix(portalsInRoom[i].GetConnectedRoom().room, portalsInRoom[i].transform);
-            }
-        }
-        //Step 3: Disable portals in the previous room, except for the current portal
+        currentRoom = newCurrentRoom;
+        CustomUtilities.UpdateStencils(currentRoom.gameObject, 0, 2000);
+        previousRoom.SetLayer(CustomUtilities.LayerMaskToLayer(differentRoomLayer));
         for (int i = 0; i < previousRoom.GetPortalsInRoom().Count; i++)
         {
-            if (previousRoom.GetPortalsInRoom()[i] != portal)
+            if (previousRoom.GetPortalsInRoom()[i] != currentPortal)
             {
-                previousRoom.GetPortalsInRoom()[i].SetActive(false);
+                previousRoom.GetPortalsInRoom()[i].gameObject.layer = CustomUtilities.LayerMaskToLayer(differentRoomLayer);
             }
         }
-        // Step 4: Update shader matrix for previous room with the current portals transform (backward stencils)
-        CustomUtilities.UpdateShaderMatrix(previousRoom.room, portal.transform);
+        currentRoom.SetLayer(CustomUtilities.LayerMaskToLayer(currentRoomLayer));
+        for (int i = 0; i < currentRoom.GetPortalsInRoom().Count; i++)
+        {
+            currentRoom.GetPortalsInRoom()[i].gameObject.layer = CustomUtilities.LayerMaskToLayer(currentRoomLayer);
+        }
 
+        #region Disable rooms connected to rooms that are connected to the previous room
 
+        if (currentPortal != null)
+        {
+            for (int i = 0; i < previousRoom.GetPortalsInRoom().Count; i++)
+            {
+                if (previousRoom.GetPortalsInRoom()[i] != currentPortal)
+                {
+                    Room previousRoomConnection = previousRoom.GetPortalsInRoom()[i].GetConnectedRoom();
+
+                    for (int j = 0; j < previousRoomConnection.GetPortalsInRoom().Count; j++)
+                    {
+                        if (previousRoomConnection.GetPortalsInRoom()[i].GetConnectedRoom() != previousRoom)
+                        {
+                            previousRoomConnection.GetPortalsInRoom()[i].GetConnectedRoom().gameObject.SetActive(false);
+                        }
+                        previousRoomConnection.GetPortalsInRoom()[i].SetActive(false);
+                    }
+                }
+            }
+        }
+        #endregion
+
+        List<Portal> portalsInConnectedRoom = new List<Portal>();
+        #region Enable | Update stencils, render queue, shaders, Shader matrix, and layers for anything except the current room.
+
+        for (int i = 0; i < currentRoom.GetPortalsInRoom().Count; i++)
+        {
+            if (currentRoom.GetPortalsInRoom()[i].GetConnectedPortal() != currentPortal)
+            {
+                CustomUtilities.UpdatePortalAndItsConnectedRoom(currentRoom.GetPortalsInRoom()[i], (i + 1) * 5, 2000, currentRoomMask, true);
+            }
+            else
+            {
+                // Previous room
+                CustomUtilities.UpdateStencils(previousRoom.gameObject, (i + 1) * 5, 2300);
+                CustomUtilities.UpdateStencils(currentPortal.gameObject, (i + 1) * 5, 2100);
+                CustomUtilities.UpdateStencils(currentPortal.GetConnectedPortal().gameObject, (i + 1) * 5, 2100);
+                CustomUtilities.UpdateShaderMatrix(previousRoom.gameObject, currentPortal.transform);   // This might not be necessary, but i don't know if the portal rotation matters in the matrix
+            }
+            
+            portalsInConnectedRoom.AddRange(currentRoom.GetPortalsInRoom()[i].GetConnectedRoom().GetPortalsInRoom());
+            for (int j = 0; j < portalsInConnectedRoom.Count; j++)
+            {
+                if (portalsInConnectedRoom[j].GetConnectedPortal() != currentRoom.GetPortalsInRoom()[i])
+                {
+                    CustomUtilities.UpdatePortalAndItsConnectedRoom(portalsInConnectedRoom[j], i * 5 + j + 1, 2300, otherRoomMask, true);
+                }
+            }
+            portalsInConnectedRoom.Clear();
+        }
+        #endregion
     }
-
+    
     /// <summary>
     /// Step 2/2 in switching world with portals. Should occur when player exits the portal.
     /// Enables the corresponding portal in the new room, and disables all portals in the previous room, in addition to updating their shader matrices.
     /// </summary>
     /// <param name="portal"></param>
-    public void FinalizeWorldSwitch(Portal portal) // Successful world switch
+    public void FinalizeRoomSwitch(Portal portal) // Successful world switch
     {
         // Step 1: Enable the connected portal and disable the current portal from the previous room
         Portal connectedPortal = portal.GetConnectedPortal();
         connectedPortal.SetActive(true);
         portal.SetActive(false);
+        portal.gameObject.layer = CustomUtilities.LayerMaskToLayer(differentRoomLayer);
         // Step 2: Update shader matrix for previous room with the connected portals transform
-        CustomUtilities.UpdateShaderMatrix(previousRoom.room, connectedPortal.transform);
-    }
-
-    /// <summary>
-    /// Undoes step 1/2 in switching world with portals. Should occur when player incorrectly exits portal (same side as where they entered).
-    /// </summary>
-    /// <param name="portal"></param>
-    public void UndoSwitchWorld(Portal portal)
-    {
-        // Step 1: Revert stencil change made in SwitchWorld()
-        CustomUtilities.UpdateStencils(currentRoom.room, currentRoom.GetRoomId(), true);
-        CustomUtilities.UpdateStencils(previousRoom.room, 0, true);
-        // Step 2: Disable the portals in the current room
-        for (int i = 0; i < currentRoom.GetPortalsInRoom().Count; i++)
-        {
-            currentRoom.GetPortalsInRoom()[i].SetActive(false);
-        }
-        // Step 3: Set the current room to the previous room and enable the portals
-        currentRoom = previousRoom;
-        List<Portal> portalsInRoom = currentRoom.GetPortalsInRoom();
-        for (int i = 0; i < portalsInRoom.Count; i++)
-        {
-            portalsInRoom[i].SetActive(true);
-            CustomUtilities.UpdateShaderMatrix(portalsInRoom[i].GetConnectedRoom().room, portalsInRoom[i].transform);
-        }
+        CustomUtilities.UpdateShaderMatrix(previousRoom.gameObject, connectedPortal.transform);
     }
     #endregion
 }

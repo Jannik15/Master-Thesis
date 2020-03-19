@@ -4,18 +4,21 @@ using UnityEngine;
 
 public class Room
 {
-    public readonly GameObject room;
+    public readonly GameObject gameObject;
     public  Grid roomGrid;
     private int roomId;
     private List<Portal> portalsInRoom, portalsToRoom;
     private Grid grid;
-    public Room(GameObject room, int roomId, Grid grid)
+    private List<Transform> objectsInRoom = new List<Transform>();
+    public Room(GameObject gameObject, int roomId, Grid grid)
     {
-        this.room = room;
+        this.gameObject = gameObject;
         this.roomId = roomId;
         this.roomGrid = grid;
         portalsInRoom = new List<Portal>();
         portalsToRoom = new List<Portal>();
+
+        objectsInRoom.AddRange(gameObject.GetComponentsInChildren<Transform>());
     }
 
     public int GetRoomId()
@@ -53,9 +56,16 @@ public class Room
     {
         return portalsInRoom;
     }
-
     public List<Portal> GetPortalsToRoom()
     {
         return portalsToRoom;
     }
+
+    public void SetLayer(int layer)
+    {
+        for (int i = 0; i < objectsInRoom.Count; i++)
+        {
+            objectsInRoom[i].gameObject.layer = layer;
+        }
+    } 
 }

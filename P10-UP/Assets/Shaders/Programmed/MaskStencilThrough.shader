@@ -1,4 +1,4 @@
-﻿Shader "Stencils/Mask"
+﻿Shader "Stencils/MaskThrough"
 {
     Properties
     {
@@ -11,7 +11,7 @@
 		Stencil
 		{
 			Ref [_StencilValue]
-			Comp Always
+			Comp Less
 			Pass Replace
 		}
 

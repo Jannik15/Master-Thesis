@@ -4,12 +4,12 @@ using System;
 public class PortalCollisionHandler : MonoBehaviour
 {
     private Portal thisPortal;
-    private GridPortalDemo proceduralLayout;
+    private ProceduralLayoutGeneration proceduralLayout;
 
     // Start is called before the first frame update
     void Start()
     {
-        proceduralLayout = FindObjectOfType<GridPortalDemo>();
+        proceduralLayout = FindObjectOfType<ProceduralLayoutGeneration>();
     }
 
     private void OnTriggerEnter(Collider portalCollider)
@@ -21,7 +21,7 @@ public class PortalCollisionHandler : MonoBehaviour
             thisPortal.SwitchActiveSubPortal();
 
             // Switch world
-            proceduralLayout.SwitchWorld(thisPortal);
+            proceduralLayout.SwitchCurrentRoom(thisPortal.GetConnectedRoom(), thisPortal);
         }
     }
 
@@ -33,11 +33,11 @@ public class PortalCollisionHandler : MonoBehaviour
             Vector3 offset = transform.position - portalCollider.transform.position;
             if (Vector3.Dot(offset, portalCollider.transform.forward) > 0.0f) // Correctly exited portal
             {
-                proceduralLayout.FinalizeWorldSwitch(thisPortal);
+                proceduralLayout.FinalizeRoomSwitch(thisPortal);
             }
             else // Incorrectly exited the portal, revert changes made OnTriggerEnter
             {
-                proceduralLayout.UndoSwitchWorld(thisPortal);
+                proceduralLayout.SwitchCurrentRoom(proceduralLayout.previousRoom, null);
             }
         }
     }

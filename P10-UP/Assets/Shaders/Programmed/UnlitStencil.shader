@@ -8,13 +8,11 @@
     SubShader
     {
         Tags { "RenderType"="Opaque"  "Queue"="Geometry+300" }
-        LOD 100
+        //LOD 100
 		Stencil
 		{
 			Ref [_StencilValue]
 			Comp Equal
-			Pass keep
-			Fail keep
 		}
 
         Pass
