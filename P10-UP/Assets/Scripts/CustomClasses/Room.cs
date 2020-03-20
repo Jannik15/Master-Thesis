@@ -5,7 +5,7 @@ using UnityEngine;
 public class Room
 {
     public readonly GameObject gameObject;
-    public  Grid roomGrid;
+    public Grid roomGrid;
     private int roomId;
     private List<Portal> portalsInRoom, portalsToRoom;
     private Grid grid;

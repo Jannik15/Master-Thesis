@@ -41,7 +41,7 @@ public class TileGeneration
         tileType = type;
         if (type == TileType.Empty)
         {
-            //material
+            this.material = Resources.Load<Material>("EmptyTile");
         }
     }
 
@@ -70,11 +70,11 @@ public class TileGeneration
         return material;
     }
 
-    public Tile InstantiateTile(Transform parent)
+    public Tile InstantiateTile(Transform parent, int xIndex, int yIndex)
     {
         GameObject gameObject = GameObject.CreatePrimitive(PrimitiveType.Quad);
 
-        gameObject.name = "Tile [" + center.x + "; " + center.y + "]";
+        gameObject.name = "Tile [" + xIndex + ", " + yIndex + "]";
         gameObject.transform.position = new Vector3(center.x, 0.0f, center.y);
         gameObject.transform.eulerAngles = new Vector3(90.0f,0.0f,0.0f);
         gameObject.transform.localScale = new Vector3(cellSize, cellSize, cellSize);
