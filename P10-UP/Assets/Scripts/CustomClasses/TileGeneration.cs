@@ -4,13 +4,8 @@ using UnityEngine;
 
 public class TileGeneration
 {
-    private float cellSize;
-    private Vector2 center;
-    private bool isWalkable;
-    private Material material;
-    private TileType tileType;
-
-    public enum TileType {
+    public enum TileType
+    {
         Path,
         Portal,
         Scenery,
@@ -18,10 +13,18 @@ public class TileGeneration
         Empty
     }
 
-    public TileGeneration(float cellSize, Vector2 center)
+    private float cellSize;
+    private Vector2 center;
+    private bool isWalkable;
+    private Material material;
+    private TileType tileType;
+    private Ceiling ceiling;
+
+    public TileGeneration(float cellSize, Vector2 center, Ceiling ceiling)
     {
         this.cellSize = cellSize;
         this.center = center;
+        this.ceiling = ceiling;
         tileType = TileType.Scenery;
         isWalkable = true;
     }
@@ -29,6 +32,11 @@ public class TileGeneration
     public Vector2 GetCoordinates()
     {
         return center;
+    }
+
+    public Ceiling GetCeiling()
+    {
+        return ceiling;
     }
 
     public TileType GetTileType()
@@ -80,6 +88,7 @@ public class TileGeneration
         gameObject.transform.localScale = new Vector3(cellSize, cellSize, cellSize);
         gameObject.transform.parent = parent;
 
+
         if (tileType == TileType.Empty)
         {
             gameObject.name = "Empty";
@@ -92,6 +101,11 @@ public class TileGeneration
         {
             Renderer renderer = gameObject.GetComponent<Renderer>();
             renderer.material = material;
+        }
+
+        if (ceiling.GetHeight() > 0)
+        {
+            ceiling.InstantiateCeiling(gameObject.transform, xIndex, yIndex);
         }
 
         gameObject.AddComponent<Tile>();

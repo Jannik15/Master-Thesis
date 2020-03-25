@@ -233,11 +233,11 @@ public class ProceduralLayoutGeneration : MonoBehaviour
 
                     for (int j = 0; j < previousRoomConnection.GetPortalsInRoom().Count; j++)
                     {
-                        if (previousRoomConnection.GetPortalsInRoom()[i].GetConnectedRoom() != previousRoom)
+                        if (previousRoomConnection.GetPortalsInRoom()[j].GetConnectedRoom() != previousRoom)
                         {
-                            previousRoomConnection.GetPortalsInRoom()[i].GetConnectedRoom().gameObject.SetActive(false);
+                            previousRoomConnection.GetPortalsInRoom()[j].GetConnectedRoom().gameObject.SetActive(false);
                         }
-                        previousRoomConnection.GetPortalsInRoom()[i].SetActive(false);
+                        previousRoomConnection.GetPortalsInRoom()[j].SetActive(false);
                     }
                 }
             }

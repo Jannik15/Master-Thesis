@@ -21,8 +21,31 @@ public class WallGeneration
         scale = new Vector3(scale.x, height, scale.z);
     }
 
+    public float GetHeight()
+    {
+        return scale.y;
+    }
+
+    public Vector2 GetPosition()
+    {
+        return position;
+    }
+    public void SetMaterial(Material material)
+    {
+        this.material = material;
+    }
+
+    public Material GetMaterial()
+    {
+        return material;
+    }
+
     public void InstantiateWall(Transform parent, int xIndex, int yIndex)
     {
+        if (scale.y <= 0) // Don't create a wall with no height
+        {
+            return;
+        }
         GameObject gameObject = GameObject.CreatePrimitive(PrimitiveType.Cube);
 
         gameObject.name = "Wall [" + xIndex + ", " + yIndex + "]";
