@@ -430,11 +430,14 @@ public class GridEditor : EditorWindow
 
     private void ReturnToGridOptions()
     {
-        tileAreas.Clear();
-        materials.Clear();
         grid = null;
         gridTiles = null;
+        gridWalls = null;
         gridTilesList.Clear();
+        gridWallsList.Clear();
+        tileAreas.Clear();
+        wallAreas.Clear();
+        materials.Clear();
         _gridDesign = false;
         _reset = false;
     }

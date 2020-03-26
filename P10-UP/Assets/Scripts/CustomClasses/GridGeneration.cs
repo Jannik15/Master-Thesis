@@ -57,7 +57,10 @@ public class GridGeneration
         {
             for (int x = 0; x < walls.GetLength(0); x++)
             {
-                walls[x, y].InstantiateWall(wallsParent.transform, x, y);
+                if (walls[x, y] != null)
+                {
+                    walls[x, y].InstantiateWall(wallsParent.transform, x, y);
+                }
             }
         }
         Grid grid = gridObject.AddComponent<Grid>();
