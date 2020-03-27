@@ -7,6 +7,7 @@ public class ProceduralLayoutGeneration : MonoBehaviour
 {
     // Inspector variables
     public List<GameObject> grids;
+    public List<GameObject> endGrids;
     public List<Room> rooms = new List<Room>();
 
     [SerializeField] private List<GameObject> sceneryObjects;
@@ -26,56 +27,214 @@ public class ProceduralLayoutGeneration : MonoBehaviour
     private GameObject roomObject; // Functions as the index in rooms, tracking which room the player is in
     private Transform portalParent;
     private int roomId, portalIterator;
+    private List<Tile> gridTiles = new List<Tile>();
+    private List<Vector2> portalTilesLocations = new List<Vector2>();
+    private List<List<Vector2>> portalZones, previousPortalZones = new List<List<Vector2>>();
+
+    public enum CustomRoomType
+    {
+        Start,
+        End,
+        Generic,
+        Event
+    }
 
     private void Start() // To uncomment a demo block, simply put a '/' in front of the '/*'
     {
         //* Procedural generation
-        ProcedurallyGenerateRooms(grids);
+        ProcedurallyGenerateRooms();
         //*/
 
         //* Depth clearing
         Transform depthParent = depthClearer.transform.parent;
+        depthClearer.GetComponent<Renderer>().material.SetInt("_StencilValue", 1);
+        depthClearer.GetComponent<Renderer>().material.renderQueue = 2500;
+
         for (int i = 2; i < 21; i++)
         {
             GameObject newDepthClearer = Instantiate(depthClearer);
             newDepthClearer.transform.parent = depthParent;
             newDepthClearer.name = newDepthClearer.name.Split('_')[0] + "_" + i;
             newDepthClearer.GetComponent<Renderer>().material.SetInt("_StencilValue", i);
-            if (i % 5 == 0)
-            {
-                newDepthClearer.GetComponent<Renderer>().material.renderQueue = 2200;
-            }
-            else
-            {
-                newDepthClearer.GetComponent<Renderer>().material.renderQueue = 2500;
-            }
 
+            newDepthClearer.GetComponent<Renderer>().material.renderQueue = i % 5 == 0 ? 2200 : 2500;
         }
         //*/
 
         SwitchCurrentRoom(rooms[0], null);
     }
 
-    private void ProcedurallyGenerateRooms(List<GameObject> grids)
+    private void ProcedurallyGenerateRooms()
     {
         // TODO: Stop portals from spawning too close to grid edge (if they do, they should be turned such that the edge is perpendicular to them)
         // TODO: If 3+ Zones, try creating another path, try diverging in the generation
 
         portalParent = new GameObject("Portals").transform;
 
-        List<Tile> gridTiles = new List<Tile>();
-        List<Vector2> portalTilesLocations = new List<Vector2>();
-        List<List<Vector2>> portalZones, previousPortalZones = new List<List<Vector2>>();
+        // Create start room
+        CreateRooms(1, grids, CustomRoomType.Start);
 
-        while (rooms.Count < roomAmount)
+        // Create generic rooms
+        CreateRooms(roomAmount - 2, grids, CustomRoomType.Generic);
+
+        #region Create end room
+        int endIndex = Random.Range(0, endGrids.Count);
+        GameObject gridObject = Instantiate(endGrids[endIndex]);
+        Grid endGrid = gridObject.GetComponent<Grid>();
+        gridTiles.Clear();
+        gridTiles.AddRange(endGrid.GetTilesAsList());
+        portalTilesLocations.Clear();
+
+        for (int j = 0; j < gridTiles.Count; j++)
         {
-            int index = Random.Range(0, grids.Count);
-            roomObject = Instantiate(grids[index]);
-            Grid grid = roomObject.GetComponent<Grid>();
+            if (gridTiles[j].GetTileType() == TileGeneration.TileType.Portal)
+            {
+                portalTilesLocations.Add(gridTiles[j].GetPosition());
+            }
+        }
+        portalZones = CustomUtilities.PortalZones(portalTilesLocations, gridTiles[0].transform.localScale.x);
+
+        int tempZoneUsed = -1;
+        for (int i = 0; i < portalZones.Count; i++)
+        {
+            for (int j = 0; j < portalZones[i].Count; j++)
+            {
+                for (int k = 0; k < previousPortalZones.Count; k++)
+                {
+                    if (previousPortalZones[k].Contains(portalZones[i][j]))
+                    {
+                        possiblePortalPositions.Add(portalZones[i][j]);
+                        tempZoneUsed = i;
+                    }
+                }
+            }
+            if (tempZoneUsed != -1) // Only store tiles from a single zone
+            {
+                portalZones.RemoveAt(i);
+                break;
+            }
+        }
+
+        if (possiblePortalPositions.Count > 0)
+        {
+            roomId++;     // RoomId = stencil value of the room, and the index + 1 of the room in the roomList
+            rooms.Add(new Room(gridObject, roomId + 1, endGrid));
+
+            // Create portals connecting the two rooms
+            float randomRotation = Random.Range(0, 360);
+            Vector3 randomPosition = possiblePortalPositions[Random.Range(0, possiblePortalPositions.Count)].ToVector3XZ();
+            GameObject portal = Instantiate(portalPrefab, randomPosition, Quaternion.Euler(0, randomRotation, 0), portalParent);
+            GameObject oppositePortal = Instantiate(portalPrefab, randomPosition, Quaternion.Euler(0, randomRotation - 180, 0), portalParent);
+            portal.name = portal.name + "_" + portalIterator;
+            oppositePortal.name = oppositePortal.name + "_" + (portalIterator + 1);
+            Portal portalComponent = portal.AddComponent<Portal>();
+            Portal oppositePortalComponent = oppositePortal.AddComponent<Portal>();
+            portalComponent.AssignValues(rooms[roomId - 1], rooms[roomId], oppositePortalComponent, portalIterator);
+            oppositePortalComponent.AssignValues(rooms[roomId], rooms[roomId - 1], portalComponent, portalIterator + 1);
+            rooms[roomId].AddPortalInRoom(oppositePortalComponent);
+            rooms[roomId].AddPortalToRoom(portalComponent);
+            rooms[roomId - 1].AddPortalInRoom(portalComponent);
+            rooms[roomId - 1].AddPortalToRoom(oppositePortalComponent);
+            portalIterator += 2;
+            portals.Add(portalComponent);
+            portals.Add(oppositePortalComponent);
+            CustomUtilities.InstantiateMaterials(portal);
+            CustomUtilities.InstantiateMaterials(oppositePortal);
+
+            // Change the parent for objects surrounding portals to the rooms, so the stencils can be changed 
+            CustomUtilities.ChangeParentWithTag(oppositePortal.transform, rooms[roomId].gameObject.transform, "PortalObjects");
+            CustomUtilities.ChangeParentWithTag(portal.transform, rooms[roomId - 1].gameObject.transform, "PortalObjects");
+
+            // Set layer for room and portal
+            rooms[roomId].SetLayer(CustomUtilities.LayerMaskToLayer(differentRoomLayer));
+            portal.layer = CustomUtilities.LayerMaskToLayer(differentRoomLayer);
+            oppositePortal.layer = CustomUtilities.LayerMaskToLayer(differentRoomLayer);
+
+            possiblePortalPositions.Clear();
+            rooms[roomId].gameObject.SetActive(false);
+        }
+        else
+        {
+            Debug.Log("End room could not be paired. Instantiating anyway");
+            for (int j = 0; j < gridTiles.Count; j++)
+            {
+                if (gridTiles[j].GetTileType() == TileGeneration.TileType.Portal)
+                {
+                    possiblePortalPositions.Add(gridTiles[j].GetPosition());
+                }
+            }
+
+            roomId++;     // RoomId = stencil value of the room, and the index + 1 of the room in the roomList
+            rooms.Add(new Room(gridObject, roomId + 1, endGrid));
+
+            // Create portals connecting the two rooms
+            float randomRotation = Random.Range(0, 360);
+            Vector3 randomPosition = possiblePortalPositions[Random.Range(0, possiblePortalPositions.Count)].ToVector3XZ();
+            GameObject portal = Instantiate(portalPrefab, randomPosition, Quaternion.Euler(0, randomRotation, 0), portalParent);
+            GameObject oppositePortal = Instantiate(portalPrefab, randomPosition, Quaternion.Euler(0, randomRotation - 180, 0), portalParent);
+            portal.name = portal.name + "_" + portalIterator;
+            oppositePortal.name = oppositePortal.name + "_" + (portalIterator + 1);
+            Portal portalComponent = portal.AddComponent<Portal>();
+            Portal oppositePortalComponent = oppositePortal.AddComponent<Portal>();
+            portalComponent.AssignValues(rooms[roomId - 1], rooms[roomId], oppositePortalComponent, portalIterator);
+            oppositePortalComponent.AssignValues(rooms[roomId], rooms[roomId - 1], portalComponent, portalIterator + 1);
+            rooms[roomId].AddPortalInRoom(oppositePortalComponent);
+            rooms[roomId].AddPortalToRoom(portalComponent);
+            rooms[roomId - 1].AddPortalInRoom(portalComponent);
+            rooms[roomId - 1].AddPortalToRoom(oppositePortalComponent);
+            portalIterator += 2;
+            portals.Add(portalComponent);
+            portals.Add(oppositePortalComponent);
+            CustomUtilities.InstantiateMaterials(portal);
+            CustomUtilities.InstantiateMaterials(oppositePortal);
+
+            // Change the parent for objects surrounding portals to the rooms, so the stencils can be changed 
+            CustomUtilities.ChangeParentWithTag(oppositePortal.transform, rooms[roomId].gameObject.transform, "PortalObjects");
+            CustomUtilities.ChangeParentWithTag(portal.transform, rooms[roomId - 1].gameObject.transform, "PortalObjects");
+
+            // Set layer for room and portal
+            rooms[roomId].SetLayer(CustomUtilities.LayerMaskToLayer(differentRoomLayer));
+            portal.layer = CustomUtilities.LayerMaskToLayer(differentRoomLayer);
+            oppositePortal.layer = CustomUtilities.LayerMaskToLayer(differentRoomLayer);
+
+            possiblePortalPositions.Clear();
+            rooms[roomId].gameObject.SetActive(false);
+        }
+
+        for (int i = 0; i < previousPortalZones.Count; i++) // TODO: Might be unnecessary - Test for optimization
+        {
+            previousPortalZones[i].Clear();
+        }
+        previousPortalZones.Clear();
+        previousPortalZones.AddRange(portalZones);
+        #endregion
+
+        for (int j = 0; j < portals.Count; j++)
+        {
+            if (j > 0)
+            {
+                portals[j].SetActive(false);
+            }
+        }
+        roomId = 1;
+        currentRoom = rooms[0];
+    }
+
+    private void CreateRooms(int roomCount, List<GameObject> gridInputList, CustomRoomType roomType)
+    {
+        // Iterates over the amount of rooms specified in the constructor
+        int roomIterator = 0;
+        while (roomIterator < roomCount)
+        {
+            // Takes a random grid from the list of input grids, and stores the grid component
+            int newIndex = Random.Range(0, gridInputList.Count);
+            GameObject gridObject = Instantiate(gridInputList[newIndex]);
+            Grid grid = gridObject.GetComponent<Grid>();
+
+            // Clear reference lists and add grid tiles and portal tiles to the lists
             gridTiles.Clear();
             gridTiles.AddRange(grid.GetTilesAsList());
             portalTilesLocations.Clear();
-
             for (int j = 0; j < gridTiles.Count; j++)
             {
                 if (gridTiles[j].GetTileType() == TileGeneration.TileType.Portal)
@@ -83,15 +242,15 @@ public class ProceduralLayoutGeneration : MonoBehaviour
                     portalTilesLocations.Add(gridTiles[j].GetPosition());
                 }
             }
+
+            // Generate portalZones using portal tiles that are next to each other
             portalZones = CustomUtilities.PortalZones(portalTilesLocations, gridTiles[0].transform.localScale.x);
-            // Create the portals TODO: Update
-            // - Step 1: Find all the portal tiles in Room n-1 and n if n > 0
-            // - Step 2: Place two portals with opposite rotations on a portal tile that is overlapping in both rooms
-            // - Step 3: Update shader matrix
+
+            // Pair rooms if portals from previous room overlaps with the current room, otherwise delete the room and try again
             if (rooms.Count > 0)
             {
                 int zoneUsed = -1;
-                for (int i = 0; i < portalZones.Count; i++)
+                for (int i = 0; i < portalZones.Count; i++) // TODO: Expand this method to include rotating rooms?
                 {
                     for (int j = 0; j < portalZones[i].Count; j++)
                     {
@@ -104,17 +263,18 @@ public class ProceduralLayoutGeneration : MonoBehaviour
                             }
                         }
                     }
+
                     if (zoneUsed != -1) // Only store tiles from a single zone
                     {
-                        portalZones.RemoveAt(i);
+                        portalZones.RemoveAt(i); // Remove the used portal zone so it cannot be used for pairing with future rooms (would cause portal overlap)
                         break;
                     }
                 }
 
-                if (possiblePortalPositions.Count > 0)
+                if (possiblePortalPositions.Count > 0) // Portal overlap exists, pairing is possible.
                 {
-                    roomId++;     // RoomId = stencil value of the room, and the index + 1 of the room in the roomList
-                    rooms.Add(new Room(roomObject, roomId + 1, grid));
+                    roomId++; // RoomId = stencil value of the room, and the index + 1 of the room in the roomList TODO: AFTER BITMASKS Change this to just be the rooms id starting from 0.
+                    rooms.Add(new Room(gridObject, roomId + 1, grid)); // Add the room object as a Room with a unique ID and a grid
 
                     for (int j = 0; j < gridTiles.Count; j++)
                     {
@@ -129,15 +289,20 @@ public class ProceduralLayoutGeneration : MonoBehaviour
 
                     // Create portals connecting the two rooms
                     float randomRotation = Random.Range(0, 360);
-                    Vector3 randomPosition = possiblePortalPositions[Random.Range(0, possiblePortalPositions.Count)].ToVector3XZ();
-                    GameObject portal = Instantiate(portalPrefab, randomPosition, Quaternion.Euler(0, randomRotation, 0), portalParent);
-                    GameObject oppositePortal = Instantiate(portalPrefab, randomPosition, Quaternion.Euler(0, randomRotation - 180, 0), portalParent);
+                    Vector3 randomPosition = possiblePortalPositions[Random.Range(0, possiblePortalPositions.Count)]
+                        .ToVector3XZ();
+                    GameObject portal = Instantiate(portalPrefab, randomPosition,
+                        Quaternion.Euler(0, randomRotation, 0), portalParent);
+                    GameObject oppositePortal = Instantiate(portalPrefab, randomPosition,
+                        Quaternion.Euler(0, randomRotation - 180, 0), portalParent);
                     portal.name = portal.name + "_" + portalIterator;
                     oppositePortal.name = oppositePortal.name + "_" + (portalIterator + 1);
                     Portal portalComponent = portal.AddComponent<Portal>();
                     Portal oppositePortalComponent = oppositePortal.AddComponent<Portal>();
-                    portalComponent.AssignValues(rooms[roomId - 1], rooms[roomId], oppositePortalComponent, portalIterator);
-                    oppositePortalComponent.AssignValues(rooms[roomId], rooms[roomId - 1], portalComponent, portalIterator + 1);
+                    portalComponent.AssignValues(rooms[roomId - 1], rooms[roomId], oppositePortalComponent,
+                        portalIterator);
+                    oppositePortalComponent.AssignValues(rooms[roomId], rooms[roomId - 1], portalComponent,
+                        portalIterator + 1);
                     rooms[roomId].AddPortalInRoom(oppositePortalComponent);
                     rooms[roomId].AddPortalToRoom(portalComponent);
                     rooms[roomId - 1].AddPortalInRoom(portalComponent);
@@ -149,14 +314,15 @@ public class ProceduralLayoutGeneration : MonoBehaviour
                     CustomUtilities.InstantiateMaterials(oppositePortal);
 
                     // Change the parent for objects surrounding portals to the rooms, so the stencils can be changed 
-                    CustomUtilities.ChangeParentWithTag(oppositePortal.transform, rooms[roomId].gameObject.transform, "PortalObjects");
-                    CustomUtilities.ChangeParentWithTag(portal.transform, rooms[roomId - 1].gameObject.transform, "PortalObjects");
+                    CustomUtilities.ChangeParentWithTag(oppositePortal.transform, rooms[roomId].gameObject.transform,
+                        "PortalObjects");
+                    CustomUtilities.ChangeParentWithTag(portal.transform, rooms[roomId - 1].gameObject.transform,
+                        "PortalObjects");
 
                     // Set layer for room and portal
                     rooms[roomId].SetLayer(CustomUtilities.LayerMaskToLayer(differentRoomLayer));
                     portal.layer = CustomUtilities.LayerMaskToLayer(differentRoomLayer);
                     oppositePortal.layer = CustomUtilities.LayerMaskToLayer(differentRoomLayer);
-
 
                     possiblePortalPositions.Clear();
                     if (rooms.Count > 3)
@@ -166,33 +332,19 @@ public class ProceduralLayoutGeneration : MonoBehaviour
                 }
                 else // If false, no portal tiles were overlapping - undo generation and try another room
                 {
-                    Destroy(roomObject);
-                    roomObject = rooms[roomId].gameObject;
+                    Destroy(gridObject);
                     continue;
                 }
             }
-            else
+            else // If this is the first room being generated, simply add it to the list.
             {
-                rooms.Add(new Room(roomObject, roomId + 1, grid));
+                rooms.Add(new Room(gridObject, roomId + 1, grid));
             }
-            
-            for (int i = 0; i < previousPortalZones.Count; i++) // TODO: Might be unnecessary - Test for optimization
-            {
-                previousPortalZones[i].Clear();
-            }
+
+            roomIterator++;
             previousPortalZones.Clear();
             previousPortalZones.AddRange(portalZones);
         }
-
-        for (int j = 0; j < portals.Count; j++)
-        {
-            if (j > 0)
-            {
-                portals[j].SetActive(false);
-            }
-        }
-        roomId = 1;
-        currentRoom = rooms[0];
     }
 
     #region World switching on portal collision

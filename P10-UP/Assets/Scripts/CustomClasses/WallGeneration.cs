@@ -53,10 +53,16 @@ public class WallGeneration
         gameObject.transform.localScale = scale;
         gameObject.transform.parent = parent;
 
+        Renderer renderer = gameObject.GetComponent<Renderer>();
         if (material != null)
         {
-            Renderer renderer = gameObject.GetComponent<Renderer>();
+            Debug.Log("Setting material for " + gameObject.name + " to " + material.name);
             renderer.material = material;
+        }
+        else
+        {
+            Debug.Log("Setting material for " + gameObject.name + " to " + Resources.Load<Material>("Default").name);
+            renderer.material = Resources.Load<Material>("Default");
         }
     }
 }
