@@ -56,12 +56,10 @@ public class WallGeneration
         Renderer renderer = gameObject.GetComponent<Renderer>();
         if (material != null)
         {
-            Debug.Log("Setting material for " + gameObject.name + " to " + material.name);
             renderer.material = material;
         }
         else
         {
-            Debug.Log("Setting material for " + gameObject.name + " to " + Resources.Load<Material>("Default").name);
             renderer.material = Resources.Load<Material>("Default");
         }
     }

@@ -38,5 +38,6 @@ public class Ceiling
         gameObject.transform.eulerAngles = new Vector3(270.0f, 0.0f, 0.0f);
         gameObject.transform.localScale = new Vector3(size, size, size);
         gameObject.transform.parent = parent;
+        gameObject.GetComponent<Renderer>().material = Resources.Load<Material>("Default");
     }
 }

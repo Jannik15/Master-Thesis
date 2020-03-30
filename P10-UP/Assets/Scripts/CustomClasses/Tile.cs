@@ -29,4 +29,8 @@ public class Tile : MonoBehaviour
     {
         return position;
     }
+    public void SetPosition(Vector2 position)
+    {
+        this.position = position;
+    }
 }
