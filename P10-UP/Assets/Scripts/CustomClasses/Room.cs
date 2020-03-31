@@ -9,7 +9,7 @@ public class Room
     private int roomId;
     private List<Portal> portalsInRoom, portalsToRoom;
     private Grid grid;
-    private List<Transform> objectsInRoom = new List<Transform>();
+    private List<Transform> playerCollisionObjectsInRoom = new List<Transform>(), noPlayerCollisionObjectsInRoom = new List<Transform>();
     public Room(GameObject gameObject, int roomId, Grid grid)
     {
         this.gameObject = gameObject;
@@ -18,7 +18,7 @@ public class Room
         portalsInRoom = new List<Portal>();
         portalsToRoom = new List<Portal>();
 
-        objectsInRoom.AddRange(gameObject.GetComponentsInChildren<Transform>());
+        noPlayerCollisionObjectsInRoom.AddRange(gameObject.GetComponentsInChildren<Transform>());
     }
 
     public int GetRoomId()
@@ -61,11 +61,60 @@ public class Room
         return portalsToRoom;
     }
 
-    public void SetLayer(int layer)
+    public void AddObjectToRoom(Transform objectToAdd, bool playerCanCollide)
     {
-        for (int i = 0; i < objectsInRoom.Count; i++)
+        Transform[] objectToAddAndItsChildren = objectToAdd.GetComponentsInChildren<Transform>();
+        if (playerCanCollide)
         {
-            objectsInRoom[i].gameObject.layer = layer;
+            playerCollisionObjectsInRoom.AddRange(objectToAddAndItsChildren);
+        }
+        else
+        {
+            noPlayerCollisionObjectsInRoom.AddRange(objectToAddAndItsChildren);
+        }
+    }
+
+    public void AddObjectsToRoom(IEnumerable<Transform> objectsToAdd, bool playerCanCollide)
+    {
+        if (playerCanCollide)
+        {
+            playerCollisionObjectsInRoom.AddRange(objectsToAdd);
+        }
+        else
+        {
+            noPlayerCollisionObjectsInRoom.AddRange(objectsToAdd);
+        }
+    }
+
+    public void RemoveObjectFromRoom(Transform objectToRemove)
+    {
+        Transform[] objectToRemoveAndItsChildren = objectToRemove.GetComponentsInChildren<Transform>();
+        for (int i = 0; i < objectToRemoveAndItsChildren.Length; i++)
+        {
+            if (noPlayerCollisionObjectsInRoom.Contains(objectToRemoveAndItsChildren[i]))
+            {
+                noPlayerCollisionObjectsInRoom.Remove(objectToRemoveAndItsChildren[i]);
+            }
+            else if (playerCollisionObjectsInRoom.Contains(objectToRemoveAndItsChildren[i]))
+            {
+                playerCollisionObjectsInRoom.Remove(objectToRemoveAndItsChildren[i]);
+            }
+            else
+            {
+                Debug.Log("Attempted to remove " + objectToRemove.name + " from Room " + gameObject.name + " but that object was not found in the rooms object list.");
+            }
+        }
+    }
+
+    public void SetLayer(int layerForPlayerCollisionObjects, int layerForNoPlayerCollisionObjects)
+    {
+        for (int i = 0; i < noPlayerCollisionObjectsInRoom.Count; i++)
+        {
+            noPlayerCollisionObjectsInRoom[i].gameObject.layer = layerForNoPlayerCollisionObjects;
+        }
+        for (int i = 0; i < playerCollisionObjectsInRoom.Count; i++)
+        {
+            playerCollisionObjectsInRoom[i].gameObject.layer = layerForPlayerCollisionObjects;
         }
     } 
 }
