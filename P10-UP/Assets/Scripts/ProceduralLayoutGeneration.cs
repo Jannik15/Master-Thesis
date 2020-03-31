@@ -16,7 +16,7 @@ public class ProceduralLayoutGeneration : MonoBehaviour
     [SerializeField] private GameObject depthClearer;
     [SerializeField] private int roomAmount = 10;
     [SerializeField] private Shader currentRoomMask, otherRoomMask;
-    [SerializeField] private LayerMask currentRoomLayer, differentRoomLayer;
+    [SerializeField] private LayerMask currentRoomLayer, differentRoomLayer, defaultLayer;
 
     // Public non-inspector variables
     [HideInInspector] public Room currentRoom, previousRoom; // Room cannot currently be displayed in the inspector, requires a CustomInspectorDrawer implementation.
@@ -24,7 +24,6 @@ public class ProceduralLayoutGeneration : MonoBehaviour
     // Private variables
     private List<Vector2> possiblePortalPositions = new List<Vector2>();
     private List<Portal> portals = new List<Portal>();
-    private List<List<Portal>> portalsConnectedToPreviousRoom = new List<List<Portal>>();
     private GameObject roomObject; // Functions as the index in rooms, tracking which room the player is in
     private Transform portalParent;
     private int roomId, portalIterator;
@@ -266,7 +265,8 @@ public class ProceduralLayoutGeneration : MonoBehaviour
                     {
                         if (gridTiles[i].GetTileType() == TileGeneration.TileType.Event)
                         {
-                            Instantiate(endGameEventObjects[Random.Range(0, endGameEventObjects.Count)], gridTiles[i].GetPosition().ToVector3XZ(), Quaternion.identity, rooms[roomId].gameObject.transform);
+                            rooms[roomId].AddObjectToRoom(Instantiate(endGameEventObjects[Random.Range(0, endGameEventObjects.Count)], gridTiles[i].GetPosition().ToVector3XZ(), 
+                                Quaternion.identity, rooms[roomId].gameObject.transform).transform, true);
                             break;
                         }
                     }
@@ -360,9 +360,9 @@ public class ProceduralLayoutGeneration : MonoBehaviour
                 gridTiles[j].SetPosition(gridTiles[j].transform.position.GetXZVector2()); // Set rotation to the paired rotation
                 if (gridTiles[j].GetTileType() == TileGeneration.TileType.Scenery)
                 {
-                    if (Random.Range(0, 2) < 1)
+                    if (Random.Range(0, 3) < 1)
                     {
-                        Instantiate(sceneryObjects[Random.Range(0, sceneryObjects.Count)], gridTiles[j].GetPosition().ToVector3XZ(), Quaternion.identity, rooms[roomId].gameObject.transform);
+                        rooms[roomId].AddObjectToRoom(Instantiate(sceneryObjects[Random.Range(0, sceneryObjects.Count)], gridTiles[j].GetPosition().ToVector3XZ(), Quaternion.identity, rooms[roomId].gameObject.transform).transform, false);
                     }
                 }
             }
@@ -394,7 +394,7 @@ public class ProceduralLayoutGeneration : MonoBehaviour
             CustomUtilities.ChangeParentWithTag(portal.transform, rooms[roomId - 1].gameObject.transform, "PortalObjects");
 
             // Set layer for room and portal
-            rooms[roomId].SetLayer(CustomUtilities.LayerMaskToLayer(differentRoomLayer));
+            rooms[roomId].SetLayer(CustomUtilities.LayerMaskToLayer(differentRoomLayer), CustomUtilities.LayerMaskToLayer(differentRoomLayer));
             portal.layer = CustomUtilities.LayerMaskToLayer(differentRoomLayer);
             oppositePortal.layer = CustomUtilities.LayerMaskToLayer(differentRoomLayer);
 
@@ -405,11 +405,6 @@ public class ProceduralLayoutGeneration : MonoBehaviour
         }
 
         return possiblePortalPositions.Count > 0; // return whether or not portal tiles in current room are overlapping with portal tiles in previous rooms
-    }
-
-    private void GetPortalZones()
-    {
-
     }
 
     #region World switching on portal collision
@@ -424,7 +419,7 @@ public class ProceduralLayoutGeneration : MonoBehaviour
         previousRoom = currentRoom;
         currentRoom = newCurrentRoom;
         CustomUtilities.UpdateStencils(currentRoom.gameObject, 0, 2000);
-        previousRoom.SetLayer(CustomUtilities.LayerMaskToLayer(differentRoomLayer));
+        previousRoom.SetLayer(CustomUtilities.LayerMaskToLayer(differentRoomLayer), CustomUtilities.LayerMaskToLayer(differentRoomLayer));
         for (int i = 0; i < previousRoom.GetPortalsInRoom().Count; i++)
         {
             if (previousRoom.GetPortalsInRoom()[i] != currentPortal)
@@ -432,7 +427,7 @@ public class ProceduralLayoutGeneration : MonoBehaviour
                 previousRoom.GetPortalsInRoom()[i].gameObject.layer = CustomUtilities.LayerMaskToLayer(differentRoomLayer);
             }
         }
-        currentRoom.SetLayer(CustomUtilities.LayerMaskToLayer(currentRoomLayer));
+        currentRoom.SetLayer(CustomUtilities.LayerMaskToLayer(currentRoomLayer), CustomUtilities.LayerMaskToLayer(defaultLayer));
         for (int i = 0; i < currentRoom.GetPortalsInRoom().Count; i++)
         {
             currentRoom.GetPortalsInRoom()[i].gameObject.layer = CustomUtilities.LayerMaskToLayer(currentRoomLayer);
