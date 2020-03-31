@@ -240,7 +240,7 @@ public class ProceduralLayoutGeneration : MonoBehaviour
 
             // Pair rooms if portals from previous room overlaps with the current room, otherwise delete the room and try again
             int roomRotation = 0;
-            bool success = false;
+            bool success;
             switch (roomType)
             {
                 case CustomRoomType.Start:

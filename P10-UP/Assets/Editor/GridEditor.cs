@@ -31,7 +31,7 @@ public class GridEditor : EditorWindow
     private bool _gridDesign, _drawGridOnce, _guiInit, _reset, _leftClickDragIsWalkable, _changeWallMaterial;
     private float cellSize = 0.5f, tileSize, leftClickDragWallHeight, leftClickDragCeilingHeight;
     private static Vector2 buttonSize = new Vector2(150, 30);
-    private Vector2 windowSize, screenMiddle, tileSizeVector;
+    private Vector2 windowSize, screenMiddle, leftMiddle, rightMiddle, tileSizeVector;
     private Vector2Int gridDimensions = new Vector2Int(6, 6);
     private Event currentEvent;
 
@@ -73,6 +73,8 @@ public class GridEditor : EditorWindow
 
         // Variables that can change during use
         screenMiddle = new Vector2(position.width / 2.0f, position.height / 2.0f);
+        leftMiddle = new Vector2(100, position.height / 2.0f + 50);
+        rightMiddle = new Vector2(position.width - 75, position.height / 2.0f + 50);
         
         if (!_gridDesign) // Paint grid generation menu
         {
@@ -188,7 +190,7 @@ public class GridEditor : EditorWindow
         }   
 
         Vector2 areaSizeLeft = new Vector2(150, 300);
-        GUILayout.BeginArea(new Rect(screenMiddle - areaSizeLeft / 2 - new Vector2(300, 0), areaSizeLeft));
+        GUILayout.BeginArea(new Rect(leftMiddle - areaSizeLeft / 2, areaSizeLeft));
         GUILayout.Label("Left-click drag selection");
         leftClickDragSelection = GUILayout.SelectionGrid(leftClickDragSelection, leftClickDragLabels, 1);
 
@@ -238,12 +240,13 @@ public class GridEditor : EditorWindow
         GUILayout.EndArea();
         // Area for Buttons for saving or instantiating the Grid, and selected tile options
         Vector2 areaSizeRight = new Vector2(200, 300);
-        GUILayout.BeginArea(new Rect(screenMiddle - areaSizeRight / 2 + new Vector2(300, 0), areaSizeRight));
+        GUILayout.BeginArea(new Rect(rightMiddle - areaSizeRight / 2, areaSizeRight));
         if (selectedTile != null)
         {
+            EditorGUIUtility.labelWidth = 60;
             GUILayout.Label("Tile " + selectedTileNum + ": [" + selectedTile.GetCoordinates().x + "," + selectedTile.GetCoordinates().y + "]");
-            selectedTile.SetTileType((TileGeneration.TileType)EditorGUILayout.EnumPopup("TileType: ", selectedTile.GetTileType()));
-            selectedTile.AssignMaterial((Material)EditorGUILayout.ObjectField("Material:", selectedTile.GetMaterial(), typeof(Material)));
+            selectedTile.SetTileType((TileGeneration.TileType)EditorGUILayout.EnumPopup("TileType: ", selectedTile.GetTileType(), GUILayout.Width(areaSizeRight.x-50)));
+            selectedTile.AssignMaterial((Material)EditorGUILayout.ObjectField("Material:", selectedTile.GetMaterial(), typeof(Material), GUILayout.Width(areaSizeRight.x - 50)));
         }
         if (GUILayout.Button("Instantiate Grid", buttonParams))
         {
