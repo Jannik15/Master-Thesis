@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Unity.Mathematics;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 public static class CustomUtilities
 {
@@ -168,7 +170,11 @@ public static class CustomUtilities
             {
                 for (int k = 0; k < portalZones[j].Count; k++)
                 {
-                    if (Vector2.Distance(remainingPortals[i], portalZones[j][k]) <= tileSize) // TODO: Convert to Distancesq <= tileSize * tileSize and test
+                    //if (Vector2.Distance(remainingPortals[i], portalZones[j][k]) <= tileSize)
+                    //{
+                    //    connections.Add(j);
+                    //}
+                    if (math.distancesq(remainingPortals[i], portalZones[j][k]) <= math.pow(tileSize,2))
                     {
                         connections.Add(j);
                     }
