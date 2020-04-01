@@ -125,7 +125,6 @@ public class ProceduralLayoutGeneration : MonoBehaviour
                         {
                             if (math.distancesq(portalTilesLocations[i], portalTilesLocations[j]) <= math.pow(0.5f, 2f))
                             {
-                                Debug.Log("Tried adding a new vector with position: Vector2.Lerp(" + portalTilesLocations[i] + ", " + portalTilesLocations[j] + ") = " + Vector2.Lerp(portalTilesLocations[i], portalTilesLocations[j], 0.5f));
                                 portalTilesLocations.Add(Vector2.Lerp(portalTilesLocations[i], portalTilesLocations[j], 0.5f));
                             }
                         }
