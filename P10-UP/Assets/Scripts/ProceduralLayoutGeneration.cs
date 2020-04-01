@@ -13,6 +13,7 @@ public class ProceduralLayoutGeneration : MonoBehaviour
 
     [SerializeField] private List<GameObject> sceneryObjects, endGameEventObjects;
     [SerializeField] private GameObject portalPrefab;
+    [SerializeField] private GameObject portalDoorPrefab;
     [SerializeField] private GameObject depthClearer;
     [SerializeField] private int roomAmount = 10;
     [SerializeField] private Shader currentRoomMask, otherRoomMask;
@@ -259,7 +260,7 @@ public class ProceduralLayoutGeneration : MonoBehaviour
             float randomRotation = Random.Range(0, 360);
             Vector3 randomPosition = possiblePortalPositions[Random.Range(0, possiblePortalPositions.Count)]
                 .ToVector3XZ();
-            GameObject portal = Instantiate(portalPrefab, randomPosition, Quaternion.Euler(0, randomRotation, 0), portalParent);
+            GameObject portal = Instantiate(portalDoorPrefab, randomPosition, Quaternion.Euler(0, randomRotation, 0), portalParent);
             GameObject oppositePortal = Instantiate(portalPrefab, randomPosition, Quaternion.Euler(0, randomRotation - 180, 0), portalParent);
             portal.name = portal.name + "_" + portalIterator;
             oppositePortal.name = oppositePortal.name + "_" + (portalIterator + 1);
