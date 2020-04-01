@@ -5,6 +5,8 @@ using UnityEngine;
 public class PlayerInteractions : MonoBehaviour
 {
     public GameObject[] keyUI = new GameObject[2];
+    public LayerMask layerMaskRay;
+
 
     private Ray ray;
     private Camera playerCamera;
@@ -27,27 +29,48 @@ public class PlayerInteractions : MonoBehaviour
     {
         RaycastHit hit;
         ray = playerCamera.ScreenPointToRay(Input.mousePosition);
-
-        if (Input.GetKeyDown(KeyCode.F) && Physics.Raycast(ray, out hit, 0.5f) && hit.collider.gameObject.tag == "Button")
+        if (Input.GetKeyDown(KeyCode.F) && Physics.Raycast(ray, out hit, 1.5f, layerMaskRay))
         {
-            if (keyArray[hit.collider.gameObject.GetComponentInParent<KeyPad>().KeyPadID] == true)
+            Debug.Log(hit.collider);
+        }
+
+        if (Input.GetKeyDown(KeyCode.F) && Physics.Raycast(ray, out hit, 1.5f, layerMaskRay) && hit.collider.gameObject.tag == "Button")
+        {
+            if (hit.collider.gameObject.GetComponentInParent<DoorLock>().isLocked == true)
             {
-                if (!open)
+                if (keyArray[hit.collider.gameObject.GetComponentInParent<KeyPad>().KeyPadID] == true)
                 {
-                    hit.collider.gameObject.GetComponentInParent<Animator>().SetTrigger("Open");
-                    open = true;
+                    if (!hit.collider.gameObject.GetComponentInParent<KeyPad>().Open)
+                    {
+                        hit.collider.gameObject.GetComponentInParent<Animator>().SetTrigger("Open");
+                        hit.collider.gameObject.GetComponentInParent<KeyPad>().Open = true;
+                    }
+                    else if (hit.collider.gameObject.GetComponentInParent<KeyPad>().Open)
+                    {
+                        hit.collider.gameObject.GetComponentInParent<Animator>().SetTrigger("Close");
+                        hit.collider.gameObject.GetComponentInParent<KeyPad>().Open = false;
+                    }
                 }
-                else if (open)
+                else
                 {
-                    hit.collider.gameObject.GetComponentInParent<Animator>().SetTrigger("Close");
-                    open = false;
+                    Debug.Log("Door is Locked, find the Key");
                 }
             }
             else
             {
-                Debug.Log("Door is Locked, find the Key");
+                if (!hit.collider.gameObject.GetComponentInParent<KeyPad>().Open)
+                {
+                    hit.collider.gameObject.GetComponentInParent<Animator>().SetTrigger("Open");
+                    hit.collider.gameObject.GetComponentInParent<KeyPad>().Open = true;
+                }
+                else if (hit.collider.gameObject.GetComponentInParent<KeyPad>().Open)
+                {
+                    hit.collider.gameObject.GetComponentInParent<Animator>().SetTrigger("Close");
+                    hit.collider.gameObject.GetComponentInParent<KeyPad>().Open = false;
+                }
             }
-
+            
+            Debug.Log("Open is now = " + open + "for " + gameObject.name);
             
         }
     }
