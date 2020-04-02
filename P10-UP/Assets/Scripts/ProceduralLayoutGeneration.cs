@@ -10,6 +10,7 @@ public class ProceduralLayoutGeneration : MonoBehaviour
     public List<GameObject> grids;
     public List<GameObject> endGrids;
     public List<Room> rooms = new List<Room>();
+    public List<GameObject> keysList;
 
     [SerializeField] private List<GameObject> sceneryObjects, endGameEventObjects;
     [SerializeField] private GameObject portalPrefab, portalDoorPrefab, depthClearer, keyCard;
@@ -23,13 +24,15 @@ public class ProceduralLayoutGeneration : MonoBehaviour
     // Private variables
     private List<Vector2> possiblePortalPositions = new List<Vector2>();
     private List<Portal> portals = new List<Portal>();
-    private GameObject roomObject; // Functions as the index in rooms, tracking which room the player is in
+    private GameObject roomObject, keyCardToSpawn; // Functions as the index in rooms, tracking which room the player is in
     private Transform portalParent;
     private int roomId, portalIterator;
     private List<Tile> gridTiles = new List<Tile>();
     private List<Vector2> portalTilesLocations = new List<Vector2>();
     private List<List<Vector2>> previousPortalZones = new List<List<Vector2>>();
     private List<List<List<Vector2>>> portalZones = new List<List<List<Vector2>>>();
+    private int keyCardID;
+
 
     public enum CustomRoomType
     {
@@ -271,10 +274,13 @@ public class ProceduralLayoutGeneration : MonoBehaviour
             int randomPortalPosition = Random.Range(0, possiblePortalPositions.Count);
             int spawnDoor = Random.Range(0, 10);
             GameObject portal;
-            if (spawnDoor < 3 && roomId > 2)
+            if (spawnDoor < 3 && roomId > 1)
             {
                 portal = Instantiate(portalDoorPrefab, possiblePortalPositions[randomPortalPosition].ToVector3XZ(), 
                     Quaternion.Euler(0, randomRotation, 0), portalParent);
+                portal.GetComponentInChildren<KeyPad>().KeyPadID = keyCardID;
+                portal.GetComponentInChildren<DoorLock>().isLocked = true;
+
                 int roomToSpawnKeyCardIn = Random.Range(1, roomId);
                 
                 Grid keyCardGrid = rooms[roomToSpawnKeyCardIn].gameObject.GetComponent<Grid>();
@@ -286,9 +292,19 @@ public class ProceduralLayoutGeneration : MonoBehaviour
                         keyCardViableTiles.Add(keyCardGrid.GetTilesAsList()[i]);
                     }
                 }
+
                 int keyCardTileIndex = Random.Range(0, keyCardViableTiles.Count);
-                rooms[roomToSpawnKeyCardIn].AddObjectToRoom(Instantiate(keyCard, keyCardViableTiles[keyCardTileIndex].GetPosition().ToVector3XZ(),
-                    Quaternion.identity, rooms[roomId].gameObject.transform).transform, true);
+                keyCardToSpawn = Instantiate(keyCard, keyCardViableTiles[keyCardTileIndex].GetPosition().ToVector3XZ(),
+                    Quaternion.identity, rooms[roomId].gameObject.transform);
+                
+                rooms[roomToSpawnKeyCardIn].AddObjectToRoom(keyCardToSpawn.transform, true);
+                for (int i = 0; i < rooms[roomToSpawnKeyCardIn].playerCollisionObjectsInRoom.Count; i++)
+                {
+                    Debug.Log("Added keycard " + i + " " + rooms[roomToSpawnKeyCardIn].playerCollisionObjectsInRoom[i] + "in room " + rooms[roomToSpawnKeyCardIn].gameObject.name);
+                }
+                keysList.Insert(keyCardID, keyCardToSpawn);
+                keyCardToSpawn.GetComponentInChildren<KeyCard>().keyID = keyCardID;
+                keyCardID ++;
             }
             else
             {
