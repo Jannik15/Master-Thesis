@@ -8,7 +8,6 @@ public class Room
     public Grid roomGrid;
     private int roomId;
     private List<Portal> portalsInRoom, portalsToRoom;
-    private Grid grid;
     private List<Transform> playerCollisionObjectsInRoom = new List<Transform>(), noPlayerCollisionObjectsInRoom = new List<Transform>();
     public Room(GameObject gameObject, int roomId, Grid grid)
     {
@@ -59,6 +58,23 @@ public class Room
     public List<Portal> GetPortalsToRoom()
     {
         return portalsToRoom;
+    }
+    /// <summary>
+    /// Use this when the object cannot move from the room it is instantiated in.
+    /// </summary>
+    public void InstantiateStaticObjectInRoom(GameObject objectToAdd, Tile tileToPlaceObjectOn, bool playerCanCollide)
+    {
+        tileToPlaceObjectOn.PlaceObject(objectToAdd);
+        Transform[] objectToAddAndItsChildren = objectToAdd.GetComponentsInChildren<Transform>();
+        if (playerCanCollide)
+        {
+            playerCollisionObjectsInRoom.AddRange(objectToAddAndItsChildren);
+        }
+        else
+        {
+            noPlayerCollisionObjectsInRoom.AddRange(objectToAddAndItsChildren);
+        }
+        objectToAdd.transform.SetParent(gameObject.transform);
     }
 
     public void AddObjectToRoom(Transform objectToAdd, bool playerCanCollide)

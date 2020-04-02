@@ -33,10 +33,10 @@ public class ProceduralLayoutGeneration : MonoBehaviour
 
     public enum CustomRoomType
     {
-        Start = 0,
-        End = 1,
-        Generic = 2,
-        Event = 3
+        Start,
+        End,
+        Generic,
+        Event
     }
 
     private void Start() // To uncomment a demo block, simply put a '/' in front of the '/*'
@@ -261,8 +261,7 @@ public class ProceduralLayoutGeneration : MonoBehaviour
                 {
                     if (Random.Range(0, 3) < 1)
                     {
-                        rooms[roomId].AddObjectToRoom(Instantiate(sceneryObjects[Random.Range(0, sceneryObjects.Count)], gridTiles[j].GetPosition().ToVector3XZ(), 
-                            Quaternion.identity, rooms[roomId].gameObject.transform).transform, false);
+                        rooms[roomId].InstantiateStaticObjectInRoom(sceneryObjects[Random.Range(0, sceneryObjects.Count)], gridTiles[j], false);
                     }
                 }
             }
@@ -300,6 +299,7 @@ public class ProceduralLayoutGeneration : MonoBehaviour
                 Quaternion.Euler(0, randomRotation - 180, 0), portalParent);
             portal.name = portal.name + "_" + portalIterator;
             oppositePortal.name = oppositePortal.name + "_" + (portalIterator + 1);
+
             Portal portalComponent = portal.AddComponent<Portal>();
             Portal oppositePortalComponent = oppositePortal.AddComponent<Portal>();
             portalComponent.AssignValues(rooms[roomId - 1], rooms[roomId], oppositePortalComponent, portalIterator);
