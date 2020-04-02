@@ -6,7 +6,7 @@
     }
 	SubShader
 	{
-		Tags { "RenderType" = "Opaque" "Queue" = "Geometry+100"}
+		Tags { "RenderType" = "Opaque" "Queue" = "Geometry+400"}
 		ColorMask 0
 		Stencil
 		{

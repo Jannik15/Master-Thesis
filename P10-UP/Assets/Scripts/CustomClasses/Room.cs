@@ -65,17 +65,20 @@ public class Room
     /// </summary>
     public void InstantiateStaticObjectInRoom(GameObject objectToAdd, Tile tileToPlaceObjectOn, bool playerCanCollide)
     {
-        tileToPlaceObjectOn.PlaceObject(objectToAdd);
-        Transform[] objectToAddAndItsChildren = objectToAdd.GetComponentsInChildren<Transform>();
-        if (playerCanCollide)
+        GameObject objectIsAdded = tileToPlaceObjectOn.PlaceObject(objectToAdd);
+        if (objectIsAdded != null)
         {
-            playerCollisionObjectsInRoom.AddRange(objectToAddAndItsChildren);
+            Transform[] objectToAddAndItsChildren = objectIsAdded.GetComponentsInChildren<Transform>();
+            if (playerCanCollide)
+            {
+                playerCollisionObjectsInRoom.AddRange(objectToAddAndItsChildren);
+            }
+            else
+            {
+                noPlayerCollisionObjectsInRoom.AddRange(objectToAddAndItsChildren);
+            }
+            objectIsAdded.transform.SetParent(gameObject.transform);
         }
-        else
-        {
-            noPlayerCollisionObjectsInRoom.AddRange(objectToAddAndItsChildren);
-        }
-        objectToAdd.transform.SetParent(gameObject.transform);
     }
 
     public void AddObjectToRoom(Transform objectToAdd, bool playerCanCollide)
@@ -124,7 +127,6 @@ public class Room
             else
             {
                 Debug.Log("Attempted to remove " + objectToRemove.name + " from Room " + gameObject.name + " but that object was not found in the rooms object list.");
-                Debug.Log(playerCollisionObjectsInRoom.Count);
                 for (int j = 0; j < playerCollisionObjectsInRoom.Count; j++)
                 {
                     Debug.Log(playerCollisionObjectsInRoom[j] + "==" + objectToRemoveAndItsChildren[i]);

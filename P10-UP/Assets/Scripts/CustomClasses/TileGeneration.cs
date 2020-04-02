@@ -10,6 +10,7 @@ public class TileGeneration
         Portal,
         Scenery,
         Event,
+        Enemy,
         Empty
     }
 

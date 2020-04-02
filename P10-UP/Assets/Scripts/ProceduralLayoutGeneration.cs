@@ -67,6 +67,18 @@ public class ProceduralLayoutGeneration : MonoBehaviour
         SwitchCurrentRoom(rooms[0], null);
     }
 
+    private void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.T))
+        {
+            Debug.Log("A input registered. Checking collidable objects (" + currentRoom.playerCollisionObjectsInRoom.Count + ") in room " + currentRoom.gameObject.name + "...");
+            for (int i = 0; i < currentRoom.playerCollisionObjectsInRoom.Count; i++)
+            {
+                Debug.Log("#" + i + " = " + currentRoom.playerCollisionObjectsInRoom[i].gameObject.name);
+            }
+        }
+    }
+
     private void ProcedurallyGenerateRooms()
     {
         // TODO: Stop portals from spawning too close to grid edge (if they do, they should be turned such that the edge is perpendicular to them)
@@ -84,6 +96,11 @@ public class ProceduralLayoutGeneration : MonoBehaviour
             {
                 portals[j].SetActive(false);
             }
+        }
+        Debug.Log("Roomid: " + roomId + " == rooms.count: " +rooms.Count);
+        for (int i = 1; i < roomId + 1; i++)
+        {
+            rooms[i].SetLayer(CustomUtilities.LayerMaskToLayer(differentRoomLayer), CustomUtilities.LayerMaskToLayer(differentRoomLayer));
         }
         roomId = 1;
         currentRoom = rooms[0];
@@ -298,10 +315,6 @@ public class ProceduralLayoutGeneration : MonoBehaviour
                     Quaternion.identity, rooms[roomId].gameObject.transform);
                 
                 rooms[roomToSpawnKeyCardIn].AddObjectToRoom(keyCardToSpawn.transform, true);
-                for (int i = 0; i < rooms[roomToSpawnKeyCardIn].playerCollisionObjectsInRoom.Count; i++)
-                {
-                    Debug.Log("Added keycard " + i + " " + rooms[roomToSpawnKeyCardIn].playerCollisionObjectsInRoom[i] + "in room " + rooms[roomToSpawnKeyCardIn].gameObject.name);
-                }
                 keysList.Insert(keyCardID, keyCardToSpawn);
                 keyCardToSpawn.GetComponentInChildren<KeyCard>().keyID = keyCardID;
                 keyCardID ++;
@@ -347,7 +360,6 @@ public class ProceduralLayoutGeneration : MonoBehaviour
             }
 
             // Set layer for room and portal
-            rooms[roomId].SetLayer(CustomUtilities.LayerMaskToLayer(differentRoomLayer), CustomUtilities.LayerMaskToLayer(differentRoomLayer));
             portal.layer = CustomUtilities.LayerMaskToLayer(differentRoomLayer);
             oppositePortal.layer = CustomUtilities.LayerMaskToLayer(differentRoomLayer);
 

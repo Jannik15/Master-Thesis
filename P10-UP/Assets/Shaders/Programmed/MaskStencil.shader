@@ -3,6 +3,7 @@
     Properties
     {
 		_StencilValue("Stencil Value", Range(0,255)) = 1
+		_StencilMask("Stencil Mask", Range(0,255)) = 1
     }
 	SubShader
 	{
@@ -11,6 +12,7 @@
 		Stencil
 		{
 			Ref [_StencilValue]
+			//WriteMask [_StencilMask]
 			Comp Always
 			Pass Replace
 		}
