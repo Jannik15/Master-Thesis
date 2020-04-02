@@ -9,7 +9,7 @@ public class Room
     private int roomId;
     private List<Portal> portalsInRoom, portalsToRoom;
     private Grid grid;
-    private List<Transform> playerCollisionObjectsInRoom = new List<Transform>(), noPlayerCollisionObjectsInRoom = new List<Transform>();
+    public List<Transform> playerCollisionObjectsInRoom = new List<Transform>(), noPlayerCollisionObjectsInRoom = new List<Transform>();
     public Room(GameObject gameObject, int roomId, Grid grid)
     {
         this.gameObject = gameObject;
@@ -107,6 +107,11 @@ public class Room
             else
             {
                 Debug.Log("Attempted to remove " + objectToRemove.name + " from Room " + gameObject.name + " but that object was not found in the rooms object list.");
+                Debug.Log(playerCollisionObjectsInRoom.Count);
+                for (int j = 0; j < playerCollisionObjectsInRoom.Count; j++)
+                {
+                    Debug.Log(playerCollisionObjectsInRoom[j] + "==" + objectToRemoveAndItsChildren[i]);
+                }
             }
         }
     }

@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class KeyPad : MonoBehaviour
 {
-    public int KeyPadID = 1;
+    public int KeyPadID = 0;
 
     public bool Open = false;
     // Start is called before the first frame update

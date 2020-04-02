@@ -4,21 +4,23 @@ using UnityEngine;
 
 public class PlayerInteractions : MonoBehaviour
 {
-    public GameObject[] keyUI = new GameObject[2];
+    public List<GameObject> keyUI;
     public LayerMask layerMaskRay;
-
+    public GameObject handler;
 
     private Ray ray;
     private Camera playerCamera;
     private KeyCard keyCard;
     private int keyHoldID;
-
+    private int maxKeysList;
+    private ProceduralLayoutGeneration proLG;
     private bool open = false;
 
-    private bool[] keyArray = new bool[]{false,false};
+    private bool[] keyArray = new bool[]{false,false,false,false,false,false, false, false, false, false};
     // Start is called before the first frame update
     void Start()
     {
+        proLG = FindObjectOfType<ProceduralLayoutGeneration>();
         Debug.Log(keyArray[0]);
         Debug.Log(keyArray[1]);
         playerCamera = GetComponentInChildren<Camera>();
@@ -79,9 +81,10 @@ public class PlayerInteractions : MonoBehaviour
     {
         if (collider.CompareTag("Keycard"))
         {
+            maxKeysList = proLG.keysList.Count;
             keyHoldID = collider.gameObject.GetComponent<KeyCard>().keyID;
 
-            for (int i = 0; i < keyArray.Length; i++)
+            for (int i = 0; i < maxKeysList; i++)
             {
                 if (i == keyHoldID)
                 {
@@ -91,9 +94,11 @@ public class PlayerInteractions : MonoBehaviour
                 }
 
             }
-
+            Debug.Log(proLG.currentRoom.gameObject.name);
             Debug.Log("Picked up Keycard #" + keyHoldID);
+            proLG.currentRoom.RemoveObjectFromRoom(collider.transform);
             Destroy(collider.gameObject);
+
         }
     }
 
