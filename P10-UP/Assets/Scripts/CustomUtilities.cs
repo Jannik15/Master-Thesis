@@ -137,6 +137,7 @@ public static class CustomUtilities
     /// <param name="tag"></param>
     public static void ChangeParentWithTag(Transform currentParent, Transform newParent, string tag)
     {
+        List<Transform> changedParentObjects = new List<Transform>();
         for (int i = 0; i < currentParent.childCount; i++)
         {
             if (currentParent.GetChild(i).CompareTag(tag))
@@ -245,6 +246,16 @@ public static class CustomUtilities
         }
 
         return portalTiles;
+    }
+
+    #endregion
+
+    #region Rooms
+
+    public static void ChangeRoom(this Transform thisObject, Room currentRoom, Room newRoom, bool playerCanCollide)
+    {
+        currentRoom?.RemoveObjectFromRoom(thisObject); // If there is a 'Room' component in parent (meaning it has previously been assigned to a room) remove it from that room.
+        newRoom.AddObjectToRoom(thisObject, playerCanCollide);
     }
 
     #endregion

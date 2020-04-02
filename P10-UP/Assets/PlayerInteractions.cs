@@ -77,8 +77,7 @@ public class PlayerInteractions : MonoBehaviour
 
     private void OnTriggerEnter(Collider collider)
     {
-        //collider.CompareTag()
-        if (collider.gameObject.tag == "Keycard")
+        if (collider.CompareTag("Keycard"))
         {
             keyHoldID = collider.gameObject.GetComponent<KeyCard>().keyID;
 
