@@ -72,6 +72,7 @@ public class Room
         {
             noPlayerCollisionObjectsInRoom.AddRange(objectToAddAndItsChildren);
         }
+        objectToAdd.SetParent(gameObject.transform);
     }
 
     public void AddObjectsToRoom(IEnumerable<Transform> objectsToAdd, bool playerCanCollide)
@@ -83,6 +84,10 @@ public class Room
         else
         {
             noPlayerCollisionObjectsInRoom.AddRange(objectsToAdd);
+        }
+        foreach (var objectToAdd in objectsToAdd)
+        {
+            objectToAdd.SetParent(gameObject.transform);
         }
     }
 

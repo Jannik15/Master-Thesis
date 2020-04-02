@@ -73,11 +73,12 @@ public class GridGeneration
         GameObject gridObject = new GameObject("Grid");
         GameObject tilesParent = new GameObject("Tiles");
         tilesParent.transform.parent = gridObject.transform;
+        Tile[,] tileArray = new Tile[tiles.GetLength(0), tiles.GetLength(1)];
         for (int y = 0; y < tiles.GetLength(1); y++)
         {
             for (int x = 0; x < tiles.GetLength(0); x++)
             {
-                tiles[x, y].InstantiateTile(tilesParent.transform, x, y);
+                tileArray[x, y] = tiles[x, y].InstantiateTile(tilesParent.transform, x, y);
             }
         }
 
@@ -93,6 +94,8 @@ public class GridGeneration
                 }
             }
         }
+        Grid grid = gridObject.AddComponent<Grid>();
+        grid.Initialize(tileArray);
     }
 
     public TileGeneration GetTile(int x, int y)
