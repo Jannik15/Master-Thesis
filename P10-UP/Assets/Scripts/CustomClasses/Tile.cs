@@ -52,6 +52,19 @@ public class Tile : MonoBehaviour
         return objectOnTile;
     }
 
+    public void PlaceExistingObject(GameObject objectToPlace)
+    {
+        if (!isOccupied)
+        {
+            objectOnTile = objectToPlace;
+            isOccupied = true;
+        }
+        else
+        {
+            Debug.Log("Tried placing object " + objectToPlace + " on tile " + gameObject.name + ", but it was occupied");
+        }
+    }
+
     public bool GetOccupied()
     {
         return isOccupied;

@@ -28,7 +28,7 @@ public class ProceduralLayoutGeneration : MonoBehaviour
     private GameObject roomObject, keyCardToSpawn; // Functions as the index in rooms, tracking which room the player is in
     private Transform portalParent;
     private int roomId, portalIterator;
-    private List<Tile> gridTiles = new List<Tile>();
+    private List<Tile> gridTiles = new List<Tile>(), previousGridTiles = new List<Tile>();
     private List<Vector2> portalTilesLocations = new List<Vector2>();
     private List<List<Vector2>> previousPortalZones = new List<List<Vector2>>();
     private List<List<List<Vector2>>> portalZones = new List<List<List<Vector2>>>();
@@ -305,18 +305,13 @@ public class ProceduralLayoutGeneration : MonoBehaviour
             for (int j = 0; j < gridTiles.Count; j++)
             {
                 gridTiles[j].SetPosition(gridTiles[j].transform.position.GetXZVector2()); // Set rotation to the paired rotation
-                if (gridTiles[j].GetTileType() == TileGeneration.TileType.Scenery)
-                {
-                    if (Random.Range(0, 3) < 1)
-                    {
-                        rooms[roomId].InstantiateStaticObjectInRoom(sceneryObjects[Random.Range(0, sceneryObjects.Count)], gridTiles[j], false);
-                    }
-                }
             }
 
             // Create portals connecting the two rooms
             float randomRotation = Random.Range(0, 360);
             int randomPortalPosition = Random.Range(0, possiblePortalPositions.Count); // TODO: Occupy tile that overlaps with this position
+
+
             int spawnDoor = Random.Range(0, 10);
             GameObject portal;
             if (spawnDoor < 3 && roomId > 1)
@@ -355,6 +350,24 @@ public class ProceduralLayoutGeneration : MonoBehaviour
                 Quaternion.Euler(0, randomRotation - 180, 0), portalParent);
             portal.name = portal.name + "_" + portalIterator;
             oppositePortal.name = oppositePortal.name + "_" + (portalIterator + 1);
+
+            // Occupy tiles for both portals
+            previousGridTiles.Clear();
+            previousGridTiles.AddRange(rooms[roomId - 1].roomGrid.GetTilesAsList());
+            for (int i = 0; i < previousGridTiles.Count; i++)
+            {
+                if (math.distancesq(previousGridTiles[i].GetPosition(), possiblePortalPositions[randomPortalPosition]) <= math.pow(gridTiles[0].transform.localScale.x, 2))
+                {
+                    previousGridTiles[i].PlaceExistingObject(portal);
+                }
+            }
+            for (int i = 0; i < gridTiles.Count; i++)
+            {
+                if (math.distancesq(gridTiles[i].GetPosition(), possiblePortalPositions[randomPortalPosition]) <= math.pow(gridTiles[0].transform.localScale.x, 2))
+                {
+                    gridTiles[i].PlaceExistingObject(oppositePortal);
+                }
+            }
 
             Portal portalComponent = portal.AddComponent<Portal>();
             Portal oppositePortalComponent = oppositePortal.AddComponent<Portal>();
