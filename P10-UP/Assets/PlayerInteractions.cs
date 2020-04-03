@@ -44,13 +44,19 @@ public class PlayerInteractions : MonoBehaviour
                 {
                     if (!hit.collider.gameObject.GetComponentInParent<KeyPad>().Open)
                     {
-                        hit.collider.gameObject.GetComponentInParent<Animator>().SetTrigger("Open");
+                        //hit.collider.gameObject.GetComponentInParent<Animator>().SetTrigger("Open");
+                        //hit.collider.gameObject.GetComponentInParent<Animator>().Play("DoorOpen");
+                        hit.collider.gameObject.GetComponentInParent<Animator>().CrossFadeInFixedTime("DoorOpen", 0.9f, 0, 0);
                         hit.collider.gameObject.GetComponentInParent<KeyPad>().Open = true;
+                        //hit.collider.gameObject.GetComponentInParent<Animator>().speed = 0.6f;
                     }
                     else if (hit.collider.gameObject.GetComponentInParent<KeyPad>().Open)
                     {
-                        hit.collider.gameObject.GetComponentInParent<Animator>().SetTrigger("Close");
+                        //hit.collider.gameObject.GetComponentInParent<Animator>().Play("DoorClose");
+                        hit.collider.gameObject.GetComponentInParent<Animator>().CrossFadeInFixedTime("DoorClose", 0.9f, 0, 0);
                         hit.collider.gameObject.GetComponentInParent<KeyPad>().Open = false;
+                        //hit.collider.gameObject.GetComponentInParent<Animator>().speed = -0.6f;
+
                     }
                 }
                 else
@@ -71,8 +77,6 @@ public class PlayerInteractions : MonoBehaviour
                     hit.collider.gameObject.GetComponentInParent<KeyPad>().Open = false;
                 }
             }
-            
-            Debug.Log("Open is now = " + open + "for " + gameObject.name);
             
         }
     }

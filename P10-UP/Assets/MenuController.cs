@@ -14,7 +14,7 @@ public class MenuController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.C) && optionsMenu.activeSelf == false)
+        if (Input.GetKeyDown(KeyCode.Escape) && optionsMenu.activeSelf == false || Input.GetKeyDown(KeyCode.C) && optionsMenu.activeSelf == false)
         {
             optionsMenu.SetActive(true);
         }
