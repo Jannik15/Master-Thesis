@@ -27,7 +27,7 @@ public class ProceduralLayoutGeneration : MonoBehaviour
     private List<Portal> portals = new List<Portal>();
     private GameObject roomObject, keyCardToSpawn; // Functions as the index in rooms, tracking which room the player is in
     private Transform portalParent;
-    private int roomId, portalIterator, _stopDebugging;
+    private int roomId, portalIterator;
     private List<Tile> gridTiles = new List<Tile>();
     private List<Vector2> portalTilesLocations = new List<Vector2>();
     private List<List<Vector2>> previousPortalZones = new List<List<Vector2>>();
@@ -138,7 +138,6 @@ public class ProceduralLayoutGeneration : MonoBehaviour
         // Iterates over the amount of rooms specified in the constructor
         int roomIterator = 0;
         int iterationCap = 0;
-        _stopDebugging = 0;
         while (roomIterator < roomCount && iterationCap < 1000)
         {
             iterationCap++;
@@ -214,25 +213,9 @@ public class ProceduralLayoutGeneration : MonoBehaviour
             }
 
             roomIterator++;
-            Debug.Log(" --- Grid " + rooms[roomId].gameObject.name + " placed ---");
             previousPortalZones.Clear();
             previousPortalZones.AddRange(portalZones[roomRotation]);
-            for (int i = 0; i < portalZones[roomRotation].Count; i++)
-            {
-                for (int j = 0; j < portalZones[roomRotation][i].Count; j++)
-                {
-                    Debug.Log("PortalZones[" + i + "][" + j + "]: " + portalZones[roomRotation][i][j].ToString("0.00"));
-                }
-            }
-            for (int i = 0; i < previousPortalZones.Count; i++)
-            {
-                for (int j = 0; j < previousPortalZones[i].Count; j++)
-                {
-                    Debug.Log("PreviousPortalZones[" + i + "][" + j + "]: " + previousPortalZones[i][j].ToString("0.00"));
-                }
-            }
         }
-        Debug.Log(_stopDebugging + " iterations before end");
         if (iterationCap == 1000)
         {
             Debug.LogError("Iteration cap for while loop of type " + roomType + " reached 1000");
@@ -282,17 +265,12 @@ public class ProceduralLayoutGeneration : MonoBehaviour
         possiblePortalPositions.Clear();
         int zoneUsed = -1;
         bool breakAll = false;
-        for (int i = 0; i < portalZones.Count; i++)
+        for (int i = 0; i < portalZones.Count; i++) // This value is always 4, since the rooms can have 4 different rotations (0, 90, 180, 270)
         {
             for (int j = 0; j < portalZones[i].Count; j++)
             {
-                for (int k = 0; k < portalZones[i][j].Count; k++)
+                for (int k = 0; k < portalZones[i][j].Count; k++) 
                 {
-                    if (_stopDebugging < 100)
-                    {
-                        Debug.Log("PortalZones[" + i + "][" + j + "][" + k + "]: " + portalZones[i][j][k].ToString("F2") + " | Count is [" + portalZones.Count + "][" + portalZones[i].Count + "][" + portalZones[i][j].Count + "]");
-                        _stopDebugging++;
-                    }
                     for (int l = 0; l < previousPortalZones.Count; l++)
                     {
                         for (int m = 0; m < previousPortalZones[l].Count; m++)
@@ -343,8 +321,7 @@ public class ProceduralLayoutGeneration : MonoBehaviour
             GameObject portal;
             if (spawnDoor < 3 && roomId > 1)
             {
-                portal = Instantiate(portalDoorPrefab, possiblePortalPositions[randomPortalPosition].ToVector3XZ(), 
-                    Quaternion.Euler(0, randomRotation, 0), portalParent);
+                portal = Instantiate(portalDoorPrefab, possiblePortalPositions[randomPortalPosition].ToVector3XZ(), Quaternion.Euler(0, randomRotation, 0), portalParent);
                 portal.GetComponentInChildren<KeyPad>().KeyPadID = keyCardID;
                 portal.GetComponentInChildren<DoorLock>().isLocked = true;
 

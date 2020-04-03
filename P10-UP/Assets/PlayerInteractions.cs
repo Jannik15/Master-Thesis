@@ -21,8 +21,6 @@ public class PlayerInteractions : MonoBehaviour
     void Start()
     {
         proLG = FindObjectOfType<ProceduralLayoutGeneration>();
-        Debug.Log(keyArray[0]);
-        Debug.Log(keyArray[1]);
         playerCamera = GetComponentInChildren<Camera>();
     }
 

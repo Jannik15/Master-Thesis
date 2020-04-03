@@ -170,7 +170,7 @@ public static class CustomUtilities
             {
                 for (int k = 0; k < portalZones[j].Count; k++)
                 {
-                    if (math.distancesq(remainingPortals[i], portalZones[j][k]) <= math.pow(tileSize,2))
+                    if (Vector3.Distance(remainingPortals[i], portalZones[j][k]) <= tileSize * 1.1f) // There can be some floating point inaccuracies here, so we multiply by 1.1f to overshoot the comparison
                     {
                         connections.Add(j);
                         break;
