@@ -162,42 +162,32 @@ public static class CustomUtilities
         List<List<Vector2>> portalZones = new List<List<Vector2>>();
         portalZones.Add(new List<Vector2>());
         portalZones[0].Add(remainingPortals[0]);
-        remainingPortals.RemoveAt(0);
 
         List<int> connections = new List<int>();
-        for (int i = 0; i < remainingPortals.Count; i++)
+        for (int i = 1; i < remainingPortals.Count; i++)
         {
             for (int j = 0; j < portalZones.Count; j++)
             {
                 for (int k = 0; k < portalZones[j].Count; k++)
                 {
-                    //if (Vector2.Distance(remainingPortals[i], portalZones[j][k]) <= tileSize)
-                    //{
-                    //    connections.Add(j);
-                    //}
                     if (math.distancesq(remainingPortals[i], portalZones[j][k]) <= math.pow(tileSize,2))
                     {
                         connections.Add(j);
+                        break;
                     }
                 }
             }
 
             if (connections.Count > 0)
             {
-                connections = connections.Distinct().ToList();
+                portalZones[connections[0]].Add(remainingPortals[i]);
                 if (connections.Count > 1)
                 {
-                    connections.Sort();
-                    portalZones[connections[0]].Add(remainingPortals[i]);
                     for (int j = 1; j < connections.Count; j++)
                     {
                         portalZones[connections[0]].AddRange(portalZones[connections[j]]);
                         portalZones.RemoveAt(connections[j]);
                     }
-                }
-                else // (connections.Count == 1)
-                {
-                    portalZones[connections[0]].Add(remainingPortals[i]);
                 }
             }
             else //(connections.Count == 0)
