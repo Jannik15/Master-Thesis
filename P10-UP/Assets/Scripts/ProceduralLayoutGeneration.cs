@@ -11,10 +11,11 @@ public class ProceduralLayoutGeneration : MonoBehaviour
     public List<GameObject> endGrids;
     public List<Room> rooms = new List<Room>();
     public List<GameObject> keysList;
+    public int roomAmount = 10;
+    public GameObject mainMenuCanvas;
 
     [SerializeField] private List<GameObject> sceneryObjects, endGameEventObjects;
     [SerializeField] private GameObject portalPrefab, portalDoorPrefab, depthClearer, keyCard;
-    [SerializeField] private int roomAmount = 10;
     [SerializeField] private Shader currentRoomMask, otherRoomMask;
     [SerializeField] private LayerMask currentRoomLayer, differentRoomLayer, defaultLayer;
 
@@ -33,6 +34,10 @@ public class ProceduralLayoutGeneration : MonoBehaviour
     private List<List<List<Vector2>>> portalZones = new List<List<List<Vector2>>>();
     private int keyCardID;
 
+    public void AdjustRoomAmount(int newRoomAmount)
+    {
+        roomAmount = newRoomAmount;
+    }
 
     public enum CustomRoomType
     {
@@ -44,8 +49,12 @@ public class ProceduralLayoutGeneration : MonoBehaviour
 
     private void Start() // To uncomment a demo block, simply put a '/' in front of the '/*'
     {
-        //* Procedural generation
+        /* Procedural generation
         ProcedurallyGenerateRooms();
+        //*/
+
+        //* Start room generation
+        GenerateOptionsRoom();
         //*/
 
         //* Depth clearing
@@ -64,7 +73,7 @@ public class ProceduralLayoutGeneration : MonoBehaviour
         }
         //*/
 
-        SwitchCurrentRoom(rooms[0], null);
+        //SwitchCurrentRoom(rooms[0], null);
     }
 
     private void Update()
@@ -79,14 +88,33 @@ public class ProceduralLayoutGeneration : MonoBehaviour
         }
     }
 
-    private void ProcedurallyGenerateRooms()
+    private void GenerateOptionsRoom()
+    {
+        //* Make sure Main Menu canvas is Open
+        if (!mainMenuCanvas.activeSelf)
+        {
+            mainMenuCanvas.SetActive(true);
+        }
+        //*/
+
+        CreateRooms(1, grids, CustomRoomType.Start);
+
+    }
+
+    public void SwitchCurrentRoom()
+    {
+        SwitchCurrentRoom(rooms[0], null);
+
+    }
+
+    public void ProcedurallyGenerateRooms()
     {
         // TODO: Stop portals from spawning too close to grid edge (if they do, they should be turned such that the edge is perpendicular to them)
         // TODO: If 3+ Zones, try creating another path, try diverging in the generation
 
         portalParent = new GameObject("Portals").transform;
 
-        CreateRooms(1, grids, CustomRoomType.Start);
+        //CreateRooms(1, grids, CustomRoomType.Start);
         CreateRooms(roomAmount - 2, grids, CustomRoomType.Generic);
         CreateRooms(1, endGrids, CustomRoomType.End);
 
