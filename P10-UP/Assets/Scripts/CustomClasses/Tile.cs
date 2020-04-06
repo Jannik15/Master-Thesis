@@ -40,16 +40,29 @@ public class Tile : MonoBehaviour
         return isWalkable;
     }
 
-    public GameObject PlaceObject(GameObject objectToPlace)
+    public GameObject PlaceObject(GameObject objectToPlace, Transform parent)
     {
         if (isOccupied)
         {
             Debug.Log("Tried placing object " + objectToPlace + " on tile " + gameObject.name + ", but it was occupied");
             return null;
         }
-        objectOnTile = Instantiate(objectToPlace, position.ToVector3XZ(), Quaternion.identity, transform.parent);
+        objectOnTile = Instantiate(objectToPlace, position.ToVector3XZ(), Quaternion.identity, parent);
         isOccupied = true;
         return objectOnTile;
+    }
+
+    public void PlaceExistingObject(GameObject objectToPlace)
+    {
+        if (!isOccupied)
+        {
+            objectOnTile = objectToPlace;
+            isOccupied = true;
+        }
+        else
+        {
+            Debug.Log("Tried placing object " + objectToPlace + " on tile " + gameObject.name + ", but it was occupied");
+        }
     }
 
     public bool GetOccupied()

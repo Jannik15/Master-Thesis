@@ -60,12 +60,17 @@ public class Room
     {
         return portalsToRoom;
     }
+
     /// <summary>
-    /// Use this when the object cannot move from the room it is instantiated in.
+    /// TODO
     /// </summary>
-    public void InstantiateStaticObjectInRoom(GameObject objectToAdd, Tile tileToPlaceObjectOn, bool playerCanCollide)
+    /// <param name="objectToAdd"></param>
+    /// <param name="tileToPlaceObjectOn"></param>
+    /// <param name="parent"></param>
+    /// <param name="playerCanCollide"></param>
+    public void InstantiateStaticObjectInRoom(GameObject objectToAdd, Tile tileToPlaceObjectOn, Transform parent, bool playerCanCollide)
     {
-        GameObject objectIsAdded = tileToPlaceObjectOn.PlaceObject(objectToAdd);
+        GameObject objectIsAdded = tileToPlaceObjectOn.PlaceObject(objectToAdd, parent);
         if (objectIsAdded != null)
         {
             Transform[] objectToAddAndItsChildren = objectIsAdded.GetComponentsInChildren<Transform>();
@@ -77,7 +82,6 @@ public class Room
             {
                 noPlayerCollisionObjectsInRoom.AddRange(objectToAddAndItsChildren);
             }
-            objectIsAdded.transform.SetParent(gameObject.transform);
         }
     }
 
