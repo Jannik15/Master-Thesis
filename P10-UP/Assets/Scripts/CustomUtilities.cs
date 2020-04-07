@@ -103,11 +103,19 @@ public static class CustomUtilities
             }
         }
     }
-
-    public static void UpdatePortalAndItsConnectedRoom(Portal portal, int newStencilValue, int baseRenderQueueValue, Shader portalShader , bool enablePortal)
+    /// <summary>
+    /// Set readMaskValue <= 0 to ignore.
+    /// </summary>
+    /// <param name="portal"></param>
+    /// <param name="newStencilValue"></param>
+    /// <param name="readMaskValue"></param>
+    /// <param name="baseRenderQueueValue"></param>
+    /// <param name="portalShader"></param>
+    /// <param name="enablePortal"></param>
+    public static void UpdatePortalAndItsConnectedRoom(Portal portal, int newStencilValue, int readMaskValue, int baseRenderQueueValue, Shader portalShader , bool enablePortal)
     {
         portal.SetActive(enablePortal);
-        portal.SetMaskShader(portalShader, newStencilValue, baseRenderQueueValue + 100);
+        portal.SetMaskShader(portalShader, newStencilValue, readMaskValue, baseRenderQueueValue + 100);
 
         portal.GetConnectedRoom().gameObject.SetActive(true);
         UpdateShaderMatrix(portal.GetConnectedRoom().gameObject, portal.transform);

@@ -6,7 +6,7 @@ public class Portal : MonoBehaviour
     [SerializeField] private Room connectedRoom;
     [SerializeField] private Portal connectedPortal;
     private GameObject forwardPortal, backwardPortal;
-    private int forwardStencilValue, backwardStencilValue;
+    private int stencilValue, readMaskValue;
     private Renderer[] portalForwardMasks, portalBackwardMasks;
     [SerializeField] private int portalId;
 
@@ -32,18 +32,11 @@ public class Portal : MonoBehaviour
                 portalBackwardMasks = child.GetComponentsInChildren<Renderer>();
             }
         }
-        SetForwardStencilValue(connectedRoom.GetRoomId());
-        SetBackwardStencilValue(inRoom.GetRoomId());
     }
 
-    public int GetForwardStencilValue()
+    public int GetStencilValue()
     {
-        return forwardStencilValue;
-    }
-
-    public int GetBackwardStencilValue()
-    {
-        return backwardStencilValue;
+        return stencilValue;
     }
 
     public Room GetRoom()
@@ -78,7 +71,7 @@ public class Portal : MonoBehaviour
             renderers[i].material.shader = shader;
         }
     }
-    public void SetMaskShader(Shader shader, int stencilValue, int renderQueue)
+    public void SetMaskShader(Shader shader, int stencilValue, int readMaskValue, int renderQueue)
     {
         Renderer[] renderers = gameObject.GetComponentsInChildren<Renderer>();
         for (int i = 0; i < renderers.Length; i++)
@@ -86,6 +79,10 @@ public class Portal : MonoBehaviour
             renderers[i].material.shader = shader;
             renderers[i].material.SetInt("_StencilValue", stencilValue);
             renderers[i].material.renderQueue = renderQueue;
+            if (readMaskValue > 0)
+            {
+                renderers[i].material.SetInt("_StencilReadMask", readMaskValue);
+            }
         }
     }
 
@@ -110,30 +107,6 @@ public class Portal : MonoBehaviour
         {
             forwardPortal.SetActive(true);
             backwardPortal.SetActive(false);
-        }
-    }
-
-    public void SetForwardStencilValue(int stencilValue)
-    {
-        this.forwardStencilValue = stencilValue;
-        for (int i = 0; i < portalForwardMasks.Length; i++)
-        {
-            for (int j = 0; j < portalForwardMasks[i].materials.Length; j++)
-            {
-                portalForwardMasks[i].materials[j].SetInt("_StencilValue", stencilValue);
-            }
-        }
-    }
-
-    public void SetBackwardStencilValue(int stencilValue)
-    {
-        this.backwardStencilValue = stencilValue;
-        for (int i = 0; i < portalBackwardMasks.Length; i++)
-        {
-            for (int j = 0; j < portalBackwardMasks[i].materials.Length; j++)
-            {
-                portalBackwardMasks[i].materials[j].SetInt("_StencilValue", stencilValue);
-            }
         }
     }
 }

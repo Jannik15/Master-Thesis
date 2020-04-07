@@ -1,10 +1,12 @@
 ﻿using UnityEngine;
 using UnityEngine.SceneManagement;
+using TMPro;
 
 public class PlayerCollisionHandler : MonoBehaviour
 {
     private Portal thisPortal;
     private ProceduralLayoutGeneration proceduralLayout;
+    private TextMeshProUGUI gui;
 
     // Start is called before the first frame update
     void Start()

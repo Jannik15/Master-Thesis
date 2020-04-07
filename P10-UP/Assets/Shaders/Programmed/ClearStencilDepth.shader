@@ -1,6 +1,4 @@
-﻿// Upgrade NOTE: replaced 'mul(UNITY_MATRIX_MVP,*)' with 'UnityObjectToClipPos(*)'
-
-/*
+﻿/*
 This code is a simple way to clear the depth buffer, taken from: https://en.wikibooks.org/wiki/Cg_Programming/Unity/Portals
 It is also combined with Unity's Skybox shader
 */
@@ -10,6 +8,7 @@ Shader "Stencils/ClearDepth"
 	Properties{
 		_Cube("Environment Map", Cube) = "white" {}
 		_StencilValue("Stencil Value", Range(0,255)) = 1
+		//_StencilMask("Stencil Mask", Range(0,255)) = 1
 	}
 		SubShader
 	{
@@ -22,6 +21,7 @@ Shader "Stencils/ClearDepth"
 
 	Stencil{
 		Ref [_StencilValue]
+		//ReadMask [_StencilMask]
 		Comp Equal // only pass stencil test if stencil value equals Ref
 	}
 

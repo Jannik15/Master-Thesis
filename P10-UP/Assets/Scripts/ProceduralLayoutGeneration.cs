@@ -62,18 +62,28 @@ public class ProceduralLayoutGeneration : MonoBehaviour
         depthClearer.GetComponent<Renderer>().material.SetInt("_StencilValue", 1);
         depthClearer.GetComponent<Renderer>().material.renderQueue = 2500;
 
-        for (int i = 2; i < 21; i++)
+        for (int i = 8; i <= 128 ; i *= i)
         {
-            GameObject newDepthClearer = Instantiate(depthClearer);
-            newDepthClearer.transform.parent = depthParent;
-            newDepthClearer.name = newDepthClearer.name.Split('_')[0] + "_" + i;
-            newDepthClearer.GetComponent<Renderer>().material.SetInt("_StencilValue", i);
-
-            newDepthClearer.GetComponent<Renderer>().material.renderQueue = i % 5 == 0 ? 2200 : 2500;
+            DuplicateDepthClearer(depthParent, i, 2200);
+        }
+        for (int i = 2; i < 32; i++)
+        {
+            if (i == 8 || i == 16)
+                continue;
+            DuplicateDepthClearer(depthParent, i, 2500);
         }
         //*/
 
         //SwitchCurrentRoom(rooms[0], null);
+    }
+
+    private void DuplicateDepthClearer(Transform depthParent, int stencilValue, int renderQueue)
+    {
+        GameObject newDepthClearer = Instantiate(depthClearer);
+        newDepthClearer.transform.parent = depthParent;
+        newDepthClearer.name = newDepthClearer.name.Split('_')[0] + "_" + stencilValue;
+        newDepthClearer.GetComponent<Renderer>().material.SetInt("_StencilValue", stencilValue);
+        newDepthClearer.GetComponent<Renderer>().material.renderQueue = renderQueue;
     }
 
     private void Update()
@@ -311,8 +321,6 @@ public class ProceduralLayoutGeneration : MonoBehaviour
             float randomRotation = Random.Range(0, 360);
             int randomPortalPosition = Random.Range(0, possiblePortalPositions.Count);
             GameObject portal;
-            GameObject oppositePortal = Instantiate(portalPrefab, possiblePortalPositions[randomPortalPosition].ToVector3XZ(),
-                Quaternion.Euler(0, randomRotation - 180, 0), portalParent);
             
             int spawnDoor = Random.Range(0, 10);
             if (spawnDoor < 3 && roomId > 1)
@@ -323,6 +331,8 @@ public class ProceduralLayoutGeneration : MonoBehaviour
             {
                 portal = Instantiate(portalPrefab, possiblePortalPositions[randomPortalPosition].ToVector3XZ(), Quaternion.Euler(0, randomRotation, 0), portalParent);
             }
+            GameObject oppositePortal = Instantiate(portalPrefab, possiblePortalPositions[randomPortalPosition].ToVector3XZ(),
+                Quaternion.Euler(0, randomRotation - 180, 0), portalParent);
             portal.name = portal.name + "_" + portalIterator;
             oppositePortal.name = oppositePortal.name + "_" + (portalIterator + 1);
 
@@ -465,18 +475,20 @@ public class ProceduralLayoutGeneration : MonoBehaviour
         List<Portal> portalsInConnectedRoom = new List<Portal>();
         #region Enable | Update stencils, render queue, shaders, Shader matrix, and layers for anything except the current room.
 
+        int stencilValue = 8; // BitMask 00001000
+        int otherRoomStencilValue = 1;
         for (int i = 0; i < currentRoom.GetPortalsInRoom().Count; i++)
         {
             if (currentRoom.GetPortalsInRoom()[i].GetConnectedPortal() != currentPortal)
             {
-                CustomUtilities.UpdatePortalAndItsConnectedRoom(currentRoom.GetPortalsInRoom()[i], (i + 1) * 5, 2000, currentRoomMask, true);
+                CustomUtilities.UpdatePortalAndItsConnectedRoom(currentRoom.GetPortalsInRoom()[i], stencilValue, 0, 2000, currentRoomMask, true);
             }
             else
             {
                 // Previous room
-                CustomUtilities.UpdateStencils(previousRoom.gameObject, (i + 1) * 5, 2300);
-                CustomUtilities.UpdateStencils(currentPortal.gameObject, (i + 1) * 5, 2100);
-                CustomUtilities.UpdateStencils(currentPortal.GetConnectedPortal().gameObject, (i + 1) * 5, 2100);
+                CustomUtilities.UpdateStencils(previousRoom.gameObject, stencilValue, 2300);
+                CustomUtilities.UpdateStencils(currentPortal.gameObject, stencilValue, 2100);
+                CustomUtilities.UpdateStencils(currentPortal.GetConnectedPortal().gameObject, stencilValue, 2100);
                 CustomUtilities.UpdateShaderMatrix(previousRoom.gameObject, currentPortal.transform);   // This might not be necessary, but i don't know if the portal rotation matters in the matrix
             }
             
@@ -485,10 +497,16 @@ public class ProceduralLayoutGeneration : MonoBehaviour
             {
                 if (portalsInConnectedRoom[j].GetConnectedPortal() != currentRoom.GetPortalsInRoom()[i])
                 {
-                    CustomUtilities.UpdatePortalAndItsConnectedRoom(portalsInConnectedRoom[j], i * 5 + j + 1, 2300, otherRoomMask, true);
+                    CustomUtilities.UpdatePortalAndItsConnectedRoom(portalsInConnectedRoom[j], otherRoomStencilValue, stencilValue, 2300, otherRoomMask, true);
+                    otherRoomStencilValue++;
+                    if (otherRoomStencilValue == 8 || otherRoomStencilValue == 16 || otherRoomStencilValue == 32 || otherRoomStencilValue == 128) // Must never be equal to any iteration of stencilValue
+                    {
+                        otherRoomStencilValue++;
+                    }
                 }
             }
             portalsInConnectedRoom.Clear();
+            stencilValue *= stencilValue; // BitShift 1 to the left
         }
         #endregion
     }

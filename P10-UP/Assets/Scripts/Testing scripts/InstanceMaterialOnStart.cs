@@ -8,6 +8,8 @@ public class InstanceMaterialOnStart : MonoBehaviour
     private Renderer[] childRenderers;
     [SerializeField] private Shader shaderToApply;
     [SerializeField] private int stencilValueToApply;
+    [SerializeField] private int stencilMaskValueToApply;
+    [SerializeField] private int renderQueueToApply = -1;
     [SerializeField] private Transform shaderMatrixTransform;
     void Awake()
     {
@@ -24,11 +26,12 @@ public class InstanceMaterialOnStart : MonoBehaviour
                     childRenderers[i].materials[j].shader = shaderToApply;
                 }
                 childRenderers[i].materials[j].SetInt("_StencilValue", stencilValueToApply);
+                childRenderers[i].materials[j].SetInt("_StencilMask", stencilMaskValueToApply);
+                childRenderers[i].materials[j].renderQueue = renderQueueToApply != -1 ? renderQueueToApply : childRenderers[i].materials[j].renderQueue;
                 if (shaderMatrixTransform != null)  // Geometry
                 {
                     childRenderers[i].materials[j].SetMatrix("_WorldToPortal", shaderMatrixTransform.worldToLocalMatrix);
                 }
-                //childRenderers[i].materials[j].renderQueue += (stencilValueToApply - 1) * 300;
             }
         }
     }
