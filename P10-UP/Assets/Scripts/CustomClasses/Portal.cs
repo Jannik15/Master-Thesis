@@ -71,7 +71,7 @@ public class Portal : MonoBehaviour
             renderers[i].material.shader = shader;
         }
     }
-    public void SetMaskShader(Shader shader, int stencilValue, int readMaskValue, int renderQueue)
+    public void SetMaskShader(Shader shader, Transform portalToSetAsMatrix, int stencilValue, int readMaskValue, int renderQueue)
     {
         Renderer[] renderers = gameObject.GetComponentsInChildren<Renderer>();
         for (int i = 0; i < renderers.Length; i++)
@@ -79,6 +79,14 @@ public class Portal : MonoBehaviour
             renderers[i].material.shader = shader;
             renderers[i].material.SetInt("_StencilValue", stencilValue);
             renderers[i].material.renderQueue = renderQueue;
+            if (portalToSetAsMatrix != null)
+            {
+                renderers[i].material.SetMatrix("_WorldToPortal", portalToSetAsMatrix.worldToLocalMatrix);
+            }
+            else
+            {
+                Debug.Log("Portal " + gameObject.name + " with shader " + shader.name + " is set to not have a portal matrix on room switch.");
+            }
             if (readMaskValue > 0)
             {
                 renderers[i].material.SetInt("_StencilReadMask", readMaskValue);

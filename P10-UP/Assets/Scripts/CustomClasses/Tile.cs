@@ -10,6 +10,7 @@ public class Tile : MonoBehaviour
     [SerializeField] private float cellSize;
     [SerializeField] private Material material;
     [SerializeField] private GameObject objectOnTile;
+    private Rect rect;
 
     public void AssignAllValues(bool isWalkable, TileGeneration.TileType type)
     {
@@ -17,6 +18,7 @@ public class Tile : MonoBehaviour
         this.type = type;
         position = new Vector2(transform.position.x, transform.position.z);
         cellSize = transform.lossyScale.x;
+
         if (GetComponent<Renderer>() != null)
             material = GetComponent<Renderer>().sharedMaterial;
     }
@@ -73,5 +75,19 @@ public class Tile : MonoBehaviour
     public GameObject GetObjectOnTile()
     {
         return objectOnTile;
+    }
+
+    public float GetTileSize()
+    {
+        return cellSize;
+    }
+
+    public Rect GetTileAsRect()
+    {
+        Vector2 min = new Vector2(position.x - cellSize / 2.0f, position.y - cellSize / 2.0f);
+        Rect rect = new Rect(Vector2.zero, new Vector2(cellSize, cellSize));
+        rect.center = position;
+        //return new Rect(min, new Vector2(cellSize, cellSize));
+        return rect;
     }
 }

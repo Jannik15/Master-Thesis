@@ -331,6 +331,10 @@ public static class Extensions
     {
         return v.x >= minX && v.x <= maxX && v.y >= minY && v.y <= maxY;
     }
+    public static bool IsWithinRect(this Vector2 v, Rect rect)
+    {
+        return v.x >= rect.xMin && v.x <= rect.xMax && v.y >= rect.yMin && v.y <= rect.yMax;
+    }
 
     public static Vector2 Rotate(this Vector2 v, float degrees)
     {
