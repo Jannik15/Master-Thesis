@@ -26,7 +26,7 @@ public class InstanceMaterialOnStart : MonoBehaviour
                     childRenderers[i].materials[j].shader = shaderToApply;
                 }
                 childRenderers[i].materials[j].SetInt("_StencilValue", stencilValueToApply);
-                childRenderers[i].materials[j].SetInt("_StencilMask", stencilMaskValueToApply);
+                childRenderers[i].materials[j].SetInt("_StencilReadMask", stencilMaskValueToApply);
                 childRenderers[i].materials[j].renderQueue = renderQueueToApply != -1 ? renderQueueToApply : childRenderers[i].materials[j].renderQueue;
                 if (shaderMatrixTransform != null)  // Geometry
                 {

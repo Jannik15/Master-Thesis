@@ -108,7 +108,6 @@ public class ProceduralLayoutGeneration : MonoBehaviour
 
     public void ProcedurallyGenerateRooms()
     {
-        // TODO: Stop portals from spawning too close to grid edge (if they do, they should be turned such that the edge is perpendicular to them)
         // TODO: If 3+ Zones, try creating another path, try diverging in the generation
 
         portalParent = new GameObject("Portals").transform;
@@ -564,7 +563,7 @@ public class ProceduralLayoutGeneration : MonoBehaviour
         {
             if (currentRoom.GetPortalsInRoom()[i].GetConnectedPortal() != currentPortal)
             {
-                CustomUtilities.UpdatePortalAndItsConnectedRoom(currentRoom.GetPortalsInRoom()[i], null, stencilValue, 0, 2000, currentRoomMask, true);
+                CustomUtilities.UpdatePortalAndItsConnectedRoom(currentRoom.GetPortalsInRoom()[i], stencilValue, 0, 2000, currentRoomMask, true);
             }
             else
             {
@@ -580,7 +579,7 @@ public class ProceduralLayoutGeneration : MonoBehaviour
             {
                 if (portalsInConnectedRoom[j].GetConnectedPortal() != currentRoom.GetPortalsInRoom()[i])
                 {
-                    CustomUtilities.UpdatePortalAndItsConnectedRoom(portalsInConnectedRoom[j], currentRoom.GetPortalsInRoom()[i].transform , otherRoomStencilValue, stencilValue, 2300, otherRoomMask, true);
+                    CustomUtilities.UpdatePortalAndItsConnectedRoom(portalsInConnectedRoom[j] , otherRoomStencilValue, stencilValue, 2300, otherRoomMask, true);
                     otherRoomStencilValue++;
                     if (otherRoomStencilValue == 8 || otherRoomStencilValue == 16 || otherRoomStencilValue == 32 || otherRoomStencilValue == 128) // Must never be equal to any iteration of stencilValue
                     {

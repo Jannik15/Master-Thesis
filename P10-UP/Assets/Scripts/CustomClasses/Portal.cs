@@ -6,9 +6,8 @@ public class Portal : MonoBehaviour
     [SerializeField] private Room connectedRoom;
     [SerializeField] private Portal connectedPortal;
     private GameObject forwardPortal, backwardPortal;
-    private int stencilValue, readMaskValue;
-    private Renderer[] portalForwardMasks, portalBackwardMasks;
     [SerializeField] private int portalId;
+    private Renderer[] renderers;
 
     public void AssignValues(Room inRoom, Room connectedRoom, Portal connectedPortal, int portalId)
     {
@@ -24,24 +23,24 @@ public class Portal : MonoBehaviour
             if (child.CompareTag("ForwardPortal"))
             {
                 forwardPortal = child;
-                portalForwardMasks = child.GetComponentsInChildren<Renderer>();
             }
             else if (child.CompareTag("BackwardPortal"))
             {
                 backwardPortal = child;
-                portalBackwardMasks = child.GetComponentsInChildren<Renderer>();
             }
         }
-    }
 
-    public int GetStencilValue()
-    {
-        return stencilValue;
+        renderers = gameObject.GetComponentsInChildren<Renderer>();
     }
 
     public Room GetRoom()
     {
         return inRoom;
+    }
+
+    public Renderer GetRenderer()
+    {
+        return renderers[0];
     }
 
     public Room GetConnectedRoom()
@@ -53,40 +52,13 @@ public class Portal : MonoBehaviour
         return connectedPortal;
     }
 
-    public Renderer[] GetForwardMasks()
+    public void SetMaskShader(Shader shader,int stencilValue, int readMaskValue, int renderQueue)
     {
-        return portalForwardMasks;
-    }
-
-    public Renderer[] GetBackwardMasks()
-    {
-        return portalBackwardMasks;
-    }
-
-    public void SetMaskShader(Shader shader)
-    {
-        Renderer[] renderers = gameObject.GetComponentsInChildren<Renderer>();
-        for (int i = 0; i < renderers.Length; i++)
-        {
-            renderers[i].material.shader = shader;
-        }
-    }
-    public void SetMaskShader(Shader shader, Transform portalToSetAsMatrix, int stencilValue, int readMaskValue, int renderQueue)
-    {
-        Renderer[] renderers = gameObject.GetComponentsInChildren<Renderer>();
         for (int i = 0; i < renderers.Length; i++)
         {
             renderers[i].material.shader = shader;
             renderers[i].material.SetInt("_StencilValue", stencilValue);
             renderers[i].material.renderQueue = renderQueue;
-            if (portalToSetAsMatrix != null)
-            {
-                renderers[i].material.SetMatrix("_WorldToPortal", portalToSetAsMatrix.worldToLocalMatrix);
-            }
-            else
-            {
-                Debug.Log("Portal " + gameObject.name + " with shader " + shader.name + " is set to not have a portal matrix on room switch.");
-            }
             if (readMaskValue > 0)
             {
                 renderers[i].material.SetInt("_StencilReadMask", readMaskValue);

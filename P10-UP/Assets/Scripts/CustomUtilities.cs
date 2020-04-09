@@ -112,10 +112,10 @@ public static class CustomUtilities
     /// <param name="baseRenderQueueValue"></param>
     /// <param name="portalShader"></param>
     /// <param name="enablePortal"></param>
-    public static void UpdatePortalAndItsConnectedRoom(Portal portal, Transform portalMatrix, int newStencilValue, int readMaskValue, int baseRenderQueueValue, Shader portalShader, bool enablePortal)
+    public static void UpdatePortalAndItsConnectedRoom(Portal portal, int newStencilValue, int readMaskValue, int baseRenderQueueValue, Shader portalShader, bool enablePortal)
     {
         portal.SetActive(enablePortal);
-        portal.SetMaskShader(portalShader, portalMatrix, newStencilValue, readMaskValue, baseRenderQueueValue + 100);
+        portal.SetMaskShader(portalShader, newStencilValue, readMaskValue, baseRenderQueueValue + 100);
 
         portal.GetConnectedRoom().gameObject.SetActive(true);
         UpdateShaderMatrix(portal.GetConnectedRoom().gameObject, portal.transform);
