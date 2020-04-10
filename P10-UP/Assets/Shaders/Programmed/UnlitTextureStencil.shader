@@ -7,7 +7,7 @@
     }
     SubShader
     {
-        Tags { "RenderType"="Opaque"  "Queue"="Geometry+300" }
+        Tags { "RenderType"="Opaque"  "Queue"="Geometry" }
 		Stencil
 		{
 			Ref [_StencilValue]

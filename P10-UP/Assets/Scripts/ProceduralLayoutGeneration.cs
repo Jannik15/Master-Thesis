@@ -112,7 +112,7 @@ public class ProceduralLayoutGeneration : MonoBehaviour
 
         portalParent = new GameObject("Portals").transform;
 
-        //CreateRooms(1, grids, CustomRoomType.Start);
+        CreateRooms(1, grids, CustomRoomType.Start);
         CreateRooms(roomAmount - 2, grids, CustomRoomType.Generic);
         CreateRooms(1, endGrids, CustomRoomType.End);
 
@@ -598,7 +598,7 @@ public class ProceduralLayoutGeneration : MonoBehaviour
     /// Enables the corresponding portal in the new room, and disables all portals in the previous room, in addition to updating their shader matrices.
     /// </summary>
     /// <param name="portal"></param>
-    public void FinalizeRoomSwitch(Portal portal) // Successful world switch
+    public void FinalizeRoomSwitch(Portal portal)
     {
         // Step 1: Enable the connected portal and disable the current portal from the previous room
         Portal connectedPortal = portal.GetConnectedPortal();

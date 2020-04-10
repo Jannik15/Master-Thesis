@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 
 public class Portal : MonoBehaviour
 {
@@ -7,7 +8,7 @@ public class Portal : MonoBehaviour
     [SerializeField] private Portal connectedPortal;
     private GameObject forwardPortal, backwardPortal;
     [SerializeField] private int portalId;
-    private Renderer[] renderers;
+    private List<Renderer> renderers = new List<Renderer>();
 
     public void AssignValues(Room inRoom, Room connectedRoom, Portal connectedPortal, int portalId)
     {
@@ -23,14 +24,14 @@ public class Portal : MonoBehaviour
             if (child.CompareTag("ForwardPortal"))
             {
                 forwardPortal = child;
+                renderers.AddRange(child.GetComponentsInChildren<Renderer>());
             }
             else if (child.CompareTag("BackwardPortal"))
             {
                 backwardPortal = child;
+                renderers.AddRange(child.GetComponentsInChildren<Renderer>());
             }
         }
-
-        renderers = gameObject.GetComponentsInChildren<Renderer>();
     }
 
     public Room GetRoom()
@@ -54,7 +55,7 @@ public class Portal : MonoBehaviour
 
     public void SetMaskShader(Shader shader,int stencilValue, int readMaskValue, int renderQueue)
     {
-        for (int i = 0; i < renderers.Length; i++)
+        for (int i = 0; i < renderers.Count; i++)
         {
             renderers[i].material.shader = shader;
             renderers[i].material.SetInt("_StencilValue", stencilValue);

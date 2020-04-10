@@ -8,7 +8,6 @@ Shader "Stencils/ClearDepth"
 	Properties{
 		_Cube("Environment Map", Cube) = "white" {}
 		_StencilValue("Stencil Value", Range(0,255)) = 1
-		//_StencilMask("Stencil Mask", Range(0,255)) = 1
 	}
 		SubShader
 	{
@@ -21,8 +20,7 @@ Shader "Stencils/ClearDepth"
 
 	Stencil{
 		Ref [_StencilValue]
-		//ReadMask [_StencilMask]
-		Comp Equal // only pass stencil test if stencil value equals Ref
+		Comp Equal
 	}
 
 		CGPROGRAM
