@@ -53,16 +53,6 @@ public class Room
         }
         portalsToRoom.Add(portal);
     }
-
-    public Portal GetPortalInRoom(int index)
-    {
-        return portalsInRoom[index];
-    }
-
-    public Portal GetPortalToRoom(int index)
-    {
-        return portalsInRoom[index];
-    }
     public List<Portal> GetPortalsInRoom()
     {
         return portalsInRoom;

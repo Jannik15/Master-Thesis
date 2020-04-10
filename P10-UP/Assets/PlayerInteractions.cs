@@ -31,7 +31,7 @@ public class PlayerInteractions : MonoBehaviour
         ray = playerCamera.ScreenPointToRay(Input.mousePosition);
         if (Input.GetKeyDown(KeyCode.F) && Physics.Raycast(ray, out hit, 1.5f, layerMaskRay))
         {
-            Debug.Log(hit.collider);
+            //Debug.Log(hit.collider);
         }
 
         if (Input.GetKeyDown(KeyCode.F) && Physics.Raycast(ray, out hit, 1.5f, layerMaskRay) && hit.collider.gameObject.tag == "Button")
@@ -96,8 +96,6 @@ public class PlayerInteractions : MonoBehaviour
                 }
 
             }
-            Debug.Log(proLG.currentRoom.gameObject.name);
-            Debug.Log("Picked up Keycard #" + keyHoldID);
             proLG.currentRoom.RemoveObjectFromRoom(collider.transform);
             Destroy(collider.gameObject);
 
