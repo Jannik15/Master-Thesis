@@ -112,7 +112,7 @@ public class ProceduralLayoutGeneration : MonoBehaviour
 
         portalParent = new GameObject("Portals").transform;
 
-        CreateRooms(1, grids, CustomRoomType.Start);
+        //CreateRooms(1, grids, CustomRoomType.Start);
         CreateRooms(roomAmount - 2, grids, CustomRoomType.Generic);
         CreateRooms(1, endGrids, CustomRoomType.End);
 
