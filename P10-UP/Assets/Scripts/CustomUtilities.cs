@@ -10,12 +10,12 @@ public static class CustomUtilities
 
     public static void InstantiateMaterials(GameObject parent)
     {
-        Renderer[] renderersInRoom = parent.GetComponentsInChildren<Renderer>();
-        for (int i = 0; i < renderersInRoom.Length; i++)
+        Renderer[] renderers = parent.GetComponentsInChildren<Renderer>();
+        for (int i = 0; i < renderers.Length; i++)
         {
-            for (int j = 0; j < renderersInRoom[i].materials.Length; j++)
+            for (int j = 0; j < renderers[i].materials.Length; j++)
             {
-                renderersInRoom[i].materials[j] = Material.Instantiate(renderersInRoom[i].materials[j]);
+                renderers[i].materials[j] = Material.Instantiate(renderers[i].materials[j]);
             }
         }
     }
@@ -37,56 +37,56 @@ public static class CustomUtilities
     }
 
     /// <summary>
-    /// Update the stencil value for materials in a list of renderers in a room. Also updates their shader matrix with the portal transform.
-    /// </summary>
-    /// <param name="room"></param>
-    /// <param name="newStencilValue"></param>
-    public static void UpdateRoomStencil(GameObject room, int newStencilValue, Transform portal)
-    {
-        Renderer[] renderersInRoom = room.GetComponentsInChildren<Renderer>();
-        for (int i = 0; i < renderersInRoom.Length; i++)
-        {
-            for (int j = 0; j < renderersInRoom[i].materials.Length; j++)
-            {
-                renderersInRoom[i].materials[j].SetInt("_StencilValue", newStencilValue);
-                renderersInRoom[i].materials[j].SetMatrix("_WorldToPortal", portal.worldToLocalMatrix);
-            }
-        }
-    }
-
-    /// <summary>
-    /// Update the stencil value for materials in a list of renderers in a gameobject and its children.
+    /// Update the stencils, discard matrix, and render queue of all renderers in the parent.
+    /// If portal == null discard matrix is not updated, and if renderQueue == 0 it is not updated either.
     /// </summary>
     /// <param name="parent"></param>
     /// <param name="newStencilValue"></param>
-    public static void UpdateStencils(GameObject parent, int newStencilValue, int renderQueue)
+    public static void UpdateStencils(GameObject parent, Transform portal, int newStencilValue, int renderQueue)
     {
-        Renderer[] renderersInRoom = parent.GetComponentsInChildren<Renderer>();
-        for (int i = 0; i < renderersInRoom.Length; i++)
+        Renderer[] renderers = parent.GetComponentsInChildren<Renderer>();
+        for (int i = 0; i < renderers.Length; i++)
         {
-            for (int j = 0; j < renderersInRoom[i].materials.Length; j++)
+            for (int j = 0; j < renderers[i].materials.Length; j++)
             {
-                renderersInRoom[i].materials[j].SetInt("_StencilValue", newStencilValue);
-                renderersInRoom[i].materials[j].renderQueue = renderQueue;
+                renderers[i].materials[j].SetInt("_StencilValue", newStencilValue);
+                if (renderQueue > 0)
+                {
+                    renderers[i].materials[j].renderQueue = renderQueue;
+                }
+                if (portal != null)
+                {
+                    renderers[i].materials[j].SetMatrix("_WorldToPortal", portal.worldToLocalMatrix);
+                }
             }
         }
     }
 
     /// <summary>
-    /// Update the shader matrix _WorldToPortal for each renderer material in the given list of renderers, with the relevant portal transform (Portals that are looking at them).
+    /// Update the stencils, discard matrix, and render queue of all renderers in the parent.
+    /// If portal == null discard matrix is not updated, and if renderQueue == 0 it is not updated either.
     /// </summary>
-    /// <param name="roomMaterials"></param>
-    /// <param name="portal"></param>
-    public static void UpdateShaderMatrix(List<Renderer> roomMaterials, Transform portal)
+    /// <param name="parent"></param>
+    /// <param name="newStencilValue"></param>
+    public static void UpdateStencils(Renderer[] renderers, Transform portal, int newStencilValue, int renderQueue)
     {
-        for (int i = 0; i < roomMaterials.Count; i++)
+        for (int i = 0; i < renderers.Length; i++)
         {
-            for (int j = 0; j < roomMaterials[i].materials.Length; j++)
+            for (int j = 0; j < renderers[i].materials.Length; j++)
             {
-                roomMaterials[i].materials[j].SetMatrix("_WorldToPortal", portal.worldToLocalMatrix);
+                renderers[i].materials[j].SetInt("_StencilValue", newStencilValue);
+                if (renderQueue > 0)
+                {
+                    renderers[i].materials[j].renderQueue = renderQueue;
+                }
+                if (portal != null)
+                {
+                    renderers[i].materials[j].SetMatrix("_WorldToPortal", portal.worldToLocalMatrix);
+                }
             }
         }
     }
+
     /// <summary>
     /// Update the shader matrix _WorldToPortal for each renderer material in the given list of renderers, with the relevant portal transform (Portals that are looking at them).
     /// </summary>
@@ -118,8 +118,7 @@ public static class CustomUtilities
         portal.SetMaskShader(portalShader, newStencilValue, readMaskValue, baseRenderQueueValue + 100);
 
         portal.GetConnectedRoom().gameObject.SetActive(true);
-        UpdateShaderMatrix(portal.GetConnectedRoom().gameObject, portal.transform);
-        UpdateStencils(portal.GetConnectedRoom().gameObject, newStencilValue, baseRenderQueueValue + 300);
+        portal.GetConnectedRoom().UpdateRoomStencil(portal.transform, newStencilValue, baseRenderQueueValue + 300);
     }
 
     /// <summary>

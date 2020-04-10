@@ -6,14 +6,14 @@ public class Room
 {
     public readonly GameObject gameObject;
     public Grid roomGrid;
-    private int roomId;
+    private int roomID, stencilValue;
     private List<Portal> portalsInRoom, portalsToRoom;
     private Grid grid;
     public List<Transform> playerCollisionObjectsInRoom = new List<Transform>(), noPlayerCollisionObjectsInRoom = new List<Transform>();
-    public Room(GameObject gameObject, int roomId, Grid grid)
+    public Room(GameObject gameObject, int roomID, Grid grid)
     {
         this.gameObject = gameObject;
-        this.roomId = roomId;
+        this.roomID = roomID; // Room id is currently just its index in the rooms list
         this.roomGrid = grid;
         portalsInRoom = new List<Portal>();
         portalsToRoom = new List<Portal>();
@@ -21,9 +21,20 @@ public class Room
         noPlayerCollisionObjectsInRoom.AddRange(gameObject.GetComponentsInChildren<Transform>());
     }
 
-    public int GetRoomId()
+    public void UpdateRoomStencil(Transform portal, int newStencilValue, int renderQueue)
     {
-        return roomId;
+        stencilValue = newStencilValue;
+        CustomUtilities.UpdateStencils(gameObject, portal, newStencilValue, renderQueue);
+    }
+
+    public int GetStencilValue()
+    {
+        return stencilValue;
+    }
+
+    public int GetRoomID()
+    {
+        return roomID;
     }
 
     public void AddPortalInRoom(Portal portal)

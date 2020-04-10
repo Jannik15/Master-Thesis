@@ -63,7 +63,7 @@ public class ProceduralLayoutGeneration : MonoBehaviour
         depthClearer.GetComponent<Renderer>().material.SetInt("_StencilValue", 1);
         depthClearer.GetComponent<Renderer>().material.renderQueue = 2500;
 
-        for (int i = 8; i <= 128 ; i *= i)
+        for (int i = 8; i <= 128 ; i += i)
         {
             DuplicateDepthClearer(depthParent, i, 2200);
         }
@@ -254,8 +254,7 @@ public class ProceduralLayoutGeneration : MonoBehaviour
                 {
                     for (int l = k + 1; l < zoneLength; l++)
                     {
-                        if (math.distancesq(portalZones[i][j][k], portalZones[i][j][l]) <=
-                            math.pow(gridTiles[0].transform.localScale.x, 2))
+                        if (math.distancesq(portalZones[i][j][k], portalZones[i][j][l]) <= math.pow(gridTiles[0].transform.localScale.x, 2))
                         {
                             portalZones[i][j].Add(Vector2.Lerp(portalZones[i][j][k], portalZones[i][j][l], 0.5f));
                         }
@@ -268,9 +267,7 @@ public class ProceduralLayoutGeneration : MonoBehaviour
         possiblePortalPositions.Clear();
         int zoneUsed = -1;
         bool breakAll = false;
-        for (int i = 0;
-            i < portalZones.Count;
-            i++) // This value is always 4, since the rooms can have 4 different rotations (0, 90, 180, 270)
+        for (int i = 0; i < portalZones.Count; i++) // This value is always 4, since the rooms can have 4 different rotations (0, 90, 180, 270)
         {
             for (int j = 0; j < portalZones[i].Count; j++)
             {
@@ -280,8 +277,7 @@ public class ProceduralLayoutGeneration : MonoBehaviour
                     {
                         for (int m = 0; m < previousPortalZones[l].Count; m++)
                         {
-                            if (previousPortalZones[l][m] == portalZones[i][j][k]
-                            ) // The == operator tests for approximate equality
+                            if (previousPortalZones[l][m] == portalZones[i][j][k]) // The == operator tests for approximate equality
                             {
                                 possiblePortalPositions.Add(portalZones[i][j][k]);
                                 zoneUsed = j;
@@ -291,9 +287,9 @@ public class ProceduralLayoutGeneration : MonoBehaviour
                 }
 
                 if (zoneUsed != -1) // Only store tiles from a single zone
-                {
-                    portalZones[i]
-                        .RemoveAt(j); // Remove the used portal zone so it cannot be used for pairing with future rooms (would cause portal overlap)
+                { 
+                    // Remove the used portal zone so it cannot be used for pairing with future rooms (would cause portal overlap)
+                    portalZones[i].RemoveAt(j);
                     roomRotation = i;
                     breakAll = true;
                     break;
@@ -481,7 +477,6 @@ public class ProceduralLayoutGeneration : MonoBehaviour
                     oppositePortal.transform.GetChild(i).ChangeRoom(null, rooms[roomId], false);
                 }
             }
-
             for (int i = 0; i < portal.transform.childCount; i++)
             {
                 if (portal.transform.GetChild(i).CompareTag("PortalObjects"))
@@ -500,9 +495,7 @@ public class ProceduralLayoutGeneration : MonoBehaviour
             }
         }
 
-        return
-            possiblePortalPositions.Count >
-            0; // return whether or not portal tiles in current room are overlapping with portal tiles in previous rooms
+        return possiblePortalPositions.Count > 0; // return whether or not portal tiles in current room are overlapping with portal tiles in previous rooms
     }
 
     #region World switching on portal collision
@@ -516,7 +509,7 @@ public class ProceduralLayoutGeneration : MonoBehaviour
         // Set current room and previous room | get the portals from the current room
         previousRoom = currentRoom;
         currentRoom = newCurrentRoom;
-        CustomUtilities.UpdateStencils(currentRoom.gameObject, 0, 2000);
+        currentRoom.UpdateRoomStencil(null, 0, 2000);
         previousRoom.SetLayer(CustomUtilities.LayerMaskToLayer(differentRoomLayer), CustomUtilities.LayerMaskToLayer(differentRoomLayer));
         for (int i = 0; i < previousRoom.GetPortalsInRoom().Count; i++)
         {
@@ -568,10 +561,9 @@ public class ProceduralLayoutGeneration : MonoBehaviour
             else
             {
                 // Previous room
-                CustomUtilities.UpdateStencils(previousRoom.gameObject, stencilValue, 2300);
-                CustomUtilities.UpdateStencils(currentPortal.gameObject, stencilValue, 2100);
-                CustomUtilities.UpdateStencils(currentPortal.GetConnectedPortal().gameObject, stencilValue, 2100);
-                CustomUtilities.UpdateShaderMatrix(previousRoom.gameObject, currentPortal.transform);   // This might not be necessary, but i don't know if the portal rotation matters in the matrix
+                previousRoom.UpdateRoomStencil(currentPortal.transform, stencilValue, 2300);
+                CustomUtilities.UpdateStencils(currentPortal.gameObject, null, stencilValue, 2100);
+                CustomUtilities.UpdateStencils(currentPortal.GetConnectedPortal().gameObject, null, stencilValue, 2100);
             }
             
             portalsInConnectedRoom.AddRange(currentRoom.GetPortalsInRoom()[i].GetConnectedRoom().GetPortalsInRoom());
@@ -581,14 +573,14 @@ public class ProceduralLayoutGeneration : MonoBehaviour
                 {
                     CustomUtilities.UpdatePortalAndItsConnectedRoom(portalsInConnectedRoom[j] , otherRoomStencilValue, stencilValue, 2300, otherRoomMask, true);
                     otherRoomStencilValue++;
-                    if (otherRoomStencilValue == 8 || otherRoomStencilValue == 16 || otherRoomStencilValue == 32 || otherRoomStencilValue == 128) // Must never be equal to any iteration of stencilValue
+                    if (otherRoomStencilValue == 8 || otherRoomStencilValue == 16 || otherRoomStencilValue == 32 || otherRoomStencilValue == 64 || otherRoomStencilValue == 128) // Must never be equal to any iteration of stencilValue
                     {
                         otherRoomStencilValue++;
                     }
                 }
             }
             portalsInConnectedRoom.Clear();
-            stencilValue *= stencilValue; // BitShift 1 to the left
+            stencilValue += stencilValue; // BitShift 1 to the left
         }
         #endregion
     }
