@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq.Expressions;
+using UnityEditor;
 using UnityEngine;
 
 public class TileGeneration
@@ -18,6 +19,7 @@ public class TileGeneration
     private Vector2 center;
     private bool isWalkable;
     private Material material;
+    private GameObject tilePrefab;
     private TileType tileType;
     private Ceiling ceiling;
 
@@ -54,6 +56,15 @@ public class TileGeneration
         }
     }
 
+    public void AssignTilePrefabOverride(GameObject tilePrefab)
+    {
+        this.tilePrefab = tilePrefab;
+        if (tilePrefab != null)
+        {
+            material = tilePrefab.GetComponentInChildren<Renderer>().sharedMaterial;
+        }
+    }
+
     public void AssignMaterial(Material material)
     {
         this.material = material;
@@ -71,6 +82,10 @@ public class TileGeneration
 
     public Texture GetMaterialTexture()
     {
+        if (tilePrefab != null)
+        {
+            return AssetPreview.GetAssetPreview(tilePrefab);
+        }
         return material.mainTexture;
     }
 
@@ -81,24 +96,35 @@ public class TileGeneration
 
     public Tile InstantiateTile(Transform parent, int xIndex, int yIndex)
     {
-        GameObject gameObject = GameObject.CreatePrimitive(PrimitiveType.Quad);
-
+        GameObject gameObject;
+        if (tilePrefab == null)
+        {
+             gameObject = GameObject.CreatePrimitive(PrimitiveType.Quad);
+             gameObject.transform.position = new Vector3(center.x, 0.0f, center.y);
+             gameObject.transform.eulerAngles = new Vector3(90.0f, 0.0f, 0.0f);
+             gameObject.transform.parent = parent;
+        }
+        else
+        {
+            gameObject = MonoBehaviour.Instantiate(tilePrefab, new Vector3(center.x, 0.0f, center.y), Quaternion.identity, parent);
+        }
         gameObject.name = "Tile [" + xIndex + ", " + yIndex + "]";
-        gameObject.transform.position = new Vector3(center.x, 0.0f, center.y);
-        gameObject.transform.eulerAngles = new Vector3(90.0f,0.0f,0.0f);
         gameObject.transform.localScale = new Vector3(cellSize, cellSize, cellSize);
-        gameObject.transform.parent = parent;
 
 
         if (tileType == TileType.Empty)
         {
             gameObject.name = "Empty";
-            MonoBehaviour.DestroyImmediate(gameObject.GetComponent<MeshRenderer>());
-            MonoBehaviour.DestroyImmediate(gameObject.GetComponent<MeshFilter>());
-            MonoBehaviour.DestroyImmediate(gameObject.GetComponent<MeshCollider>());
-
+            Component[] allComponents = gameObject.GetComponentsInChildren(typeof(Component));
+            for (int i = 0; i < allComponents.Length; i++)
+            {
+                if (allComponents[i].GetType() != typeof(Transform))
+                {
+                    MonoBehaviour.Destroy(allComponents[i]);
+                }
+            }
         }
-        else if (material != null)
+        else if (material != null && tilePrefab == null)
         {
             Renderer renderer = gameObject.GetComponent<Renderer>();
             renderer.material = material;
