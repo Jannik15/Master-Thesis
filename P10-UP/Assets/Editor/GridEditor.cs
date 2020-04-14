@@ -287,36 +287,43 @@ public class GridEditor : EditorWindow
         {
             for (int x = 0; x < gridTiles.GetLength(0); x++)
             {
-                Vector2 rectCenter = new Vector2(screenMiddle.x - gridTiles.GetLength(0) / 2.0f * tileSize + x * tileSize + x * 5, screenMiddle.y - gridTiles.GetLength(1) / 2.0f * tileSize + y * tileSize + y * 5);
-                Rect tileRect = new Rect(rectCenter, tileSizeVector);
+                Vector2 rectMins = new Vector2(screenMiddle.x - gridTiles.GetLength(0) / 2.0f * tileSize + x * tileSize + x * 5, screenMiddle.y - gridTiles.GetLength(1) / 2.0f * tileSize + y * tileSize + y * 5);
+                Rect tileRect = new Rect(rectMins, tileSizeVector);
 
-                EditorGUI.DrawPreviewTexture(tileRect, gridTiles[x, y].GetMaterialTexture());
-                EditorGUI.LabelField(tileRect, gridTiles[x, y].GetTileType().ToString(), textCenteringStyle);
+                if (gridTiles[x, y].GetMaterialTexture() != null)
+                {
+                    EditorGUI.DrawPreviewTexture(tileRect, gridTiles[x, y].GetMaterialTexture());
+                }
+                else
+                {
+                    EditorGUI.DrawRect(tileRect, gridTiles[x,y].GetMaterial().GetColor("_MainColor"));
+                }
+                EditorGUI.LabelField(new Rect(rectMins - new Vector2(0,15), tileSizeVector), gridTiles[x, y].GetTileType().ToString(), textCenteringStyle);
                 if (!gridTiles[x, y].IsWalkable())
                 {
-                    EditorGUI.DrawRect(new Rect(rectCenter + new Vector2(tileSize * 0.4f, tileSize * 0.7f), tileSizeVector * 0.2f), Color.red);
+                    EditorGUI.DrawRect(new Rect(rectMins + new Vector2(tileSize * 0.4f, tileSize * 0.7f), tileSizeVector * 0.2f), Color.red);
                 }
 
                 if (gridTiles[x, y].GetCeiling().GetHeight() > 0)
                 {
-                    EditorGUI.DrawRect(new Rect(rectCenter + new Vector2(tileSize * 0.4f, tileSize * 0.2f), tileSizeVector * 0.2f), Color.blue);
+                    EditorGUI.DrawRect(new Rect(rectMins + new Vector2(tileSize * 0.4f, tileSize * 0.2f), tileSizeVector * 0.2f), Color.blue);
                 }
                 tileAreas.Add(tileRect);
 
                 #region DrawWalls 
                 //*/
-                DrawWall(new Rect(rectCenter + new Vector2(1, -5), tileSizeVector - new Vector2(1, tileSize * 0.9f)), x, wallY);
+                DrawWall(new Rect(rectMins + new Vector2(1, -5), tileSizeVector - new Vector2(1, tileSize * 0.9f)), x, wallY);
 
-                DrawWall(new Rect(rectCenter + new Vector2(-5, 1), tileSizeVector - new Vector2(tileSize * 0.9f, 1)), x, wallY + 1);
+                DrawWall(new Rect(rectMins + new Vector2(-5, 1), tileSizeVector - new Vector2(tileSize * 0.9f, 1)), x, wallY + 1);
 
                 if (x == gridTiles.GetLength(0) - 1)
                 {
-                    DrawWall(new Rect(rectCenter + new Vector2(tileSize, 1), tileSizeVector - new Vector2(tileSize * 0.9f, 1)), x + 1, wallY + 1);
+                    DrawWall(new Rect(rectMins + new Vector2(tileSize, 1), tileSizeVector - new Vector2(tileSize * 0.9f, 1)), x + 1, wallY + 1);
                 }
 
                 if (y == gridTiles.GetLength(1) - 1)
                 {
-                    DrawWall(new Rect(rectCenter + new Vector2(1, tileSize), tileSizeVector - new Vector2(1, tileSize * 0.9f)), x, wallY + 2);
+                    DrawWall(new Rect(rectMins + new Vector2(1, tileSize), tileSizeVector - new Vector2(1, tileSize * 0.9f)), x, wallY + 2);
                 }
                 //*/
                 #endregion

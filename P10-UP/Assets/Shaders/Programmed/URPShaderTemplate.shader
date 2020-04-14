@@ -2,7 +2,7 @@
 // However, if you want to author shaders in shading language you can use this teamplate as a base.
 // Please note, this shader does not necessarily match perfomance of the built-in URP Lit shader.
 // This shader works with URP 7.1.x and above
-Shader "Stencils/StencilMaterial"
+Shader "Stencils/URPShaderStencilTemplate"
 {
     Properties
     {
@@ -59,7 +59,6 @@ Shader "Stencils/StencilMaterial"
         // any render pipeline. In case you want your subshader to only run in LWRP set the tag to
         // "UniversalRenderPipeline"
         Tags{"RenderType" = "Opaque" "RenderPipeline" = "UniversalRenderPipeline" "IgnoreProjector" = "True" "Queue"="Geometry"}
-        LOD 300
 		Stencil
 		{
 			Ref [_StencilValue]

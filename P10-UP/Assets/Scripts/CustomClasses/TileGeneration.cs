@@ -120,7 +120,7 @@ public class TileGeneration
             {
                 if (allComponents[i].GetType() != typeof(Transform))
                 {
-                    MonoBehaviour.Destroy(allComponents[i]);
+                    MonoBehaviour.DestroyImmediate(allComponents[i]);
                 }
             }
         }
