@@ -28,8 +28,8 @@ public class ProceduralLayoutGeneration : MonoBehaviour
     private List<Portal> portals = new List<Portal>();
     private List<List<Portal>> activeThroughPortals = new List<List<Portal>>();
     private GameObject roomObject, keyCardToSpawn; // Functions as the index in rooms, tracking which room the player is in
+    private int roomId, portalIterator, keycardIterator;
     private Transform playerCam, portalParent;
-    private int roomId, portalIterator;
     private List<Tile> gridTiles = new List<Tile>(), previousGridTiles = new List<Tile>(), walkableTiles = new List<Tile>(), keyCardViableTiles = new List<Tile>();
     private List<Vector2> portalTilesLocations = new List<Vector2>();
     private List<List<Vector2>> previousPortalZones = new List<List<Vector2>>();
@@ -412,10 +412,23 @@ public class ProceduralLayoutGeneration : MonoBehaviour
 
             // Choose what type of portal should spawn
             int spawnDoor = Random.Range(0, 10);
+            int doorLockState = Random.Range(0, 2);
             if (spawnDoor < 3 && roomId > 1)
             {
                 portal = Instantiate(portalDoorPrefab, possiblePortalPositions[randomPortalPosition].ToVector3XZ(),
                     Quaternion.Euler(0, randomRotation, 0), portalParent);
+                if (doorLockState == 0 && keycardIterator <= 10)
+                {
+                    portal.GetComponentInChildren<DoorLock>().isLocked = true;
+                    Debug.Log(portal.GetComponentInChildren<DoorLock>().isLocked);
+                    Debug.Log("Spawned locked Door");
+                    keycardIterator++;
+                } else
+                {
+                    portal.GetComponentInChildren<DoorLock>().isLocked = false;
+                    Debug.Log(portal.GetComponentInChildren<DoorLock>().isLocked);
+                    Debug.Log("Spawned Open Door");
+                }
             }
             else
             {
@@ -450,11 +463,9 @@ public class ProceduralLayoutGeneration : MonoBehaviour
                 }
             }
 
-            if (spawnDoor < 3 && roomId > 1)
+            if (spawnDoor < 3 && roomId > 1 && portal.GetComponentInChildren<DoorLock>().isLocked == true)
             {
                 portal.GetComponentInChildren<KeyPad>().KeyPadID = keyCardID;
-                portal.GetComponentInChildren<DoorLock>().isLocked = true;
-
                 int roomToSpawnKeyCardIn = Random.Range(1, roomId);
 
                 keyCardViableTiles.Clear();
