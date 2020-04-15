@@ -158,26 +158,26 @@ public static class CustomUtilities
 
     #region Tiles
     /// <summary>
-    /// Returns a double-list of Portal positions, referred to as portal zones. Takes a list of portal tiles, and a size variable for the distance between tiles.
-    /// If the tileSize is equal to the size of the tiles, the zones will only consist of horizontally and vertically neighboring tiles. If increased, it can include horizontally neighboring tiles.
+    /// Returns a double-list of tile positions, referred to as portal zones. Takes a list of tiles, and a size variable for the distance between tiles.
+    /// If the tileSize is equal to the size of the tiles, the zones will only consist of horizontally and vertically neighboring tiles. If increased, it can include diagonally neighboring tiles.
     /// </summary>
-    /// <param name="remainingPortals"></param>
+    /// <param name="tiles"></param>
     /// <param name="tileSize"></param>
     /// <returns></returns>
-    public static List<List<Vector2>> PortalZones(List<Vector2> remainingPortals, float tileSize)
+    public static List<List<Vector2>> GetTilesAsZone(List<Vector2> tiles, float tileSize)
     {
-        List<List<Vector2>> portalZones = new List<List<Vector2>>();
-        portalZones.Add(new List<Vector2>());
-        portalZones[0].Add(remainingPortals[0]);
+        List<List<Vector2>> zones = new List<List<Vector2>>();
+        zones.Add(new List<Vector2>());
+        zones[0].Add(tiles[0]);
 
         List<int> connections = new List<int>();
-        for (int i = 1; i < remainingPortals.Count; i++)
+        for (int i = 1; i < tiles.Count; i++)
         {
-            for (int j = 0; j < portalZones.Count; j++)
+            for (int j = 0; j < zones.Count; j++)
             {
-                for (int k = 0; k < portalZones[j].Count; k++)
+                for (int k = 0; k < zones[j].Count; k++)
                 {
-                    if (Vector3.Distance(remainingPortals[i], portalZones[j][k]) <= tileSize * 1.1f) // There can be some floating point inaccuracies here, so we multiply by 1.1f to overshoot the comparison
+                    if (Vector3.Distance(tiles[i], zones[j][k]) <= tileSize * 1.1f) // There can be some floating point inaccuracies here, so we multiply by 1.1f to overshoot the comparison
                     {
                         connections.Add(j);
                         break;
@@ -187,24 +187,24 @@ public static class CustomUtilities
 
             if (connections.Count > 0)
             {
-                portalZones[connections[0]].Add(remainingPortals[i]);
+                zones[connections[0]].Add(tiles[i]);
                 if (connections.Count > 1)
                 {
                     for (int j = 1; j < connections.Count; j++)
                     {
-                        portalZones[connections[0]].AddRange(portalZones[connections[j]]);
-                        portalZones.RemoveAt(connections[j]);
+                        zones[connections[0]].AddRange(zones[connections[j]]);
+                        zones.RemoveAt(connections[j]);
                     }
                 }
             }
             else //(connections.Count == 0)
             {
-                portalZones.Add(new List<Vector2>());
-                portalZones[portalZones.Count - 1].Add(remainingPortals[i]);
+                zones.Add(new List<Vector2>());
+                zones[zones.Count - 1].Add(tiles[i]);
             }
             connections.Clear();
         }
-        return portalZones;
+        return zones;
     }
 
     /// <summary>

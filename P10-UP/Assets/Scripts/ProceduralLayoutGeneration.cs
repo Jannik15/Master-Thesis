@@ -197,7 +197,7 @@ public class ProceduralLayoutGeneration : MonoBehaviour
                             }
                         }
                     }
-                    portalZones.Add(CustomUtilities.PortalZones(portalTilesLocations, gridTiles[0].transform.localScale.x));
+                    portalZones.Add(CustomUtilities.GetTilesAsZone(portalTilesLocations, gridTiles[0].transform.localScale.x));
                     break;
                 case CustomRoomType.End:
                     success = CheckIfRoomsCanBePaired(gridObject, grid, ref roomRotation);
@@ -267,7 +267,7 @@ public class ProceduralLayoutGeneration : MonoBehaviour
                 }
             }
 
-            portalZones.Add(CustomUtilities.PortalZones(portalTilesLocations, gridTiles[0].transform.localScale.x));
+            portalZones.Add(CustomUtilities.GetTilesAsZone(portalTilesLocations, gridTiles[0].transform.localScale.x));
 
             // Add positions on edges of tiles to portal zones
             for (int j = 0; j < portalZones[i].Count; j++)
