@@ -20,26 +20,26 @@ public class GridEditor : EditorWindow
     private WallGeneration[,] gridWalls;
     private List<WallGeneration> gridWallsList = new List<WallGeneration>();
     private TileGeneration.TileType tileType;
-    private TileGeneration.TileType leftClickDragTileType;
+    private TileGeneration.TileType dragTileType;
 
     // Basic types
     private int selectedTileNum = 0;
-    private int leftClickDragSelection, leftClickDragTileTypeIndex, leftClickDragIsWalkableSelection = 1, leftClickDragChangeWallMaterialSelection = 1, wallHeightSliderValue, ceilingHeightSliderValue;
-    private readonly string[] leftClickDragLabels = { "Do nothing", "Tile Type", "Walls", "Ceiling", "Is Walkable", "Material" };
+    private int dragSelection, dragTileTypeIndex, dragIsWalkableSelection = 1, dragChangeWallMaterialSelection = 1, wallHeightSliderValue, ceilingHeightSliderValue;
+    private readonly string[] dragLabels = { "Do nothing", "Tile Type", "Walls", "Ceiling", "Is Walkable", "Material" };
     private readonly string[] tileTypeLabels = Enum.GetNames(typeof(TileGeneration.TileType));
     private readonly string[] boolValuesAsLabels = { "True", "False" };
-    private bool _gridDesign, _drawGridOnce, _guiInit, _reset, _leftClickDragIsWalkable, _changeWallMaterial;
-    private float cellSize = 0.5f, tileSize, leftClickDragWallHeight, leftClickDragCeilingHeight;
+    private bool _gridDesign, _drawGridOnce, _guiInit, _reset, _dragIsWalkable, _changeWallMaterial;
+    private float cellSize = 0.5f, tileSize, dragWallHeight, dragCeilingHeight;
     private static Vector2 buttonSize = new Vector2(150, 30);
     private Vector2 windowSize, screenMiddle, leftMiddle, rightMiddle, tileSizeVector;
     private Vector2Int gridDimensions = new Vector2Int(6, 6);
     private Event currentEvent;
 
-    // Materials
-    private MaterialContainer baseMaterialContainer, manualMaterialContainer;
+    // Asset references
+    private GameObject dragTilePrefab;
+    private MaterialContainer baseMaterialContainer;
     private List<Material> materials;
-    private Material leftClickDragMaterial, leftClickDragWallMaterial;
-    private Texture texture;
+    private Material dragMaterial, dragWallMaterial;
 
     // GUI variables
     private List<Rect> tileAreas = new List<Rect>(), wallAreas = new List<Rect>();
@@ -185,56 +185,57 @@ public class GridEditor : EditorWindow
             MouseMoveEvent mouseDragEvent = MouseMoveEvent.GetPooled(Event.current);
             if (mouseDragEvent != null)
             {
-                OnMouseLeftClickDrag(mouseDragEvent);
+                OnMousedrag(mouseDragEvent);
             }
         }   
 
         Vector2 areaSizeLeft = new Vector2(150, 300);
         GUILayout.BeginArea(new Rect(leftMiddle - areaSizeLeft / 2, areaSizeLeft));
         GUILayout.Label("Left-click drag selection");
-        leftClickDragSelection = GUILayout.SelectionGrid(leftClickDragSelection, leftClickDragLabels, 1);
+        dragSelection = GUILayout.SelectionGrid(dragSelection, dragLabels, 1);
 
-        switch (leftClickDragSelection)
+        switch (dragSelection)
         {
             case 0:
                 break;  
             case 1:
-                leftClickDragTileTypeIndex = GUILayout.SelectionGrid(leftClickDragTileTypeIndex, tileTypeLabels, 1, EditorStyles.radioButton, new GUILayoutOption[] { GUILayout.Width(75 * tileTypeLabels.Length) });
-                leftClickDragTileType = (TileGeneration.TileType)leftClickDragTileTypeIndex;
+                dragTileTypeIndex = GUILayout.SelectionGrid(dragTileTypeIndex, tileTypeLabels, 1, EditorStyles.radioButton, new GUILayoutOption[] { GUILayout.Width(75 * tileTypeLabels.Length) });
+                dragTileType = (TileGeneration.TileType)dragTileTypeIndex;
                 break;
             case 2:
                 GUILayout.BeginHorizontal();
                     GUILayout.Label("Wall height: ");
-                    GUILayout.TextField(leftClickDragWallHeight.ToString());
+                    GUILayout.TextField(dragWallHeight.ToString());
                 GUILayout.EndHorizontal();
                 wallHeightSliderValue = EditorGUI.IntSlider(new Rect(0,165, 200,12), wallHeightSliderValue, 0, 5);
-                leftClickDragWallHeight = wallHeightSliderValue * 0.5f;
+                dragWallHeight = wallHeightSliderValue * 0.5f;
 
                 GUILayout.Space(25);
                     GUILayout.Label("Change wall material: ");
-                    leftClickDragChangeWallMaterialSelection = GUILayout.SelectionGrid(leftClickDragChangeWallMaterialSelection, boolValuesAsLabels, boolValuesAsLabels.Length, EditorStyles.radioButton);
-                _changeWallMaterial = leftClickDragChangeWallMaterialSelection == 0;
+                    dragChangeWallMaterialSelection = GUILayout.SelectionGrid(dragChangeWallMaterialSelection, boolValuesAsLabels, boolValuesAsLabels.Length, EditorStyles.radioButton);
+                _changeWallMaterial = dragChangeWallMaterialSelection == 0;
                 if (_changeWallMaterial)
                 {
                     EditorGUIUtility.labelWidth = 50;
-                    leftClickDragWallMaterial = (Material)EditorGUILayout.ObjectField("Material:", leftClickDragWallMaterial, typeof(Material), new GUILayoutOption[] { GUILayout.ExpandWidth(true) });
+                    dragWallMaterial = (Material)EditorGUILayout.ObjectField("Material:", dragWallMaterial, typeof(Material), false, GUILayout.ExpandWidth(true));
                 }
                 break;
             case 3:
                 GUILayout.BeginHorizontal();
                     GUILayout.Label("Ceiling height: ");
-                    GUILayout.TextField(leftClickDragCeilingHeight.ToString());
+                    GUILayout.TextField(dragCeilingHeight.ToString());
                 GUILayout.EndHorizontal();
                 ceilingHeightSliderValue = EditorGUI.IntSlider(new Rect(0, 165, 200, 12), ceilingHeightSliderValue, 0, 5);
-                leftClickDragCeilingHeight = ceilingHeightSliderValue * 0.5f;
+                dragCeilingHeight = ceilingHeightSliderValue * 0.5f;
                 break;
             case 4:
-                leftClickDragIsWalkableSelection = GUILayout.SelectionGrid(leftClickDragIsWalkableSelection, boolValuesAsLabels, boolValuesAsLabels.Length, EditorStyles.radioButton);
-                _leftClickDragIsWalkable = leftClickDragIsWalkableSelection == 0;
+                dragIsWalkableSelection = GUILayout.SelectionGrid(dragIsWalkableSelection, boolValuesAsLabels, boolValuesAsLabels.Length, EditorStyles.radioButton);
+                _dragIsWalkable = dragIsWalkableSelection == 0;
                 break;
             case 5:
                 EditorGUIUtility.labelWidth = 50;
-                leftClickDragMaterial = (Material)EditorGUILayout.ObjectField("Material:", leftClickDragMaterial, typeof(Material), new GUILayoutOption[] { GUILayout.ExpandWidth(true)});
+                dragMaterial = (Material)EditorGUILayout.ObjectField("Material:", dragMaterial, typeof(Material), false, GUILayout.ExpandWidth(true));
+                dragTilePrefab = (GameObject)EditorGUILayout.ObjectField("Tile prefab: ", dragTilePrefab, typeof(GameObject), false, GUILayout.ExpandWidth(true));
                 break;
         }
         GUILayout.EndArea();
@@ -246,7 +247,7 @@ public class GridEditor : EditorWindow
             EditorGUIUtility.labelWidth = 60;
             GUILayout.Label("Tile " + selectedTileNum + ": [" + selectedTile.GetCoordinates().x + "," + selectedTile.GetCoordinates().y + "]");
             selectedTile.SetTileType((TileGeneration.TileType)EditorGUILayout.EnumPopup("TileType: ", selectedTile.GetTileType(), GUILayout.Width(areaSizeRight.x-50)));
-            selectedTile.AssignMaterial((Material)EditorGUILayout.ObjectField("Material:", selectedTile.GetMaterial(), typeof(Material), GUILayout.Width(areaSizeRight.x - 50)));
+            selectedTile.AssignMaterial((Material)EditorGUILayout.ObjectField("Material:", selectedTile.GetMaterial(), typeof(Material), false, GUILayout.Width(areaSizeRight.x - 50)));
         }
         if (GUILayout.Button("Instantiate Grid", buttonParams))
         {
@@ -286,36 +287,43 @@ public class GridEditor : EditorWindow
         {
             for (int x = 0; x < gridTiles.GetLength(0); x++)
             {
-                Vector2 rectCenter = new Vector2(screenMiddle.x - gridTiles.GetLength(0) / 2.0f * tileSize + x * tileSize + x * 5, screenMiddle.y - gridTiles.GetLength(1) / 2.0f * tileSize + y * tileSize + y * 5);
-                Rect tileRect = new Rect(rectCenter, tileSizeVector);
+                Vector2 rectMins = new Vector2(screenMiddle.x - gridTiles.GetLength(0) / 2.0f * tileSize + x * tileSize + x * 5, screenMiddle.y - gridTiles.GetLength(1) / 2.0f * tileSize + y * tileSize + y * 5);
+                Rect tileRect = new Rect(rectMins, tileSizeVector);
 
-                EditorGUI.DrawPreviewTexture(tileRect, gridTiles[x, y].GetMaterialTexture());
-                EditorGUI.LabelField(tileRect, gridTiles[x, y].GetTileType().ToString(), textCenteringStyle);
+                if (gridTiles[x, y].GetMaterialTexture() != null)
+                {
+                    EditorGUI.DrawPreviewTexture(tileRect, gridTiles[x, y].GetMaterialTexture());
+                }
+                else
+                {
+                    EditorGUI.DrawRect(tileRect, gridTiles[x,y].GetMaterial().GetColor("_MainColor"));
+                }
+                EditorGUI.LabelField(new Rect(rectMins - new Vector2(0,15), tileSizeVector), gridTiles[x, y].GetTileType().ToString(), textCenteringStyle);
                 if (!gridTiles[x, y].IsWalkable())
                 {
-                    EditorGUI.DrawRect(new Rect(rectCenter + new Vector2(tileSize * 0.4f, tileSize * 0.7f), tileSizeVector * 0.2f), Color.red);
+                    EditorGUI.DrawRect(new Rect(rectMins + new Vector2(tileSize * 0.4f, tileSize * 0.7f), tileSizeVector * 0.2f), Color.red);
                 }
 
                 if (gridTiles[x, y].GetCeiling().GetHeight() > 0)
                 {
-                    EditorGUI.DrawRect(new Rect(rectCenter + new Vector2(tileSize * 0.4f, tileSize * 0.2f), tileSizeVector * 0.2f), Color.blue);
+                    EditorGUI.DrawRect(new Rect(rectMins + new Vector2(tileSize * 0.4f, tileSize * 0.2f), tileSizeVector * 0.2f), Color.blue);
                 }
                 tileAreas.Add(tileRect);
 
                 #region DrawWalls 
                 //*/
-                DrawWall(new Rect(rectCenter + new Vector2(1, -5), tileSizeVector - new Vector2(1, tileSize * 0.9f)), x, wallY);
+                DrawWall(new Rect(rectMins + new Vector2(1, -5), tileSizeVector - new Vector2(1, tileSize * 0.9f)), x, wallY);
 
-                DrawWall(new Rect(rectCenter + new Vector2(-5, 1), tileSizeVector - new Vector2(tileSize * 0.9f, 1)), x, wallY + 1);
+                DrawWall(new Rect(rectMins + new Vector2(-5, 1), tileSizeVector - new Vector2(tileSize * 0.9f, 1)), x, wallY + 1);
 
                 if (x == gridTiles.GetLength(0) - 1)
                 {
-                    DrawWall(new Rect(rectCenter + new Vector2(tileSize, 1), tileSizeVector - new Vector2(tileSize * 0.9f, 1)), x + 1, wallY + 1);
+                    DrawWall(new Rect(rectMins + new Vector2(tileSize, 1), tileSizeVector - new Vector2(tileSize * 0.9f, 1)), x + 1, wallY + 1);
                 }
 
                 if (y == gridTiles.GetLength(1) - 1)
                 {
-                    DrawWall(new Rect(rectCenter + new Vector2(1, tileSize), tileSizeVector - new Vector2(1, tileSize * 0.9f)), x, wallY + 2);
+                    DrawWall(new Rect(rectMins + new Vector2(1, tileSize), tileSizeVector - new Vector2(1, tileSize * 0.9f)), x, wallY + 2);
                 }
                 //*/
                 #endregion
@@ -355,29 +363,37 @@ public class GridEditor : EditorWindow
         wallAreas.Add(rect);
     }
 
-    private void OnMouseLeftClickDrag(MouseMoveEvent mouseDragEvent)
+    private void OnMousedrag(MouseMoveEvent mouseDragEvent)
     {
-        if (leftClickDragSelection != 2)
+        if (dragSelection != 2)
         {
             for (int i = 0; i < tileAreas.Count; i++)
             {
                 if (tileAreas[i].Contains(mouseDragEvent.mousePosition))
                 {
-                    switch (leftClickDragSelection)
+                    switch (dragSelection)
                     {
                         case 0:
                             break;
                         case 1:
-                            gridTilesList[i].SetTileType(leftClickDragTileType);
+                            gridTilesList[i].SetTileType(dragTileType);
                             break;
                         case 3:
-                            gridTilesList[i].GetCeiling().SetHeight(leftClickDragCeilingHeight);
+                            gridTilesList[i].GetCeiling().SetHeight(dragCeilingHeight);
                             break;
                         case 4:
-                            gridTilesList[i].SetWalkable(_leftClickDragIsWalkable);
+                            gridTilesList[i].SetWalkable(_dragIsWalkable);
                             break;
                         case 5:
-                            gridTilesList[i].AssignMaterial(leftClickDragMaterial);
+                            if (dragTilePrefab == null)
+                            {
+                                gridTilesList[i].AssignTilePrefabOverride(dragTilePrefab);
+                                gridTilesList[i].AssignMaterial(dragMaterial);
+                            }
+                            else
+                            {
+                                gridTilesList[i].AssignTilePrefabOverride(dragTilePrefab);
+                            }
                             break;
                     }
                 }
@@ -389,10 +405,10 @@ public class GridEditor : EditorWindow
             {
                 if (wallAreas[i].Contains(mouseDragEvent.mousePosition))
                 {
-                    gridWallsList[i].SetHeight(leftClickDragWallHeight);
+                    gridWallsList[i].SetHeight(dragWallHeight);
                     if (_changeWallMaterial)
                     {
-                        gridWallsList[i].SetMaterial(leftClickDragWallMaterial);
+                        gridWallsList[i].SetMaterial(dragWallMaterial);
                     }
                 }
             }

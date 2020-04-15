@@ -26,9 +26,10 @@ public class ProceduralLayoutGeneration : MonoBehaviour
     // Private variables
     private List<Vector2> possiblePortalPositions = new List<Vector2>();
     private List<Portal> portals = new List<Portal>();
+    private List<List<Portal>> activeThroughPortals = new List<List<Portal>>();
     private GameObject roomObject, keyCardToSpawn; // Functions as the index in rooms, tracking which room the player is in
-    private Transform portalParent;
     private int roomId, portalIterator, keycardIterator;
+    private Transform playerCam, portalParent;
     private List<Tile> gridTiles = new List<Tile>(), previousGridTiles = new List<Tile>(), walkableTiles = new List<Tile>(), keyCardViableTiles = new List<Tile>();
     private List<Vector2> portalTilesLocations = new List<Vector2>();
     private List<List<Vector2>> previousPortalZones = new List<List<Vector2>>();
@@ -46,6 +47,28 @@ public class ProceduralLayoutGeneration : MonoBehaviour
         End,
         Generic,
         Event
+    }
+
+    private void FixedUpdate() // TODO: Move this to an appropriate location
+    {
+        for (int i = 0; i < activeThroughPortals.Count; i++)
+        {
+            for (int j = 0; j < activeThroughPortals[i].Count; j++)
+            {
+                Vector3 cameraDirToPortal = (currentRoom.GetPortalsInRoom()[i].transform.position - playerCam.position).normalized;
+                if (math.dot(cameraDirToPortal, currentRoom.GetPortalsInRoom()[i].transform.forward) >= 0)
+                {
+                    if (!activeThroughPortals[i][j].gameObject.activeSelf)
+                    {
+                        activeThroughPortals[i][j].gameObject.SetActive(true);
+                    }
+                }
+                else if (activeThroughPortals[i][j].gameObject.activeSelf)
+                {
+                    activeThroughPortals[i][j].gameObject.SetActive(false);
+                }
+            }
+        }
     }
 
     private void Start() // To uncomment a demo block, simply put a '/' in front of the '/*'
@@ -76,6 +99,7 @@ public class ProceduralLayoutGeneration : MonoBehaviour
         //*/
 
         //SwitchCurrentRoom(rooms[0], null);
+        playerCam = Camera.main.transform;
     }
 
     private void DuplicateDepthClearer(Transform depthParent, int stencilValue, int renderQueue)
@@ -209,7 +233,6 @@ public class ProceduralLayoutGeneration : MonoBehaviour
                     }
                     break;
             }
-
             roomIterator++;
             previousPortalZones.Clear();
             previousPortalZones.AddRange(portalZones[roomRotation]);
@@ -412,7 +435,6 @@ public class ProceduralLayoutGeneration : MonoBehaviour
                 portal = Instantiate(portalPrefab, possiblePortalPositions[randomPortalPosition].ToVector3XZ(),
                     Quaternion.Euler(0, randomRotation, 0), portalParent);
             }
-
             GameObject oppositePortal = Instantiate(portalPrefab,
                 possiblePortalPositions[randomPortalPosition].ToVector3XZ(),
                 Quaternion.Euler(0, randomRotation - 180, 0), portalParent);
@@ -563,11 +585,13 @@ public class ProceduralLayoutGeneration : MonoBehaviour
 
         int stencilValue = 8; // BitMask 00001000
         int otherRoomStencilValue = 1;
+        activeThroughPortals.Clear();
         for (int i = 0; i < currentRoom.GetPortalsInRoom().Count; i++)
         {
-            if (currentRoom.GetPortalsInRoom()[i].GetConnectedPortal() != currentPortal)
+            Portal p = currentRoom.GetPortalsInRoom()[i];
+            if (p.GetConnectedPortal() != currentPortal)
             {
-                CustomUtilities.UpdatePortalAndItsConnectedRoom(currentRoom.GetPortalsInRoom()[i], stencilValue, 0, 2000, currentRoomMask, true);
+                CustomUtilities.UpdatePortalAndItsConnectedRoom(p, stencilValue, 0, 2000, currentRoomMask, true);
             }
             else
             {
@@ -577,10 +601,10 @@ public class ProceduralLayoutGeneration : MonoBehaviour
                 CustomUtilities.UpdateStencils(currentPortal.GetConnectedPortal().gameObject, null, stencilValue, 2100);
             }
             
-            portalsInConnectedRoom.AddRange(currentRoom.GetPortalsInRoom()[i].GetConnectedRoom().GetPortalsInRoom());
+            portalsInConnectedRoom.AddRange(p.GetConnectedRoom().GetPortalsInRoom());
             for (int j = 0; j < portalsInConnectedRoom.Count; j++)
             {
-                if (portalsInConnectedRoom[j].GetConnectedPortal() != currentRoom.GetPortalsInRoom()[i])
+                if (portalsInConnectedRoom[j].GetConnectedPortal() != p)
                 {
                     CustomUtilities.UpdatePortalAndItsConnectedRoom(portalsInConnectedRoom[j] , otherRoomStencilValue, stencilValue, 2300, otherRoomMask, true);
                     otherRoomStencilValue++;
@@ -591,6 +615,28 @@ public class ProceduralLayoutGeneration : MonoBehaviour
                 }
             }
             portalsInConnectedRoom.Clear();
+            //* ThroughPortal culling based on view
+            activeThroughPortals.Add(new List<Portal>());
+            for (int j = 0; j < p.GetConnectedRoom().GetPortalsInRoom().Count; j++)
+            {
+                if (p.GetConnectedRoom().GetPortalsInRoom()[j].GetConnectedPortal() != p)
+                {
+                    activeThroughPortals[i].Add(p.GetConnectedRoom().GetPortalsInRoom()[j]);
+                }
+            }
+            
+            int activeThroughPortalsCount = activeThroughPortals[i].Count;
+            for (int j = activeThroughPortalsCount - 1; j >= 0; j--)
+            {
+                Vector3 dir = (activeThroughPortals[i][j].transform.position - p.transform.position).normalized;
+                if (math.dot(dir, p.transform.forward) < 0 || math.dot(dir, activeThroughPortals[i][j].transform.forward) < 0)
+                {
+                    activeThroughPortals[i][j].gameObject.SetActive(false);
+                    activeThroughPortals[i].RemoveAt(j);
+                }
+            }
+            //*/
+
             stencilValue += stencilValue; // BitShift 1 to the left
         }
         #endregion
