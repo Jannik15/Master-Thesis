@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class DoorLock : MonoBehaviour
 {
-    public bool isLocked = false;
+    public bool isLocked, beenUnlocked = false;
     // Start is called before the first frame update
     void Start()
     {

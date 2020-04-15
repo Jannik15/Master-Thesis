@@ -417,17 +417,13 @@ public class ProceduralLayoutGeneration : MonoBehaviour
             {
                 portal = Instantiate(portalDoorPrefab, possiblePortalPositions[randomPortalPosition].ToVector3XZ(),
                     Quaternion.Euler(0, randomRotation, 0), portalParent);
-                if (doorLockState == 0 && keycardIterator <= 10)
+                if (doorLockState == 0 && keycardIterator <= 9)
                 {
                     portal.GetComponentInChildren<DoorLock>().isLocked = true;
-                    Debug.Log(portal.GetComponentInChildren<DoorLock>().isLocked);
-                    Debug.Log("Spawned locked Door");
                     keycardIterator++;
                 } else
                 {
                     portal.GetComponentInChildren<DoorLock>().isLocked = false;
-                    Debug.Log(portal.GetComponentInChildren<DoorLock>().isLocked);
-                    Debug.Log("Spawned Open Door");
                 }
             }
             else
