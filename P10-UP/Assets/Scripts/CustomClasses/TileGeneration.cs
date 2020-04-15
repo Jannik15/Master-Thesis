@@ -28,7 +28,7 @@ public class TileGeneration
         this.cellSize = cellSize;
         this.center = center;
         this.ceiling = ceiling;
-        tileType = TileType.Scenery;
+        tileType = TileType.Path;
         isWalkable = true;
     }
 

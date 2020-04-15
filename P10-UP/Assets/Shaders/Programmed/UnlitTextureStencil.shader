@@ -2,7 +2,8 @@
 {
     Properties
     {
-        _MainTex ("Texture", 2D) = "white" {}
+        _MainColor("Color", Color) = (0,0,0,1)
+        _MainTex ("Texture", 2D) = "black" {}
 		_StencilValue("Stencil Value", Range(0,255)) = 0
     }
     SubShader
@@ -40,6 +41,7 @@
 
             sampler2D _MainTex;
 			int _StencilValue;
+            fixed4 _MainColor;
             float4 _MainTex_ST;
 			float4x4 _WorldToPortal;
 
@@ -50,7 +52,6 @@
 				o.worldPos = mul(unity_ObjectToWorld, v.vertex).xyz;
                 o.uv = TRANSFORM_TEX(v.uv, _MainTex);
                 UNITY_TRANSFER_FOG(o,o.vertex);
-				
                 return o;
             }
 
@@ -58,6 +59,7 @@
             {
                 // sample the texture
                 fixed4 col = tex2D(_MainTex, IN.uv);
+                col.rgb += _MainColor.rgb;
                 // apply fog
                 UNITY_APPLY_FOG(IN.fogCoord, col);
 
