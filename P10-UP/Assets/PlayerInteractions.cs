@@ -36,6 +36,8 @@ public class PlayerInteractions : MonoBehaviour
     void Update()
     {
 
+
+
         RaycastHit hit;
         ray = playerCamera.ScreenPointToRay(Input.mousePosition);
 
@@ -85,18 +87,51 @@ public class PlayerInteractions : MonoBehaviour
             }
             
         }
-        if (doneWaiting)
-        {
-            if (buttonTemp.GetComponent<TextMeshPro>() != null)
-            {
-                buttonTemp.GetComponent<TextMeshPro>().enabled = false;
-                doneWaiting = false;
-            }
-            else 
-                doneWaiting = false;
-        }
     }
 
+    public void DoorAction(Collider other)
+    {
+        if (other.gameObject.GetComponentInParent<DoorLock>().isLocked == true)
+        {
+            if (keyArray[other.transform.parent.GetComponentInChildren<KeyPad>().KeyPadID] == true)
+            {
+                if (!other.transform.parent.GetComponentInChildren<KeyPad>().Open)
+                {
+                    if (!other.gameObject.GetComponentInParent<DoorLock>().beenUnlocked)
+                    {
+                        //Access Granted Sound
+                        other.gameObject.GetComponentInParent<DoorLock>().beenUnlocked = true;
+                    }
+                    other.gameObject.GetComponentInParent<Animator>().CrossFadeInFixedTime("DoorOpen", 0.9f, 0, 0);
+                    other.transform.parent.GetComponentInChildren<KeyPad>().Open = true;
+                }
+                else if (other.transform.parent.GetComponentInChildren<KeyPad>().Open)
+                {
+
+                    other.gameObject.GetComponentInParent<Animator>().CrossFadeInFixedTime("DoorClose", 0.9f, 0, 0);
+                    other.transform.parent.GetComponentInChildren<KeyPad>().Open = false;
+                }
+            }
+            else
+            {
+                //Access Denied Sound
+            }
+        }
+        else
+        {
+            if (!other.transform.parent.GetComponentInChildren<KeyPad>().Open)
+            {
+                other.gameObject.GetComponentInParent<Animator>().CrossFadeInFixedTime("DoorOpen", 0.9f, 0, 0);
+                other.transform.parent.GetComponentInChildren<KeyPad>().Open = true;
+            }
+            else if (other.gameObject.GetComponentInParent<KeyPad>().Open)
+            {
+                other.gameObject.GetComponentInParent<Animator>().CrossFadeInFixedTime("DoorClose", 0.9f, 0, 0);
+                other.transform.parent.GetComponentInChildren<KeyPad>().Open = false;
+            }
+        }
+
+    }
 
 
     private void OnTriggerEnter(Collider collider)
