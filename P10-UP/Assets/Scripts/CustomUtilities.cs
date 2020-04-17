@@ -158,7 +158,57 @@ public static class CustomUtilities
 
     #region Tiles
     /// <summary>
-    /// Returns a double-list of tile positions, referred to as portal zones. Takes a list of tiles, and a size variable for the distance between tiles.
+    /// Returns a double-list of tiles, referred to as zones. Takes a list of tiles, and a size variable for the distance between tiles.
+    /// If the tileSize is equal to the size of the tiles, the zones will only consist of horizontally and vertically neighboring tiles. If increased, it can include diagonally neighboring tiles.
+    /// </summary>
+    /// <param name="tiles"></param>
+    /// <param name="tileSize"></param>
+    /// <returns></returns>
+    public static List<List<Tile>> GetTilesAsZone(List<Tile> tiles, float tileSize)
+    {
+        List<List<Tile>> zones = new List<List<Tile>>();
+        zones.Add(new List<Tile>());
+        zones[0].Add(tiles[0]);
+
+        List<int> connections = new List<int>();
+        for (int i = 1; i < tiles.Count; i++)
+        {
+            for (int j = 0; j < zones.Count; j++)
+            {
+                for (int k = 0; k < zones[j].Count; k++)
+                {
+                    if (math.distance(tiles[i].GetPosition(), zones[j][k].GetPosition()) <= tileSize * 1.1f) // There can be some floating point inaccuracies here, so we multiply by 1.1f to overshoot the comparison
+                    {
+                        connections.Add(j);
+                        break;
+                    }
+                }
+            }
+
+            if (connections.Count > 0)
+            {
+                zones[connections[0]].Add(tiles[i]);
+                if (connections.Count > 1)
+                {
+                    for (int j = 1; j < connections.Count; j++)
+                    {
+                        zones[connections[0]].AddRange(zones[connections[j]]);
+                        zones.RemoveAt(connections[j]);
+                    }
+                }
+            }
+            else //(connections.Count == 0)
+            {
+                zones.Add(new List<Tile>());
+                zones[zones.Count - 1].Add(tiles[i]);
+            }
+            connections.Clear();
+        }
+        return zones;
+    }
+
+    /// <summary>
+    /// Returns a double-list of tile positions, referred to as zones. Takes a list of tile positions, and a size variable for the distance between tiles.
     /// If the tileSize is equal to the size of the tiles, the zones will only consist of horizontally and vertically neighboring tiles. If increased, it can include diagonally neighboring tiles.
     /// </summary>
     /// <param name="tiles"></param>
@@ -177,7 +227,7 @@ public static class CustomUtilities
             {
                 for (int k = 0; k < zones[j].Count; k++)
                 {
-                    if (Vector3.Distance(tiles[i], zones[j][k]) <= tileSize * 1.1f) // There can be some floating point inaccuracies here, so we multiply by 1.1f to overshoot the comparison
+                    if (math.distance(tiles[i], zones[j][k]) <= tileSize * 1.1f) // There can be some floating point inaccuracies here, so we multiply by 1.1f to overshoot the comparison
                     {
                         connections.Add(j);
                         break;
