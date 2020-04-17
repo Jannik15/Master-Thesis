@@ -10,11 +10,14 @@ public class MenuManager : MonoBehaviour
 
     public GameObject optionsMenu;
 
-    public GameObject handler;
+    public ProceduralLayoutGeneration handler;
     // Start is called before the first frame update
     void Start()
     {
-        
+        if (handler == null)
+        {
+            handler = FindObjectOfType<ProceduralLayoutGeneration>();
+        }
     }
 
     // Update is called once per frame
@@ -27,8 +30,8 @@ public class MenuManager : MonoBehaviour
 
         //animatorDoor.SetTrigger("Open");
         optionsMenu.SetActive(false);
-        handler.GetComponent<ProceduralLayoutGeneration>().ProcedurallyGenerateRooms();
-        handler.GetComponent<ProceduralLayoutGeneration>().SwitchCurrentRoom();
+        handler.ProcedurallyGenerateRooms();
+        handler.SwitchCurrentRoom();
 
     }
 

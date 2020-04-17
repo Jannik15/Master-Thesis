@@ -34,5 +34,7 @@ public class InstanceMaterialOnStart : MonoBehaviour
                 }
             }
         }
+
+        Debug.Log(new Vector2(4, 4) * new Vector2(0.5f, 0.5f));
     }
 }

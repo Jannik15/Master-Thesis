@@ -11,6 +11,14 @@ public class Tile : MonoBehaviour
     [SerializeField] private GameObject objectOnTile;
     private Rect rect;
 
+    public Tile(Vector2 position, TileGeneration.TileType type, bool isWalkable, bool isOccupied) // Only used for between tile positions
+    {
+        this.position = position;
+        this.type = type;
+        this.isWalkable = isWalkable;
+        this.isOccupied = isOccupied;
+    }
+
     public void AssignAllValues(bool isWalkable, TileGeneration.TileType type)
     {
         this.isWalkable = isWalkable;
@@ -36,6 +44,10 @@ public class Tile : MonoBehaviour
     public bool GetWalkable()
     {
         return isWalkable;
+    }
+    public void SetWalkable(bool isWalkable)
+    {
+        this.isWalkable = isWalkable;
     }
 
     public GameObject PlaceObject(GameObject objectToPlace, Transform parent)
@@ -66,6 +78,14 @@ public class Tile : MonoBehaviour
     public bool GetOccupied()
     {
         return isOccupied;
+    }
+    /// <summary>
+    /// Should ONLY be used for temporary tiles - use PlaceExistingObject for permanent tiles to include a reference to the occupying object.
+    /// </summary>
+    /// <param name="isOccupied"></param>
+    public void SetOccupied(bool isOccupied)
+    {
+        this.isOccupied = isOccupied;
     }
 
     public GameObject GetObjectOnTile()
