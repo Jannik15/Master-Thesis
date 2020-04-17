@@ -16,7 +16,7 @@ public class ProceduralLayoutGeneration : MonoBehaviour
     public int roomAmount = 10;
     public GameObject mainMenuCanvas;
 
-    [SerializeField] private GameObject[] sceneryObjects, eventObjects, enemyObjects, endGameEventObjects;
+    [SerializeField] private GameObject[] smallSceneryObjects, mediumSceneryObjects, largeSceneryObjects, eventObjects, enemyObjects, endGameEventObjects;
     [SerializeField] private GameObject portalPrefab, portalDoorPrefab, depthClearer, keyCard;
     [SerializeField] private Shader currentRoomMask, otherRoomMask;
     [SerializeField] private LayerMask currentRoomLayer, differentRoomLayer, defaultLayer;
@@ -144,9 +144,11 @@ public class ProceduralLayoutGeneration : MonoBehaviour
         CreateRooms(1, endGrids, CustomRoomType.End);
 
         // Spawn objects
-        //SpawnObjectType(genericRooms, TileGeneration.TileType.Event, eventObjects, 2);
-        //SpawnObjectType(genericRooms, TileGeneration.TileType.Enemy, enemyObjects, 5);
-        //SpawnObjectType(genericRooms, TileGeneration.TileType.Scenery, sceneryObjects, 4, 4);
+        SpawnObjectType(genericRooms, TileGeneration.TileType.Event, eventObjects, 2, new Vector2(1, 1));
+        SpawnObjectType(genericRooms, TileGeneration.TileType.Enemy, enemyObjects, 5, new Vector2(1, 1));
+        SpawnObjectType(genericRooms, TileGeneration.TileType.Scenery, largeSceneryObjects, 1, new Vector2(2, 2));
+        SpawnObjectType(genericRooms, TileGeneration.TileType.Scenery, mediumSceneryObjects, 2, new Vector2(2, 1));
+        SpawnObjectType(genericRooms, TileGeneration.TileType.Scenery, smallSceneryObjects, 2, new Vector2(1, 1));
 
         for (int j = 0; j < portals.Count; j++)
         {
@@ -517,26 +519,29 @@ public class ProceduralLayoutGeneration : MonoBehaviour
         return possiblePortalPositions.Count > 0; // return whether or not portal tiles in current room are overlapping with portal tiles in previous rooms
     }
 
-    private void SpawnObjectType(List<Room> roomsToSpawnObjectsIn, TileGeneration.TileType objectTypeToSpawn, GameObject[] objectsToSpawn, int maxObjectsPerRoom, int tilesPerObject)
+    private void SpawnObjectType(List<Room> roomsToSpawnObjectsIn, TileGeneration.TileType objectTypeToSpawn, GameObject[] objectsToSpawn, int maxObjectsPerRoom, Vector2 tilesPerObject)
     {
         if (objectsToSpawn.Length > 0)
         {
             List<Tile> tilesToPlaceObjectOn = new List<Tile>();
+            List<Tile> tilesToPlaceObjectOnFlipped = new List<Tile>();
             for (int i = 0; i < roomsToSpawnObjectsIn.Count; i++)
             {
                 Grid grid = roomsToSpawnObjectsIn[i].roomGrid;
                 gridTiles.Clear();
                 gridTiles.AddRange(grid.GetTilesAsList());
                 Vector2 tileSize = new Vector2(gridTiles[0].GetTileSize(), gridTiles[0].GetTileSize());
-                Vector2 objectSize = new Vector2(tilesPerObject, tilesPerObject) * tileSize;
+                Vector2 objectSize = tilesPerObject * tileSize;
+                bool includeFlipped = tilesPerObject.x == tilesPerObject.y;
+                Vector2 objectSizeFlipped = new Vector2(tilesPerObject.y, tilesPerObject.x) * tileSize;
 
                 specificTypeTiles.Clear();
                 int gridTilesCount = gridTiles.Count;
                 for (int j = 0; j < gridTilesCount; j++)
                 {
-                    if (!gridTiles[i].GetOccupied() && gridTiles[i].GetTileType() == objectTypeToSpawn)
+                    if (!gridTiles[j].GetOccupied() && gridTiles[j].GetTileType() == objectTypeToSpawn)
                     {
-                        specificTypeTiles.Add(gridTiles[i]);
+                        specificTypeTiles.Add(gridTiles[j]);
                     }
                 }
 
@@ -547,50 +552,72 @@ public class ProceduralLayoutGeneration : MonoBehaviour
 
                     int objectsPerRoom = 0;
                     Rect objectRect = new Rect(Vector2.zero, objectSize);
+                    Rect objectRectFlipped = new Rect(Vector2.zero, objectSizeFlipped);
                     for (int j = 0; j < specificTypeZones.Count; j++)
                     {
                         for (int k = 0; k < specificTypeZones[j].Count - 1; k++)
                         {
                             if (objectsPerRoom == maxObjectsPerRoom)
                                 break;
+                            Tile currentTile = specificTypeZones[j][k];
+                            if (currentTile.GetOccupied())
+                                continue;
                             if (tileSize == objectSize)
                             {
-                                specificTypeZones[j][k].PlaceObject(objectsToSpawn[Random.Range(0, objectsToSpawn.Length)], roomsToSpawnObjectsIn[i].gameObject.transform);
+                                currentTile.PlaceObject(objectsToSpawn[Random.Range(0, objectsToSpawn.Length)], roomsToSpawnObjectsIn[i].gameObject.transform);
                                 objectsPerRoom++;
                                 continue;
                             }
-                            Vector2 currentTilePos = specificTypeZones[j][k].GetPosition();
                             Rect tempRect = new Rect(Vector2.zero, tileSize)
                             {
-                                center = currentTilePos
+                                center = currentTile.GetPosition()
                             };
                             objectRect.position = tempRect.position;
-                            int tilesThatFit = 1;
-                            tilesToPlaceObjectOn.Add(specificTypeZones[j][k]);
+                            objectRectFlipped.position = tempRect.position;
+                            int tilesThatFit = 1, tilesThatFitFlipped = 1;
                             tilesToPlaceObjectOn.Clear();
+                            tilesToPlaceObjectOnFlipped.Clear();
+                            tilesToPlaceObjectOn.Add(currentTile);
+                            tilesToPlaceObjectOnFlipped.Add(currentTile);
                             for (int l = k + 1; l < specificTypeZones[j].Count; l++)
                             {
-                                if (specificTypeZones[j][l].GetPosition().IsWithinRect(objectRect))
+                                Tile evaluatedTile = specificTypeZones[j][l];
+                                if (evaluatedTile.GetPosition().IsWithinRect(objectRect) && !evaluatedTile.GetOccupied())
                                 {
                                     tilesThatFit++;
-                                    tilesToPlaceObjectOn.Add(specificTypeZones[j][l]);
+                                    tilesToPlaceObjectOn.Add(evaluatedTile);
+                                }
+                                else if (evaluatedTile.GetPosition().IsWithinRect(objectRectFlipped) && !evaluatedTile.GetOccupied())
+                                {
+                                    tilesThatFitFlipped++;
+                                    tilesToPlaceObjectOnFlipped.Add(evaluatedTile);
                                 }
 
-                                if (tilesThatFit == tilesPerObject)
+                                if (tilesThatFit == tilesPerObject.x * tilesPerObject.y || tilesThatFitFlipped == tilesPerObject.x * tilesPerObject.y)
                                 {
                                     GameObject objectOnTile = Instantiate(objectsToSpawn[Random.Range(0, objectsToSpawn.Length)],
-                                        Vector3.zero, Quaternion.identity/*TODO: Handle rotation*/, roomsToSpawnObjectsIn[i].gameObject.transform);
+                                        Vector3.zero, Quaternion.identity, roomsToSpawnObjectsIn[i].gameObject.transform);
                                     Vector2 spawnObjectCenter = Vector2.zero;
-                                    for (int m = 0; m < tilesToPlaceObjectOn.Count; m++)
+                                    if (tilesThatFit >= tilesThatFitFlipped)
                                     {
-                                        tilesToPlaceObjectOn[m].PlaceExistingObject(objectOnTile);
-                                        spawnObjectCenter += tilesToPlaceObjectOn[m].GetPosition();
+                                        for (int m = 0; m < tilesThatFit; m++)
+                                        {
+                                            tilesToPlaceObjectOn[m].PlaceExistingObject(objectOnTile);
+                                            spawnObjectCenter += tilesToPlaceObjectOn[m].GetPosition();
+                                        }
+                                        spawnObjectCenter /= tilesThatFit;
                                     }
-                                    spawnObjectCenter /= tilesToPlaceObjectOn.Count;
+                                    else
+                                    {
+                                        objectOnTile.transform.localEulerAngles += new Vector3(0, 90.0f, 0);
+                                        for (int m = 0; m < tilesThatFitFlipped; m++)
+                                        {
+                                            tilesToPlaceObjectOnFlipped[m].PlaceExistingObject(objectOnTile);
+                                            spawnObjectCenter += tilesToPlaceObjectOnFlipped[m].GetPosition();
+                                        }
+                                        spawnObjectCenter /= tilesThatFitFlipped;
+                                    }
                                     objectOnTile.transform.position = spawnObjectCenter.ToVector3XZ();
-
-
-
                                     objectsPerRoom++;
                                     break;
                                 }
