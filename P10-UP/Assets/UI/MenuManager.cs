@@ -23,7 +23,17 @@ public class MenuManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+        if (OVRInput.Get(OVRInput.RawButton.Start))
+        {
+            if (!optionsMenu.activeSelf)
+            {
+                optionsMenu.SetActive(true);
+            }
+            else if (optionsMenu.activeSelf)
+            {
+                optionsMenu.SetActive(false);
+            }
+        }
     }
 
     public void TestStart(){
