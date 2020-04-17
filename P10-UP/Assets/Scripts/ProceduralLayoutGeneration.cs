@@ -415,7 +415,7 @@ public class ProceduralLayoutGeneration : MonoBehaviour
             {
                 portal = Instantiate(portalDoorPrefab, portalPosition.ToVector3XZ(),
                     Quaternion.Euler(0, randomRotation, 0), portalParent);
-                if (doorLockState == 0 && keycardIterator <= 10)
+                if (doorLockState == 0 && keycardIterator <= 9)
                 {
                     portal.GetComponentInChildren<DoorLock>().isLocked = true;
                     keycardIterator++;

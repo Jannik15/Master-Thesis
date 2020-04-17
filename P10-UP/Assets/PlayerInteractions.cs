@@ -36,18 +36,6 @@ public class PlayerInteractions : MonoBehaviour
     void Update()
     {
 
-        if (counting)
-        {
-            doneCounting += Time.deltaTime;
-            if (doneCounting > 5f)
-            {
-                doneWaiting = true;
-                counting = false;
-                doneCounting = 0;
-            }
-        }
-
-
         RaycastHit hit;
         ray = playerCamera.ScreenPointToRay(Input.mousePosition);
 
@@ -62,13 +50,10 @@ public class PlayerInteractions : MonoBehaviour
                 {
                     if (!hit.collider.gameObject.GetComponentInParent<KeyPad>().Open)
                     {
-                        buttonTemp = hit.collider.gameObject.GetComponentInChildren<TextMeshPro>().gameObject;
-                        if (!beenOpened)
+                        if (!hit.collider.gameObject.GetComponentInParent<DoorLock>().beenUnlocked)
                         {
-                            hit.collider.gameObject.GetComponentInChildren<TextMeshPro>().text = "Access Granted";
-                            hit.collider.gameObject.GetComponentInChildren<TextMeshPro>().enabled = true;
-                            beenOpened = true;
-                            counting = true;
+                            //Access Granted Sound
+                            hit.collider.gameObject.GetComponentInParent<DoorLock>().beenUnlocked = true;
                         }
                         hit.collider.gameObject.GetComponentInParent<Animator>().CrossFadeInFixedTime("DoorOpen", 0.9f, 0, 0);
                         hit.collider.gameObject.GetComponentInParent<KeyPad>().Open = true;
@@ -82,14 +67,7 @@ public class PlayerInteractions : MonoBehaviour
                 }
                 else
                 {
-                    buttonTemp = hit.collider.gameObject.GetComponentInChildren<TextMeshPro>().gameObject;
-                    hit.collider.gameObject.GetComponentInChildren<TextMeshPro>().text = "Access Denied";
-                    hit.collider.gameObject.GetComponentInChildren<TextMeshPro>().enabled = true;
-                    counting = true;
-                    if (doneWaiting)
-                    {
-                        hit.collider.gameObject.GetComponentInChildren<TextMeshPro>().enabled = false;
-                    }
+                    //Access Denied Sound
                 }
             }
             else
