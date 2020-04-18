@@ -11,18 +11,16 @@ using Random = UnityEngine.Random;
 public class ProceduralLayoutGeneration : MonoBehaviour
 {
     // Inspector variables
-    public List<GameObject> grids;
-    public List<GameObject> endGrids;
-    public List<GameObject> keysList;
-    public int roomAmount = 10;
     public GameObject mainMenuCanvas;
-
+    public int roomAmount = 10;
+    [SerializeField] private GameObject[] startGrids, genericGrids, endGrids;
     [SerializeField] private GameObject[] smallSceneryObjects, mediumSceneryObjects, largeSceneryObjects, eventObjects, enemyObjects, endGameEventObjects;
     [SerializeField] private GameObject portalPrefab, portalDoorPrefab, depthClearer, keyCard;
     [SerializeField] private Shader currentRoomMask, otherRoomMask;
     [SerializeField] private LayerMask currentRoomLayer, differentRoomLayer, defaultLayer;
 
     // Public non-inspector variables
+    [HideInInspector] public List<GameObject> keysList;
     [HideInInspector] public Room currentRoom, previousRoom; // Room cannot currently be displayed in the inspector, requires a CustomInspectorDrawer implementation.
     [HideInInspector] public List<Room> rooms = new List<Room>(), genericRooms = new List<Room>(), eventRooms = new List<Room>();
 
@@ -125,7 +123,7 @@ public class ProceduralLayoutGeneration : MonoBehaviour
         }
         //*/
 
-        CreateRooms(1, grids, CustomRoomType.Start);
+        CreateRooms(1, startGrids, CustomRoomType.Start);
     }
 
     public void SwitchCurrentRoom()
@@ -141,7 +139,7 @@ public class ProceduralLayoutGeneration : MonoBehaviour
         portalParent = new GameObject("Portals").transform;
 
         //CreateRooms(1, grids, CustomRoomType.Start);
-        CreateRooms(roomAmount - 2, grids, CustomRoomType.Generic);
+        CreateRooms(roomAmount - 2, genericGrids, CustomRoomType.Generic);
         CreateRooms(1, endGrids, CustomRoomType.End);
 
         // Spawn objects
@@ -166,7 +164,7 @@ public class ProceduralLayoutGeneration : MonoBehaviour
         currentRoom = rooms[roomId];
     }
 
-    private void CreateRooms(int roomCount, List<GameObject> gridInputList, CustomRoomType roomType)
+    private void CreateRooms(int roomCount, GameObject[] gridInputList, CustomRoomType roomType)
     {
         // Iterates over the amount of rooms specified in the constructor
         int roomIterator = 0;
@@ -175,7 +173,7 @@ public class ProceduralLayoutGeneration : MonoBehaviour
         {
             iterationCap++;
             // Takes a random grid from the list of input grids, and stores the grid component
-            int newIndex = Random.Range(0, gridInputList.Count);
+            int newIndex = Random.Range(0, gridInputList.Length);
             GameObject gridObject = Instantiate(gridInputList[newIndex]);
             Grid grid = gridObject.GetComponent<Grid>();
             gridTiles.Clear();
