@@ -1,13 +1,10 @@
 ﻿using UnityEngine;
-using UnityEngine.SceneManagement;
-using TMPro;
 using Unity.Mathematics;
 
 public class PlayerCollisionHandler : MonoBehaviour
 {
     private Portal thisPortal;
     private ProceduralLayoutGeneration proceduralLayout;
-    private TextMeshProUGUI gui;
     private bool inPortal = false;
     private Transform playerCam;
 
