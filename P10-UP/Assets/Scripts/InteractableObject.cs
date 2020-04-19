@@ -45,7 +45,9 @@ public class InteractableObject : MonoBehaviour
             {
                 if (allComponents[i].GetType() != typeof(Transform) &&
                     allComponents[i].GetType() != typeof(MeshFilter) &&
-                    allComponents[i].GetType() != typeof(MeshRenderer))
+                    allComponents[i].GetType() != typeof(MeshRenderer) &&
+                    allComponents[i].GetType() != typeof(RectTransform) &&
+                    allComponents[i].GetType() != typeof(CanvasRenderer))
                 {
                     Destroy(allComponents[i]);
                 }
