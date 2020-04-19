@@ -29,6 +29,7 @@ public class ProceduralLayoutGeneration : MonoBehaviour
     private List<Vector2> possiblePortalPositions = new List<Vector2>();
     private List<Portal> portals = new List<Portal>();
     private List<List<Portal>> activeThroughPortals = new List<List<Portal>>();
+    private List<Portal> portalsInCurrentRoom = new List<Portal>();
     private GameObject roomObject, keyCardToSpawn; // Functions as the index in rooms, tracking which room the player is in
     private int roomId, portalIterator, keycardIterator;
     private Transform playerCam, portalParent;
@@ -71,6 +72,22 @@ public class ProceduralLayoutGeneration : MonoBehaviour
                 {
                     activeThroughPortals[i][j].gameObject.SetActive(false);
                 }
+            }
+        }
+
+        for (int i = 0; i < portalsInCurrentRoom.Count; i++)
+        {
+            Vector3 cameraDirToPortal = (portalsInCurrentRoom[i].transform.position - playerCam.position).normalized;
+            if (math.dot(cameraDirToPortal, currentRoom.GetPortalsInRoom()[i].transform.forward) >= 0)
+            {
+                if (!portalsInCurrentRoom[i].gameObject.activeSelf)
+                {
+                    portalsInCurrentRoom[i].gameObject.SetActive(true);
+                }
+            }
+            else if (portalsInCurrentRoom[i].gameObject.activeSelf)
+            {
+                portalsInCurrentRoom[i].gameObject.SetActive(false);
             }
         }
     }
@@ -429,6 +446,7 @@ public class ProceduralLayoutGeneration : MonoBehaviour
             GameObject oppositePortal = Instantiate(portalPrefab, portalPosition.ToVector3XZ(), Quaternion.Euler(0, randomRotation - 180, 0), portalParent);
             portal.name = portal.name + "_" + portalIterator;
             oppositePortal.name = oppositePortal.name + "_" + (portalIterator + 1);
+            rooms[roomId].gameObject.transform.parent = portal.transform;
 
             // Occupy tiles for both portals
             previousGridTiles.Clear();
@@ -614,8 +632,7 @@ public class ProceduralLayoutGeneration : MonoBehaviour
     private void SpawnObjectOnTile(List<Tile> tilesToSpawnObjectOn, bool flipped, GameObject[] objectsToSpawn, TileGeneration.TileType objectType, Room roomToSpawnIn, bool playerCollision)
     {
         GameObject randomObject = objectsToSpawn[Random.Range(0, objectsToSpawn.Length)];
-        GameObject objectOnTile = Instantiate(randomObject, randomObject.transform.position, randomObject.transform.rotation, roomToSpawnIn.gameObject.transform);
-        Debug.Log("Spawning object " + objectOnTile.name + " of type " + objectType + " in room " + roomToSpawnIn.gameObject.name);
+        GameObject objectOnTile = Instantiate(randomObject, Vector3.zero, randomObject.transform.rotation, roomToSpawnIn.gameObject.transform);
         roomToSpawnIn.AddObjectToRoom(objectOnTile.transform, playerCollision);
         Vector2 spawnObjectCenter = Vector2.zero;
         int tileCount = tilesToSpawnObjectOn.Count;
@@ -684,7 +701,12 @@ public class ProceduralLayoutGeneration : MonoBehaviour
         // Set current room and previous room | get the portals from the current room
         previousRoom = currentRoom;
         currentRoom = newCurrentRoom;
+        currentRoom.gameObject.transform.parent = null;
         currentRoom.UpdateRoomStencil(null, 0, 2000);
+        if (currentPortal != null)
+        {
+            previousRoom.gameObject.transform.parent = currentPortal.transform;
+        }
         previousRoom.SetLayer(CustomUtilities.LayerMaskToLayer(differentRoomLayer), CustomUtilities.LayerMaskToLayer(differentRoomLayer));
         for (int i = 0; i < previousRoom.GetPortalsInRoom().Count; i++)
         {
@@ -738,9 +760,9 @@ public class ProceduralLayoutGeneration : MonoBehaviour
             else
             {
                 // Previous room
-                previousRoom.UpdateRoomStencil(currentPortal.transform, stencilValue, 2300);
                 CustomUtilities.UpdateStencils(currentPortal.gameObject, null, stencilValue, 2100);
                 CustomUtilities.UpdateStencils(currentPortal.GetConnectedPortal().gameObject, null, stencilValue, 2100);
+                previousRoom.UpdateRoomStencil(currentPortal.transform, stencilValue, 2300);
             }
             
             portalsInConnectedRoom.AddRange(p.GetConnectedRoom().GetPortalsInRoom());
@@ -792,12 +814,15 @@ public class ProceduralLayoutGeneration : MonoBehaviour
     public void FinalizeRoomSwitch(Portal portal)
     {
         // Step 1: Enable the connected portal and disable the current portal from the previous room
+        previousRoom.gameObject.transform.parent = portal.GetConnectedPortal().transform;
         Portal connectedPortal = portal.GetConnectedPortal();
         connectedPortal.SetActive(true);
         portal.SetActive(false);
         portal.gameObject.layer = CustomUtilities.LayerMaskToLayer(differentRoomLayer);
         // Step 2: Update shader matrix for previous room with the connected portals transform
         CustomUtilities.UpdateShaderMatrix(previousRoom.gameObject, connectedPortal.transform);
+        portalsInCurrentRoom.Clear();
+        portalsInCurrentRoom.AddRange(currentRoom.GetPortalsInRoom());
     }
     #endregion
 }
