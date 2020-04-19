@@ -143,7 +143,7 @@ public class ProceduralLayoutGeneration : MonoBehaviour
         CreateRooms(1, endGrids, CustomRoomType.End);
 
         // Spawn objects
-        SpawnObjectType(genericRooms, TileGeneration.TileType.Event, eventObjects, 2, new Vector2(1, 1), false);
+        SpawnObjectType(genericRooms, TileGeneration.TileType.Event, eventObjects, 1, new Vector2(1, 1), false);
         SpawnObjectType(genericRooms, TileGeneration.TileType.Enemy, enemyObjects, 5, new Vector2(1, 1), false);
         SpawnObjectType(genericRooms, TileGeneration.TileType.Scenery, largeSceneryObjects, 1, new Vector2(2, 2), false);
         SpawnObjectType(genericRooms, TileGeneration.TileType.Scenery, mediumSceneryObjects, 2, new Vector2(2, 1), false);
@@ -587,32 +587,15 @@ public class ProceduralLayoutGeneration : MonoBehaviour
                                     tilesToSpawnObjectOnFlipped.Add(evaluatedTile);
                                 }
 
-                                if (tilesThatFit == tilesPerObject.x * tilesPerObject.y || tilesThatFitFlipped == tilesPerObject.x * tilesPerObject.y)
+                                if (tilesThatFit == tilesPerObject.x * tilesPerObject.y)
                                 {
-                                    GameObject objectOnTile = Instantiate(objectsToSpawn[Random.Range(0, objectsToSpawn.Length)],
-                                        Vector3.zero, Quaternion.identity, roomsToSpawnObjectsIn[i].gameObject.transform);
-                                    roomsToSpawnObjectsIn[i].AddObjectToRoom(objectOnTile.transform, canCollideWithPlayer);
-                                    Vector2 spawnObjectCenter = Vector2.zero;
-                                    if (tilesThatFit >= tilesThatFitFlipped)
-                                    {
-                                        for (int m = 0; m < tilesThatFit; m++)
-                                        {
-                                            tilesToSpawnObjectOn[m].PlaceExistingObject(objectOnTile);
-                                            spawnObjectCenter += tilesToSpawnObjectOn[m].GetPosition();
-                                        }
-                                        spawnObjectCenter /= tilesThatFit;
-                                    }
-                                    else
-                                    {
-                                        objectOnTile.transform.localEulerAngles += new Vector3(0, 90.0f, 0);
-                                        for (int m = 0; m < tilesThatFitFlipped; m++)
-                                        {
-                                            tilesToSpawnObjectOnFlipped[m].PlaceExistingObject(objectOnTile);
-                                            spawnObjectCenter += tilesToSpawnObjectOnFlipped[m].GetPosition();
-                                        }
-                                        spawnObjectCenter /= tilesThatFitFlipped;
-                                    }
-                                    objectOnTile.transform.position = spawnObjectCenter.ToVector3XZ();
+                                    SpawnObjectOnTile(tilesToSpawnObjectOn, false, objectsToSpawn, objectTypeToSpawn, roomsToSpawnObjectsIn[i], canCollideWithPlayer);
+                                    objectsPerRoom++;
+                                    break;
+                                }
+                                if (tilesThatFitFlipped == tilesPerObject.x * tilesPerObject.y)
+                                {
+                                    SpawnObjectOnTile(tilesToSpawnObjectOnFlipped, true, objectsToSpawn, objectTypeToSpawn, roomsToSpawnObjectsIn[i], canCollideWithPlayer);
                                     objectsPerRoom++;
                                     break;
                                 }
@@ -623,6 +606,41 @@ public class ProceduralLayoutGeneration : MonoBehaviour
                     }
                 }
             }
+        }
+    }
+
+    private void SpawnObjectOnTile(List<Tile> tilesToSpawnObjectOn, bool flipped, GameObject[] objectsToSpawn, TileGeneration.TileType objectType, Room roomToSpawnIn, bool playerCollision)
+    {
+        GameObject objectOnTile = Instantiate(objectsToSpawn[Random.Range(0, objectsToSpawn.Length)],
+            Vector3.zero, Quaternion.identity, roomToSpawnIn.gameObject.transform);
+        roomToSpawnIn.AddObjectToRoom(objectOnTile.transform, playerCollision);
+        Vector2 spawnObjectCenter = Vector2.zero;
+        int tileCount = tilesToSpawnObjectOn.Count;
+        for (int m = 0; m < tileCount; m++)
+        {
+            tilesToSpawnObjectOn[m].PlaceExistingObject(objectOnTile);
+            spawnObjectCenter += tilesToSpawnObjectOn[m].GetPosition();
+        }
+        spawnObjectCenter /= tileCount;
+        if (flipped)
+        {
+            objectOnTile.transform.localEulerAngles += new Vector3(0, 90.0f, 0);
+        }
+        objectOnTile.transform.position = spawnObjectCenter.ToVector3XZ();
+
+        switch (objectType)
+        {
+            case TileGeneration.TileType.Event:
+                EventObjectBase eventBase = objectOnTile.GetComponentInChildren<EventObjectBase>();
+                if (eventBase != null)
+                {
+                    eventBase.room = roomToSpawnIn;
+                }
+                else
+                {
+                    Debug.LogError("Tried spawning an event in room " + roomToSpawnIn.gameObject.name + " but it did not contain an EventObjectBase");
+                }
+                break;
         }
     }
 

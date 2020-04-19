@@ -25,11 +25,6 @@ public class PlayerCollisionHandler : MonoBehaviour
             // Switch world
             proceduralLayout.SwitchCurrentRoom(thisPortal.GetConnectedRoom(), thisPortal);
         }
-        else if (triggerCollider.CompareTag("WinCondition"))
-        {
-            Debug.Log("You Win!");
-            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
-        }
     }
 
     private void OnTriggerExit(Collider triggerCollider)
