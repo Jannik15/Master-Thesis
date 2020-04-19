@@ -24,15 +24,14 @@ public class ProceduralLayoutGeneration : MonoBehaviour
     [HideInInspector] public List<GameObject> keysList;
     [HideInInspector] public Room currentRoom, previousRoom; // Room cannot currently be displayed in the inspector, requires a CustomInspectorDrawer implementation.
     [HideInInspector] public List<Room> rooms = new List<Room>(), genericRooms = new List<Room>(), eventRooms = new List<Room>();
+    [HideInInspector] public List<List<Portal>> activeThroughPortals = new List<List<Portal>>();
 
     // Private variables
     private List<Vector2> possiblePortalPositions = new List<Vector2>();
-    private List<Portal> portals = new List<Portal>();
-    private List<List<Portal>> activeThroughPortals = new List<List<Portal>>();
-    private List<Portal> portalsInCurrentRoom = new List<Portal>();
+    private List<Portal> portals = new List<Portal>(), portalsInCurrentRoom = new List<Portal>(4);
     private GameObject roomObject, keyCardToSpawn; // Functions as the index in rooms, tracking which room the player is in
     private int roomId, portalIterator, keycardIterator;
-    private Transform playerCam, portalParent;
+    private Transform portalParent;
     private List<Tile> gridTiles = new List<Tile>(), previousGridTiles = new List<Tile>(), walkableTiles = new List<Tile>(), keyCardViableTiles = new List<Tile>();
     private List<Tile> specificTypeTiles = new List<Tile>(), tilesToSpawnObjectOn = new List<Tile>(), tilesToSpawnObjectOnFlipped = new List<Tile>();
     private List<Vector2> portalTilePositions = new List<Vector2>();
@@ -53,45 +52,7 @@ public class ProceduralLayoutGeneration : MonoBehaviour
         Generic,
         Event
     }
-
-    private void FixedUpdate()
-    {
-        for (int i = 0; i < activeThroughPortals.Count; i++)
-        {
-            for (int j = 0; j < activeThroughPortals[i].Count; j++)
-            {
-                Vector3 cameraDirToPortal = (currentRoom.GetPortalsInRoom()[i].transform.position - playerCam.position).normalized;
-                if (math.dot(cameraDirToPortal, currentRoom.GetPortalsInRoom()[i].transform.forward) >= 0)
-                {
-                    if (!activeThroughPortals[i][j].gameObject.activeSelf)
-                    {
-                        activeThroughPortals[i][j].gameObject.SetActive(true);
-                    }
-                }
-                else if (activeThroughPortals[i][j].gameObject.activeSelf)
-                {
-                    activeThroughPortals[i][j].gameObject.SetActive(false);
-                }
-            }
-        }
-
-        for (int i = 0; i < portalsInCurrentRoom.Count; i++)
-        {
-            Vector3 cameraDirToPortal = (portalsInCurrentRoom[i].transform.position - playerCam.position).normalized;
-            if (math.dot(cameraDirToPortal, currentRoom.GetPortalsInRoom()[i].transform.forward) >= 0)
-            {
-                if (!portalsInCurrentRoom[i].gameObject.activeSelf)
-                {
-                    portalsInCurrentRoom[i].gameObject.SetActive(true);
-                }
-            }
-            else if (portalsInCurrentRoom[i].gameObject.activeSelf)
-            {
-                portalsInCurrentRoom[i].gameObject.SetActive(false);
-            }
-        }
-    }
-
+    
     private void Start() // To uncomment a demo block, simply put a '/' in front of the '/*'
     {
         /* Procedural generation
@@ -120,7 +81,6 @@ public class ProceduralLayoutGeneration : MonoBehaviour
         //*/
 
         //SwitchCurrentRoom(rooms[0], null);
-        playerCam = Camera.main.transform;
     }
 
     private void DuplicateDepthClearer(Transform depthParent, int stencilValue, int renderQueue)
@@ -720,6 +680,7 @@ public class ProceduralLayoutGeneration : MonoBehaviour
         {
             currentRoom.GetPortalsInRoom()[i].gameObject.layer = CustomUtilities.LayerMaskToLayer(currentRoomLayer);
         }
+        portalsInCurrentRoom.Clear();
 
         #region Disable rooms connected to rooms that are connected to the previous room
 
@@ -814,15 +775,13 @@ public class ProceduralLayoutGeneration : MonoBehaviour
     public void FinalizeRoomSwitch(Portal portal)
     {
         // Step 1: Enable the connected portal and disable the current portal from the previous room
-        previousRoom.gameObject.transform.parent = portal.GetConnectedPortal().transform;
         Portal connectedPortal = portal.GetConnectedPortal();
         connectedPortal.SetActive(true);
         portal.SetActive(false);
         portal.gameObject.layer = CustomUtilities.LayerMaskToLayer(differentRoomLayer);
         // Step 2: Update shader matrix for previous room with the connected portals transform
+        previousRoom.gameObject.transform.parent = connectedPortal.transform;
         CustomUtilities.UpdateShaderMatrix(previousRoom.gameObject, connectedPortal.transform);
-        portalsInCurrentRoom.Clear();
-        portalsInCurrentRoom.AddRange(currentRoom.GetPortalsInRoom());
     }
     #endregion
 }
