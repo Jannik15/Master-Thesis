@@ -37,8 +37,6 @@ public class EventObjectBase : MonoBehaviour
                     Debug.Log("Pressure plate Exited");
                 }
                 break;
-            case EventObjectType.ThisType.WinCondition:
-                break;
         }
     }
 }
