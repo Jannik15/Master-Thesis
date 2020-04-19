@@ -15,6 +15,7 @@ public class ProceduralLayoutGeneration : MonoBehaviour
     public int roomAmount = 10;
     [SerializeField] private GameObject[] startGrids, genericGrids, endGrids;
     [SerializeField] private GameObject[] smallSceneryObjects, mediumSceneryObjects, largeSceneryObjects, eventObjects, enemyObjects, endGameEventObjects;
+    [SerializeField] private GameObject[] interactableObjects;
     [SerializeField] private GameObject portalPrefab, portalDoorPrefab, depthClearer, keyCard;
     [SerializeField] private Shader currentRoomMask, otherRoomMask;
     [SerializeField] private LayerMask currentRoomLayer, differentRoomLayer, defaultLayer;
@@ -557,8 +558,9 @@ public class ProceduralLayoutGeneration : MonoBehaviour
                                 continue;
                             if (tileSize == objectSize)
                             {
-                                roomsToSpawnObjectsIn[i].AddObjectToRoom(currentTile.PlaceObject(objectsToSpawn[Random.Range(0, objectsToSpawn.Length)], 
-                                    roomsToSpawnObjectsIn[i].gameObject.transform).transform, canCollideWithPlayer);
+                                List<Tile> tileSlice = new List<Tile>();
+                                tileSlice.Add(currentTile);
+                                SpawnObjectOnTile(tileSlice, false, objectsToSpawn, objectTypeToSpawn, roomsToSpawnObjectsIn[i], canCollideWithPlayer);
                                 objectsPerRoom++;
                                 continue;
                             }
@@ -611,8 +613,9 @@ public class ProceduralLayoutGeneration : MonoBehaviour
 
     private void SpawnObjectOnTile(List<Tile> tilesToSpawnObjectOn, bool flipped, GameObject[] objectsToSpawn, TileGeneration.TileType objectType, Room roomToSpawnIn, bool playerCollision)
     {
-        GameObject objectOnTile = Instantiate(objectsToSpawn[Random.Range(0, objectsToSpawn.Length)],
-            Vector3.zero, Quaternion.identity, roomToSpawnIn.gameObject.transform);
+        GameObject randomObject = objectsToSpawn[Random.Range(0, objectsToSpawn.Length)];
+        GameObject objectOnTile = Instantiate(randomObject, randomObject.transform.position, randomObject.transform.rotation, roomToSpawnIn.gameObject.transform);
+        Debug.Log("Spawning object " + objectOnTile.name + " of type " + objectType + " in room " + roomToSpawnIn.gameObject.name);
         roomToSpawnIn.AddObjectToRoom(objectOnTile.transform, playerCollision);
         Vector2 spawnObjectCenter = Vector2.zero;
         int tileCount = tilesToSpawnObjectOn.Count;
@@ -635,6 +638,32 @@ public class ProceduralLayoutGeneration : MonoBehaviour
                 if (eventBase != null)
                 {
                     eventBase.room = roomToSpawnIn;
+                    if (eventBase.eventType.thisEventType == EventObjectType.ThisType.PressurePlate)
+                    {
+                        List<Tile> availableTiles = new List<Tile>();
+                        if (tilesToSpawnObjectOn.Count > 1)
+                        {
+                            for (int i = 0; i < tilesToSpawnObjectOn.Count; i++)
+                            {
+                                if (!tilesToSpawnObjectOn[i].GetOccupied())
+                                {
+                                    availableTiles.Add(tilesToSpawnObjectOn[i]);
+                                }
+                            }
+                        }
+
+                        if (availableTiles.Count == 0)
+                        {
+                            for (int i = 0; i < gridTiles.Count; i++)
+                            {
+                                if (!gridTiles[i].GetOccupied())
+                                {
+                                    availableTiles.Add(gridTiles[i]);
+                                }
+                            }
+                        }
+                        SpawnObjectOnTile(availableTiles, false, interactableObjects, TileGeneration.TileType.Empty, roomToSpawnIn, true);
+                    }
                 }
                 else
                 {
