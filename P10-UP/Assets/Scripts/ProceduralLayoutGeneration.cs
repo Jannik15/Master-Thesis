@@ -29,8 +29,9 @@ public class ProceduralLayoutGeneration : MonoBehaviour
     // Private variables
     private List<Vector2> possiblePortalPositions = new List<Vector2>();
     private List<Portal> portals = new List<Portal>(), portalsInCurrentRoom = new List<Portal>(4);
+    private List<DoorLock> portalDoors = new List<DoorLock>();
     private GameObject roomObject, keyCardToSpawn; // Functions as the index in rooms, tracking which room the player is in
-    private int roomId, portalIterator, keycardIterator;
+    private int roomID, portalIterator, keycardIterator;
     private Transform portalParent;
     private List<Tile> gridTiles = new List<Tile>(), previousGridTiles = new List<Tile>(), walkableTiles = new List<Tile>(), keyCardViableTiles = new List<Tile>();
     private List<Tile> specificTypeTiles = new List<Tile>(), tilesToSpawnObjectOn = new List<Tile>(), tilesToSpawnObjectOnFlipped = new List<Tile>();
@@ -107,7 +108,6 @@ public class ProceduralLayoutGeneration : MonoBehaviour
     public void SwitchCurrentRoom()
     {
         SwitchCurrentRoom(rooms[0], null);
-
     }
 
     public void ProcedurallyGenerateRooms()
@@ -120,12 +120,51 @@ public class ProceduralLayoutGeneration : MonoBehaviour
         CreateRooms(roomAmount - 2, genericGrids, CustomRoomType.Generic);
         CreateRooms(1, endGrids, CustomRoomType.End);
 
+        // Handle portal doors events
+        for (int i = 0; i < portalDoors.Count; i++)
+        {
+            if (!portalDoors[i].isLocked)
+            {
+                Room portalDoorRoom = portalDoors[i].inRoom;
+                // Case 1 - Unlock with pressure plate
+
+                // Case 2 - Unlock by shooting a target
+
+                // Case 3 - Unlock with keycard
+                if (keyCardID <= 9)
+                {
+                    portalDoors[i].isLocked = true;
+                    portalDoors[i].transform.parent.GetComponentInChildren<KeyPad>().KeyPadID = keyCardID;
+                    int roomToSpawnKeyCardIn = Random.Range(1, portalDoorRoom.GetRoomID());
+
+                    keyCardViableTiles.Clear();
+                    Grid keyCardGrid = rooms[roomToSpawnKeyCardIn].gameObject.GetComponent<Grid>();
+                    for (int j = 0; j < keyCardGrid.GetTilesAsList().Count; j++)
+                    {
+                        if (keyCardGrid.GetTilesAsList()[j].GetWalkable() && !keyCardGrid.GetTilesAsList()[j].GetOccupied())
+                        {
+                            keyCardViableTiles.Add(keyCardGrid.GetTilesAsList()[j]);
+                        }
+                    }
+
+                    int keyCardTileIndex = Random.Range(0, keyCardViableTiles.Count);
+                    keyCardToSpawn = keyCardViableTiles[keyCardTileIndex].PlaceObject(keyCard, rooms[roomToSpawnKeyCardIn].gameObject.transform);
+                    rooms[roomToSpawnKeyCardIn].AddObjectToRoom(keyCardToSpawn.transform, true);
+                    keysList.Insert(keyCardID, keyCardToSpawn);
+                    keyCardToSpawn.GetComponentInChildren<KeyCard>().keyID = keyCardID;
+                    keyCardID++;
+                }
+
+                // Case 4 - Already unlocked (Do nothing)
+            }
+        }
+
         // Spawn objects
-        SpawnObjectType(genericRooms, TileGeneration.TileType.Event, eventObjects, 1, new Vector2(1, 1), false);
-        SpawnObjectType(genericRooms, TileGeneration.TileType.Enemy, enemyObjects, 5, new Vector2(1, 1), false);
-        SpawnObjectType(genericRooms, TileGeneration.TileType.Scenery, largeSceneryObjects, 1, new Vector2(2, 2), false);
-        SpawnObjectType(genericRooms, TileGeneration.TileType.Scenery, mediumSceneryObjects, 2, new Vector2(2, 1), false);
-        SpawnObjectType(genericRooms, TileGeneration.TileType.Scenery, smallSceneryObjects, 2, new Vector2(1, 1), false);
+        SpawnObjectType(genericRooms, TileGeneration.TileType.Event, eventObjects, null, 1, new Vector2(1, 1), false);
+        SpawnObjectType(genericRooms, TileGeneration.TileType.Enemy, enemyObjects, null, 5, new Vector2(1, 1), false);
+        SpawnObjectType(genericRooms, TileGeneration.TileType.Scenery, largeSceneryObjects, null, 1, new Vector2(2, 2), false);
+        SpawnObjectType(genericRooms, TileGeneration.TileType.Scenery, mediumSceneryObjects, null, 2, new Vector2(2, 1), false);
+        SpawnObjectType(genericRooms, TileGeneration.TileType.Scenery, smallSceneryObjects, null, 2, new Vector2(1, 1), false);
 
         for (int j = 0; j < portals.Count; j++)
         {
@@ -134,12 +173,12 @@ public class ProceduralLayoutGeneration : MonoBehaviour
                 portals[j].SetActive(false);
             }
         }
-        for (int i = 1; i < roomId + 1; i++)
+        for (int i = 1; i < roomID + 1; i++)
         {
             rooms[i].SetLayer(CustomUtilities.LayerMaskToLayer(differentRoomLayer), CustomUtilities.LayerMaskToLayer(differentRoomLayer));
         }
-        roomId = 0;
-        currentRoom = rooms[roomId];
+        roomID = 0;
+        currentRoom = rooms[roomID];
     }
 
     private void CreateRooms(int roomCount, GameObject[] gridInputList, CustomRoomType roomType)
@@ -164,7 +203,7 @@ public class ProceduralLayoutGeneration : MonoBehaviour
             switch (roomType)
             {
                 case CustomRoomType.Start:
-                    rooms.Add(new Room(gridObject, roomId, grid));
+                    rooms.Add(new Room(gridObject, roomID, grid));
                     portalTilePositions.Clear();
                     for (int i = 0; i < gridTiles.Count; i++)
                     {
@@ -184,10 +223,10 @@ public class ProceduralLayoutGeneration : MonoBehaviour
                     }
 
                     List<Room> endRooms = new List<Room>(1);
-                    endRooms.Add(rooms[roomId]);
-                    SpawnObjectType(endRooms, TileGeneration.TileType.Event, endGameEventObjects, 1, new Vector2(2, 2), true);
-                    SpawnObjectType(endRooms, TileGeneration.TileType.Event, endGameEventObjects, 1, new Vector2(1, 2), true);
-                    SpawnObjectType(endRooms, TileGeneration.TileType.Event, endGameEventObjects, 1, new Vector2(1, 1), true);
+                    endRooms.Add(rooms[roomID]);
+                    SpawnObjectType(endRooms, TileGeneration.TileType.Event, endGameEventObjects, null, 1, new Vector2(2, 2), true);
+                    SpawnObjectType(endRooms, TileGeneration.TileType.Event, endGameEventObjects, null, 1, new Vector2(1, 2), true);
+                    SpawnObjectType(endRooms, TileGeneration.TileType.Event, endGameEventObjects, null, 1, new Vector2(1, 1), true);
                     break;
                 case CustomRoomType.Generic:
                     success = CheckIfRoomsCanBePaired(gridObject, grid, ref roomRotation);
@@ -198,7 +237,7 @@ public class ProceduralLayoutGeneration : MonoBehaviour
                     }
                     else
                     {
-                        genericRooms.Add(rooms[roomId]);
+                        genericRooms.Add(rooms[roomID]);
                     }
                     break;
                 case CustomRoomType.Event:
@@ -210,7 +249,7 @@ public class ProceduralLayoutGeneration : MonoBehaviour
                     }
                     else
                     {
-                        eventRooms.Add(rooms[roomId]);
+                        eventRooms.Add(rooms[roomID]);
                     }
                     break;
             }
@@ -287,8 +326,8 @@ public class ProceduralLayoutGeneration : MonoBehaviour
 
         if (possiblePortalPositions.Count > 0) // Portal overlap exists, pairing is possible.
         {
-            roomId++; // The id of the room, corresponding to the index in the list of rooms
-            rooms.Add(new Room(gridObject, roomId, grid)); // Add the room object as a Room with a unique ID and a grid
+            roomID++; // The id of the room, corresponding to the index in the list of rooms
+            rooms.Add(new Room(gridObject, roomID, grid)); // Add the room object as a Room with a unique ID and a grid
 
             gridObject.transform.eulerAngles = new Vector3(0.0f, 90.0f * roomRotation, 0.0f);
             for (int j = 0; j < gridTiles.Count; j++)
@@ -381,36 +420,31 @@ public class ProceduralLayoutGeneration : MonoBehaviour
             }
             //Debug.Log("For grid " + gridObject.name + " false amount = " + falseAmount + ", so random rotation is set to " + randomRotation + "\n" + "{" + portalPositionCheck[0].ToString("0.00") + "=" + portalPositionValidation[0] + ", " + portalPositionCheck[1].ToString("0.00") + "=" + portalPositionValidation[1] + ", " + portalPositionCheck[2].ToString("0.00") + "=" + portalPositionValidation[2] + ", " + portalPositionCheck[3].ToString("0.00") + "=" + portalPositionValidation[3] + " }");
             //*/
-#endregion
-
-            // Choose what type of portal should spawn
+            #endregion
+            
+            //*// Choose what type of portal should spawn - Old door code
             int spawnDoor = Random.Range(0, 10);
-            int doorLockState = Random.Range(0, 2);
-            if (spawnDoor < 3 && roomId > 1)
+            if (spawnDoor < 3 && roomID > 1)
             {
                 portal = Instantiate(portalDoorPrefab, portalPosition.ToVector3XZ(),
                     Quaternion.Euler(0, randomRotation, 0), portalParent);
-                if (doorLockState == 0 && keycardIterator <= 9)
-                {
-                    portal.GetComponentInChildren<DoorLock>().isLocked = true;
-                    keycardIterator++;
-                } else
-                {
-                    portal.GetComponentInChildren<DoorLock>().isLocked = false;
-                }
+                DoorLock portalDoor = portal.GetComponentInChildren<DoorLock>();
+                portalDoor.inRoom = rooms[roomID];
+                portalDoors.Add(portalDoor);
             }
             else
             {
                 portal = Instantiate(portalPrefab, portalPosition.ToVector3XZ(), Quaternion.Euler(0, randomRotation, 0), portalParent);
             }
+            //*/
             GameObject oppositePortal = Instantiate(portalPrefab, portalPosition.ToVector3XZ(), Quaternion.Euler(0, randomRotation - 180, 0), portalParent);
             portal.name = portal.name + "_" + portalIterator;
             oppositePortal.name = oppositePortal.name + "_" + (portalIterator + 1);
-            rooms[roomId].gameObject.transform.parent = portal.transform;
+            rooms[roomID].gameObject.transform.parent = portal.transform;
 
             // Occupy tiles for both portals
             previousGridTiles.Clear();
-            previousGridTiles.AddRange(rooms[roomId - 1].roomGrid.GetTilesAsList());
+            previousGridTiles.AddRange(rooms[roomID - 1].roomGrid.GetTilesAsList());
             for (int i = 0; i < previousGridTiles.Count; i++)
             {
                 if (math.distance(previousGridTiles[i].GetPosition(), portalPosition) <= gridTiles[0].transform.localScale.x / 1.5f)
@@ -418,7 +452,6 @@ public class ProceduralLayoutGeneration : MonoBehaviour
                     previousGridTiles[i].PlaceExistingObject(portal);
                 }
             }
-
             for (int i = 0; i < gridTiles.Count; i++) // Occupying oppositePortalTiles with the opposite portal
             {
                 if (math.distance(gridTiles[i].GetPosition(), portalPosition) <= gridTiles[0].transform.localScale.x / 1.5f)
@@ -427,39 +460,14 @@ public class ProceduralLayoutGeneration : MonoBehaviour
                 }
             }
 
-            if (spawnDoor < 3 && roomId > 1 && portal.GetComponentInChildren<DoorLock>().isLocked == true)
-            {
-                portal.GetComponentInChildren<KeyPad>().KeyPadID = keyCardID;
-                int roomToSpawnKeyCardIn = Random.Range(1, roomId);
-
-                keyCardViableTiles.Clear();
-                Grid keyCardGrid = rooms[roomToSpawnKeyCardIn].gameObject.GetComponent<Grid>();
-                for (int i = 0; i < keyCardGrid.GetTilesAsList().Count; i++)
-                {
-                    if (keyCardGrid.GetTilesAsList()[i].GetWalkable() && !keyCardGrid.GetTilesAsList()[i].GetOccupied())
-                    {
-                        keyCardViableTiles.Add(keyCardGrid.GetTilesAsList()[i]);
-                    }
-                }
-
-                int keyCardTileIndex = Random.Range(0, keyCardViableTiles.Count);
-                keyCardToSpawn = keyCardViableTiles[keyCardTileIndex]
-                    .PlaceObject(keyCard, rooms[roomId].gameObject.transform);
-
-                rooms[roomToSpawnKeyCardIn].AddObjectToRoom(keyCardToSpawn.transform, true);
-                keysList.Insert(keyCardID, keyCardToSpawn);
-                keyCardToSpawn.GetComponentInChildren<KeyCard>().keyID = keyCardID;
-                keyCardID++;
-            }
-
             Portal portalComponent = portal.AddComponent<Portal>();
             Portal oppositePortalComponent = oppositePortal.AddComponent<Portal>();
-            portalComponent.AssignValues(rooms[roomId - 1], rooms[roomId], oppositePortalComponent, portalIterator);
-            oppositePortalComponent.AssignValues(rooms[roomId], rooms[roomId - 1], portalComponent, portalIterator + 1);
-            rooms[roomId].AddPortalInRoom(oppositePortalComponent);
-            rooms[roomId].AddPortalToRoom(portalComponent);
-            rooms[roomId - 1].AddPortalInRoom(portalComponent);
-            rooms[roomId - 1].AddPortalToRoom(oppositePortalComponent);
+            portalComponent.AssignValues(rooms[roomID - 1], rooms[roomID], oppositePortalComponent, portalIterator);
+            oppositePortalComponent.AssignValues(rooms[roomID], rooms[roomID - 1], portalComponent, portalIterator + 1);
+            rooms[roomID].AddPortalInRoom(oppositePortalComponent);
+            rooms[roomID].AddPortalToRoom(portalComponent);
+            rooms[roomID - 1].AddPortalInRoom(portalComponent);
+            rooms[roomID - 1].AddPortalToRoom(oppositePortalComponent);
             portalIterator += 2;
             portals.Add(portalComponent);
             portals.Add(oppositePortalComponent);
@@ -471,14 +479,14 @@ public class ProceduralLayoutGeneration : MonoBehaviour
             {
                 if (oppositePortal.transform.GetChild(i).CompareTag("PortalObjects"))
                 {
-                    oppositePortal.transform.GetChild(i).ChangeRoom(null, rooms[roomId], false);
+                    oppositePortal.transform.GetChild(i).ChangeRoom(null, rooms[roomID], false);
                 }
             }
             for (int i = 0; i < portal.transform.childCount; i++)
             {
                 if (portal.transform.GetChild(i).CompareTag("PortalObjects"))
                 {
-                    portal.transform.GetChild(i).ChangeRoom(null, rooms[roomId - 1], false);
+                    portal.transform.GetChild(i).ChangeRoom(null, rooms[roomID - 1], false);
                 }
             }
 
@@ -488,111 +496,119 @@ public class ProceduralLayoutGeneration : MonoBehaviour
 
             if (rooms.Count > 3)
             {
-                rooms[roomId].gameObject.SetActive(false);
+                rooms[roomID].gameObject.SetActive(false);
             }
         }
         return possiblePortalPositions.Count > 0; // return whether or not portal tiles in current room are overlapping with portal tiles in previous rooms
     }
 
-    private void SpawnObjectType(List<Room> roomsToSpawnObjectsIn, TileGeneration.TileType objectTypeToSpawn, GameObject[] objectsToSpawn, int maxObjectsPerRoom, Vector2 tilesPerObject, bool canCollideWithPlayer)
+    private void SpawnObjectType(List<Room> roomsToSpawnObjectsIn, TileGeneration.TileType objectTypeToSpawn, GameObject[] objectsToSpawn, GameObject specificObjectToSpawn, 
+        int maxObjectsPerRoom, Vector2 tilesPerObject, bool canCollideWithPlayer)
     {
-        if (objectsToSpawn.Length > 0)
+        for (int i = 0; i < roomsToSpawnObjectsIn.Count; i++)
         {
-            for (int i = 0; i < roomsToSpawnObjectsIn.Count; i++)
+            GameObject objectToSpawn;
+            if (specificObjectToSpawn != null)
             {
-                Grid grid = roomsToSpawnObjectsIn[i].roomGrid;
-                gridTiles.Clear();
-                gridTiles.AddRange(grid.GetTilesAsList());
-                Vector2 tileSize = new Vector2(gridTiles[0].GetTileSize(), gridTiles[0].GetTileSize());
-                Vector2 objectSize = tilesPerObject * tileSize;
-                Vector2 objectSizeFlipped = new Vector2(tilesPerObject.y, tilesPerObject.x) * tileSize;
+                objectToSpawn = specificObjectToSpawn;
+            }
+            else
+            {
+                if (objectsToSpawn.Length == 0)
+                    return;
+                objectToSpawn = objectsToSpawn[Random.Range(0, objectsToSpawn.Length)];
+            }
+            Grid grid = roomsToSpawnObjectsIn[i].roomGrid;
+            gridTiles.Clear();
+            gridTiles.AddRange(grid.GetTilesAsList());
+            Vector2 tileSize = new Vector2(gridTiles[0].GetTileSize(), gridTiles[0].GetTileSize());
+            Vector2 objectSize = tilesPerObject * tileSize;
+            Vector2 objectSizeFlipped = new Vector2(tilesPerObject.y, tilesPerObject.x) * tileSize;
 
-                specificTypeTiles.Clear();
-                int gridTilesCount = gridTiles.Count;
-                for (int j = 0; j < gridTilesCount; j++)
+            specificTypeTiles.Clear();
+            int gridTilesCount = gridTiles.Count;
+            for (int j = 0; j < gridTilesCount; j++)
+            {
+                if (!gridTiles[j].GetOccupied() && gridTiles[j].GetTileType() == objectTypeToSpawn)
                 {
-                    if (!gridTiles[j].GetOccupied() && gridTiles[j].GetTileType() == objectTypeToSpawn)
-                    {
-                        specificTypeTiles.Add(gridTiles[j]);
-                    }
+                    specificTypeTiles.Add(gridTiles[j]);
                 }
+            }
 
-                if (specificTypeTiles.Count > 0)
+            if (specificTypeTiles.Count > 0)
+            {
+                specificTypeZones.Clear();
+                specificTypeZones.AddRange(CustomUtilities.GetTilesAsZone(specificTypeTiles, gridTiles[0].transform.localScale.x));
+
+                int objectsPerRoom = 0;
+                Rect objectRect = new Rect(Vector2.zero, objectSize);
+                Rect objectRectFlipped = new Rect(Vector2.zero, objectSizeFlipped);
+                for (int j = 0; j < specificTypeZones.Count; j++)
                 {
-                    specificTypeZones.Clear();
-                    specificTypeZones.AddRange(CustomUtilities.GetTilesAsZone(specificTypeTiles, gridTiles[0].transform.localScale.x));
-
-                    int objectsPerRoom = 0;
-                    Rect objectRect = new Rect(Vector2.zero, objectSize);
-                    Rect objectRectFlipped = new Rect(Vector2.zero, objectSizeFlipped);
-                    for (int j = 0; j < specificTypeZones.Count; j++)
+                    for (int k = 0; k < specificTypeZones[j].Count - 1; k++)
                     {
-                        for (int k = 0; k < specificTypeZones[j].Count - 1; k++)
-                        {
-                            if (objectsPerRoom == maxObjectsPerRoom)
-                                break;
-                            Tile currentTile = specificTypeZones[j][k];
-                            if (currentTile.GetOccupied())
-                                continue;
-                            if (tileSize == objectSize)
-                            {
-                                List<Tile> tileSlice = new List<Tile>();
-                                tileSlice.Add(currentTile);
-                                SpawnObjectOnTile(tileSlice, false, objectsToSpawn, objectTypeToSpawn, roomsToSpawnObjectsIn[i], canCollideWithPlayer);
-                                objectsPerRoom++;
-                                continue;
-                            }
-                            Rect tempRect = new Rect(Vector2.zero, tileSize)
-                            {
-                                center = currentTile.GetPosition()
-                            };
-                            objectRect.position = tempRect.position;
-                            objectRectFlipped.position = tempRect.position;
-                            int tilesThatFit = 1, tilesThatFitFlipped = 1;
-                            tilesToSpawnObjectOn.Clear();
-                            tilesToSpawnObjectOnFlipped.Clear();
-                            tilesToSpawnObjectOn.Add(currentTile);
-                            tilesToSpawnObjectOnFlipped.Add(currentTile);
-                            for (int l = k + 1; l < specificTypeZones[j].Count; l++)
-                            {
-                                Tile evaluatedTile = specificTypeZones[j][l];
-                                if (evaluatedTile.GetPosition().IsWithinRect(objectRect) && !evaluatedTile.GetOccupied())
-                                {
-                                    tilesThatFit++;
-                                    tilesToSpawnObjectOn.Add(evaluatedTile);
-                                }
-                                else if (evaluatedTile.GetPosition().IsWithinRect(objectRectFlipped) && !evaluatedTile.GetOccupied())
-                                {
-                                    tilesThatFitFlipped++;
-                                    tilesToSpawnObjectOnFlipped.Add(evaluatedTile);
-                                }
-
-                                if (tilesThatFit == tilesPerObject.x * tilesPerObject.y)
-                                {
-                                    SpawnObjectOnTile(tilesToSpawnObjectOn, false, objectsToSpawn, objectTypeToSpawn, roomsToSpawnObjectsIn[i], canCollideWithPlayer);
-                                    objectsPerRoom++;
-                                    break;
-                                }
-                                if (tilesThatFitFlipped == tilesPerObject.x * tilesPerObject.y)
-                                {
-                                    SpawnObjectOnTile(tilesToSpawnObjectOnFlipped, true, objectsToSpawn, objectTypeToSpawn, roomsToSpawnObjectsIn[i], canCollideWithPlayer);
-                                    objectsPerRoom++;
-                                    break;
-                                }
-                            }
-                        }
                         if (objectsPerRoom == maxObjectsPerRoom)
                             break;
+                        Tile currentTile = specificTypeZones[j][k];
+                        if (currentTile.GetOccupied())
+                            continue;
+                        if (tileSize == objectSize)
+                        {
+                            List<Tile> tileSlice = new List<Tile>();
+                            tileSlice.Add(currentTile);
+                            SpawnObjectOnTile(tileSlice, false, objectToSpawn, objectTypeToSpawn, roomsToSpawnObjectsIn[i], canCollideWithPlayer);
+                            objectsPerRoom++;
+                            continue;
+                        }
+                        Rect tempRect = new Rect(Vector2.zero, tileSize)
+                        {
+                            center = currentTile.GetPosition()
+                        };
+                        objectRect.position = tempRect.position;
+                        objectRectFlipped.position = tempRect.position;
+                        int tilesThatFit = 1, tilesThatFitFlipped = 1;
+                        tilesToSpawnObjectOn.Clear();
+                        tilesToSpawnObjectOnFlipped.Clear();
+                        tilesToSpawnObjectOn.Add(currentTile);
+                        tilesToSpawnObjectOnFlipped.Add(currentTile);
+                        for (int l = k + 1; l < specificTypeZones[j].Count; l++)
+                        {
+                            Tile evaluatedTile = specificTypeZones[j][l];
+                            if (evaluatedTile.GetPosition().IsWithinRect(objectRect) && !evaluatedTile.GetOccupied())
+                            {
+                                tilesThatFit++;
+                                tilesToSpawnObjectOn.Add(evaluatedTile);
+                            }
+                            else if (evaluatedTile.GetPosition().IsWithinRect(objectRectFlipped) && !evaluatedTile.GetOccupied())
+                            {
+                                tilesThatFitFlipped++;
+                                tilesToSpawnObjectOnFlipped.Add(evaluatedTile);
+                            }
+
+                            if (tilesThatFit == tilesPerObject.x * tilesPerObject.y)
+                            {
+                                SpawnObjectOnTile(tilesToSpawnObjectOn, false, objectToSpawn, objectTypeToSpawn, roomsToSpawnObjectsIn[i], canCollideWithPlayer);
+                                objectsPerRoom++;
+                                break;
+                            }
+                            if (tilesThatFitFlipped == tilesPerObject.x * tilesPerObject.y)
+                            {
+                                SpawnObjectOnTile(tilesToSpawnObjectOnFlipped, true, objectToSpawn, objectTypeToSpawn, roomsToSpawnObjectsIn[i], canCollideWithPlayer);
+                                objectsPerRoom++;
+                                break;
+                            }
+                        }
                     }
+                    if (objectsPerRoom == maxObjectsPerRoom)
+                        break;
                 }
             }
         }
     }
 
-    private void SpawnObjectOnTile(List<Tile> tilesToSpawnObjectOn, bool flipped, GameObject[] objectsToSpawn, TileGeneration.TileType objectType, Room roomToSpawnIn, bool playerCollision)
+    private void SpawnObjectOnTile(List<Tile> tilesToSpawnObjectOn, bool flipped, GameObject objectToSpawn, TileGeneration.TileType objectType, Room roomToSpawnIn, bool playerCollision)
     {
-        GameObject randomObject = objectsToSpawn[Random.Range(0, objectsToSpawn.Length)];
-        GameObject objectOnTile = Instantiate(randomObject, Vector3.zero, randomObject.transform.rotation, roomToSpawnIn.gameObject.transform);
+        GameObject objectOnTile = Instantiate(objectToSpawn, Vector3.zero, objectToSpawn.transform.rotation, roomToSpawnIn.gameObject.transform);
         roomToSpawnIn.AddObjectToRoom(objectOnTile.transform, playerCollision);
         Vector2 spawnObjectCenter = Vector2.zero;
         int tileCount = tilesToSpawnObjectOn.Count;
@@ -639,7 +655,8 @@ public class ProceduralLayoutGeneration : MonoBehaviour
                                 }
                             }
                         }
-                        SpawnObjectOnTile(availableTiles, false, interactableObjects, TileGeneration.TileType.Empty, roomToSpawnIn, true);
+                        GameObject randomInteractableOject = interactableObjects[Random.Range(0, interactableObjects.Length)];
+                        SpawnObjectOnTile(availableTiles, false, randomInteractableOject, TileGeneration.TileType.Empty, roomToSpawnIn, true);
                     }
                 }
                 else

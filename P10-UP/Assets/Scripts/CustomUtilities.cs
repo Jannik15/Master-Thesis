@@ -319,6 +319,22 @@ public static class CustomUtilities
         allRenderes.AddRange(objToSearch.GetComponentsInChildren<Renderer>(true));
         return allRenderes;
     }
+    /// <summary>
+    /// Returns the index of the list where the item is, and returns -1 if item is not in the list.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="list"></param>
+    /// <param name="item"></param>
+    /// <returns></returns>
+    public static int GetIndexOfItemInList<T>(List<T> list, T item)
+    {
+        for (int i = 0; i < list.Count; i++)
+        {
+            if (list[i].Equals(item))
+                return i;
+        }
+        return -1;
+    }
     #endregion
 
     #region Layers and Tags

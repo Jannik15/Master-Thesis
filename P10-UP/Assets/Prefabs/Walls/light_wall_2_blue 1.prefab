@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 413196}
   - component: {fileID: 3307060}
   - component: {fileID: 2386656}
-  - component: {fileID: 6510280}
+  - component: {fileID: 5014464438249319673}
   m_Layer: 0
   m_Name: light_wall_2_blue 1
   m_TagString: Untagged
@@ -81,8 +81,8 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
---- !u!65 &6510280
-BoxCollider:
+--- !u!64 &5014464438249319673
+MeshCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -91,6 +91,7 @@ BoxCollider:
   m_Material: {fileID: 0}
   m_IsTrigger: 0
   m_Enabled: 1
-  serializedVersion: 2
-  m_Size: {x: 0.56172633, y: 2.6243658, z: 0.25563556}
-  m_Center: {x: 0, y: 1.3121829, z: 0.027045097}
+  serializedVersion: 3
+  m_Convex: 0
+  m_CookingOptions: 30
+  m_Mesh: {fileID: 4300000, guid: d3a1262c7f860b5439d4734d0d8786fb, type: 3}
