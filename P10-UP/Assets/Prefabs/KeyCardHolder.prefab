@@ -23,14 +23,14 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5188704847991834531}
-  m_LocalRotation: {x: -0.17916583, y: -0.042346146, z: 0.17499143, w: 0.9672045}
-  m_LocalPosition: {x: 0, y: 0.2781, z: 0}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 6613381387539820879}
   m_Father: {fileID: 0}
   m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: -19.376001, y: -8.818001, z: 22.019001}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &6613381387539820866
 GameObject:
   m_ObjectHideFlags: 0
@@ -42,8 +42,7 @@ GameObject:
   - component: {fileID: 6613381387539820879}
   - component: {fileID: 6613381387539820878}
   - component: {fileID: 6613381387539820865}
-  - component: {fileID: 6613381387539820864}
-  - component: {fileID: 6613381387539820867}
+  - component: {fileID: 8216304139963766234}
   m_Layer: 14
   m_Name: Keycard
   m_TagString: Keycard
@@ -59,7 +58,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6613381387539820866}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.0699, z: 0}
+  m_LocalPosition: {x: 0, y: 0.1932, z: 0}
   m_LocalScale: {x: 0.18615195, y: 0.36415023, z: 0.02832294}
   m_Children: []
   m_Father: {fileID: 2148984198468931518}
@@ -112,7 +111,7 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
---- !u!65 &6613381387539820864
+--- !u!65 &8216304139963766234
 BoxCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -123,18 +122,5 @@ BoxCollider:
   m_IsTrigger: 1
   m_Enabled: 1
   serializedVersion: 2
-  m_Size: {x: 3.6116467, y: 1.3784668, z: 21.184395}
-  m_Center: {x: 0.11756678, y: 0.18923348, z: -2.6454556}
---- !u!114 &6613381387539820867
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6613381387539820866}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2439732f273c95b46a5836f3600242c7, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  keyID: 0
+  m_Size: {x: 1, y: 1, z: 1.0000001}
+  m_Center: {x: 0, y: 0, z: 0}

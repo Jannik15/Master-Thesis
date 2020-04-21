@@ -7,7 +7,7 @@ public class ButtonTrigger : MonoBehaviour
 {
     [SerializeField] private UnityEvent onButtonPressed;
 
-    private bool pressedInProgress = false;
+    private bool pressedInProgress;
 
     private PlayerInteractions playerInteractions;
 
@@ -36,6 +36,4 @@ public class ButtonTrigger : MonoBehaviour
             pressedInProgress = false;
         }
     }
-
-
 }

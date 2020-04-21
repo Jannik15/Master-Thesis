@@ -375,6 +375,18 @@ public static class Extensions
         }
     }
 
+    public static void Randomize<T>(this List<T> list)
+    {
+        int listCount = list.Count;
+        for (int i = 0; i < listCount; i++)
+        {
+            var temp = list[i];
+            int randomIndex = Random.Range(i, list.Count);
+            list[i] = list[randomIndex];
+            list[randomIndex] = temp;
+        }
+    }
+
     #endregion
 
     #region Color

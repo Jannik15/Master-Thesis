@@ -7,6 +7,7 @@ public class EventObjectBase : MonoBehaviour
 {
     public EventObjectType eventType;
     public Room room;
+    public DoorLock connectedDoor;
 
     void OnTriggerEnter(Collider collider)
     {
@@ -15,7 +16,7 @@ public class EventObjectBase : MonoBehaviour
             case EventObjectType.ThisType.PressurePlate:
                 if (collider.CompareTag("Button"))
                 {
-                    Debug.Log("Pressure plate entered");
+                    connectedDoor.isLocked = false;
                 }
                 break;
             case EventObjectType.ThisType.WinCondition:
@@ -34,7 +35,11 @@ public class EventObjectBase : MonoBehaviour
             case EventObjectType.ThisType.PressurePlate:
                 if (collider.CompareTag("Button"))
                 {
-                    Debug.Log("Pressure plate Exited");
+                    connectedDoor.isLocked = true;
+                    if (connectedDoor.isOpen)
+                    {
+                        connectedDoor.CloseDoor();
+                    }
                 }
                 break;
         }

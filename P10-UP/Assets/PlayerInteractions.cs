@@ -12,18 +12,9 @@ public class PlayerInteractions : MonoBehaviour
 
     private Ray ray;
     private Camera playerCamera;
-    private KeyCard keyCard;
     private int keyHoldID;
     private int maxKeysList;
     private ProceduralLayoutGeneration proLG;
-    private bool open,beenOpened,counting,doneWaiting = false;
-    private TMP_Text text;
-    private float doneCounting;
-    private GameObject buttonTemp;
-
-
-
-    private bool[] keyArray = new bool[]{false,false,false,false,false,false, false, false, false, false};
     // Start is called before the first frame update
     void Start()
     {
@@ -35,17 +26,13 @@ public class PlayerInteractions : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-
-
-
         RaycastHit hit;
         ray = playerCamera.ScreenPointToRay(Input.mousePosition);
 
+        #region Old
+        /*/ 
         if (Input.GetKeyDown(KeyCode.F) && Physics.Raycast(ray, out hit, 1.5f, layerMaskRay) && hit.collider.gameObject.tag == "Button")
         {
-            //Debug.Log(hit.collider.gameObject.GetComponentInChildren<TextMeshPro>());
-            //Debug.Log(hit.collider.gameObject.transform.GetChild(0).GetComponent<TextMeshPro>());
-            //text = hit.collider.gameObject.GetComponentInChildren<TMP_Text>();
             if (hit.collider.gameObject.GetComponentInParent<DoorLock>().isLocked == true)
             {
                 if (keyArray[hit.collider.gameObject.GetComponentInParent<KeyPad>().KeyPadID] == true)
@@ -85,12 +72,24 @@ public class PlayerInteractions : MonoBehaviour
                     hit.collider.gameObject.GetComponentInParent<KeyPad>().Open = false;
                 }
             }
-            
         }
+        //*/
+        #endregion
+
+        #region New
+        //*/ 
+        if (Input.GetKeyDown(KeyCode.F) && Physics.Raycast(ray, out hit, 1.5f, layerMaskRay) && hit.collider.gameObject.tag == "Button")
+        {
+            DoorAction(hit.collider);
+        }
+        //*/
+        #endregion
     }
 
     public void DoorAction(Collider other)
     {
+        #region Old
+        /*/
         if (other.gameObject.GetComponentInParent<DoorLock>().isLocked == true)
         {
             if (keyArray[other.transform.parent.GetComponentInChildren<KeyPad>().KeyPadID] == true)
@@ -130,7 +129,28 @@ public class PlayerInteractions : MonoBehaviour
                 other.transform.parent.GetComponentInChildren<KeyPad>().Open = false;
             }
         }
+        //*/
+        #endregion
 
+        #region New
+        //*/
+        DoorLock thisLock = other.gameObject.GetComponentInParent<DoorLock>();
+        if (thisLock.isLocked)
+        {
+            thisLock.TryToUnlock();
+            if (thisLock.isLocked)
+                return;
+        }
+        if (thisLock.isOpen)
+        {
+            thisLock.CloseDoor();
+        }
+        else
+        {
+            thisLock.OpenDoor();
+        }
+        //*/
+        #endregion
     }
 
 
@@ -138,27 +158,24 @@ public class PlayerInteractions : MonoBehaviour
     {
         if (collider.CompareTag("Keycard"))
         {
-            maxKeysList = proLG.keysList.Count;
-            keyHoldID = collider.gameObject.GetComponent<KeyCard>().keyID;
-
-            for (int i = 0; i < maxKeysList; i++)
+            // Loop through the list of keyCards to enable the correct one in the UI.
+            for (int i = 0; i < proLG.keysList.Count; i++)
             {
-                if (i == keyHoldID)
+                if (proLG.keysList[i] == collider.transform.parent.gameObject)
                 {
-                    keyArray[i] = true;
-                    keyUI[i].gameObject.SetActive(true);
-                    break;
+                    if (keyUI.Count > i)
+                    {
+                        keyUI[i].SetActive(true);
+                    }
+                    else
+                    {
+                        Debug.Log("Picked up keyCard #" + (i+1) + " but this number is not present in the UI and cannot be enabled!");
+                    }
                 }
-
             }
-            proLG.currentRoom.RemoveObjectFromRoom(collider.transform);
-            Destroy(collider.gameObject);
-
+            // Be aware that this destroys THE PARENT of the collider (supposed to destroy keyCardHolder)
+            proLG.currentRoom.RemoveObjectFromRoom(collider.transform.parent);
+            Destroy(collider.transform.parent.gameObject);
         }
-    }
-
-    void KeyCard()
-    {
-
     }
 }
