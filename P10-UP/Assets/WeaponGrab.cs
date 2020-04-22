@@ -8,9 +8,10 @@ using UnityEngine;
 public class WeaponGrab : MonoBehaviour
 {
     OVRGrabber oVRGrabber;
-    SimpleShoot simpleShoot;
+    //SimpleShoot simpleShoot;
     Rigidbody rbR;
     Rigidbody rbL;
+    public Gun gunScript;
     public LayerMask layerMask;
     public Transform trackingSpace;
     public Shader highlightMaterialR;
@@ -24,10 +25,10 @@ public class WeaponGrab : MonoBehaviour
     public bool handRight;
     private bool holdingGunRight = false;
     private bool holdingGunLeft = false;
-    private Vector3 gunPositionRight = new Vector3(0.0481f,0.0184f,-0.01927197f);
-    private Vector3 gunRotationRight = new Vector3(0f, 9.126f, 90f);
-    private Vector3 gunPositionLeft = new Vector3(-0.03830f,0.03422651f,-0.03557706f);
-    private Vector3 gunRotationLeft = new Vector3(0f, -9.126f, -90f);
+    private Vector3 gunPositionRight = new Vector3(0.024f, 0.014f, 0.0798f);
+    private Vector3 gunRotationRight = new Vector3(90f, -80f, 9f);
+    private Vector3 gunPositionLeft = new Vector3(-0.024f, 0.014f, 0.076f);
+    private Vector3 gunRotationLeft = new Vector3(263.62f, -181.869f, 88.99999f);
     public Shader defaultMaterial;
     public Color rightHighlight, leftHighlight;
     
@@ -39,22 +40,23 @@ public class WeaponGrab : MonoBehaviour
     private GameObject currentGunRight = null;
     [SerializeField]
     private GameObject currentGunLeft = null;
-    
 
 
+    public float fireRate = 3f;
+    private float nextTimeToFire = 0f;
 
     void PickUpRight(RaycastHit hitRight)
     {
-        currentGunRight = hitRight.collider.transform.parent.gameObject;
+        currentGunRight = hitRight.collider.transform.gameObject;
         currentGunRight.transform.parent = transform;
         currentGunRight.transform.localPosition = gunPositionRight;
         currentGunRight.transform.localEulerAngles = gunRotationRight;
-        simpleShoot = currentGunRight.GetComponent<SimpleShoot>();
+        //simpleShoot = currentGunRight.GetComponent<SimpleShoot>();
         rbR = currentGunRight.GetComponent<Rigidbody>();
         rbR.isKinematic = true;
 
         holdingGunRight = true;
-        simpleShoot.enabled = true; //on
+        //simpleShoot.enabled = true; //on
         oVRGrabber.enabled = false; //off
 
     }
@@ -62,7 +64,7 @@ public class WeaponGrab : MonoBehaviour
     void DropRight()
     {
         holdingGunRight = false;
-        simpleShoot.enabled = false; //off
+        //simpleShoot.enabled = false; //off
         oVRGrabber.enabled = true; //on
         rbR.isKinematic = false;
         currentGunRight.transform.parent = null;
@@ -74,16 +76,16 @@ public class WeaponGrab : MonoBehaviour
 
     void PickUpLeft(RaycastHit hitLeft)
     {
-        currentGunLeft = hitLeft.collider.transform.parent.gameObject;
+        currentGunLeft = hitLeft.collider.transform.gameObject;
         currentGunLeft.transform.parent = transform;
         currentGunLeft.transform.localPosition = gunPositionLeft;
         currentGunLeft.transform.localEulerAngles = gunRotationLeft;
-        simpleShoot = currentGunLeft.GetComponent<SimpleShoot>();
+        //simpleShoot = currentGunLeft.GetComponent<SimpleShoot>();
         rbL = currentGunLeft.GetComponent<Rigidbody>();
         rbL.isKinematic = true;
 
         holdingGunLeft = true;
-        simpleShoot.enabled = true; //on
+        //simpleShoot.enabled = true; //on
         oVRGrabber.enabled = false; //off
 
     }
@@ -91,7 +93,7 @@ public class WeaponGrab : MonoBehaviour
     void DropLeft()
     {
         holdingGunLeft = false;
-        simpleShoot.enabled = false; //off
+        //simpleShoot.enabled = false; //off
         oVRGrabber.enabled = true; //on
         rbL.isKinematic = false;
         currentGunLeft.transform.parent = null;
@@ -170,7 +172,7 @@ public class WeaponGrab : MonoBehaviour
             {
                 if (hitRight.transform.CompareTag("Weapon"))
                 {
-                    gun = hitRight.collider.transform.parent.gameObject;
+                    gun = hitRight.collider.transform.gameObject;
 
                     var selectionR = hitRight.transform;
                     Renderer[] selectionRendererR = selectionR.GetComponentsInChildren<Renderer>();
@@ -227,7 +229,7 @@ public class WeaponGrab : MonoBehaviour
             {
                 if (hitLeft.transform.CompareTag("Weapon"))
                 {
-                    gun = hitLeft.collider.transform.parent.gameObject;
+                    gun = hitLeft.collider.transform.gameObject;
 
                     var selectionL = hitLeft.transform;
                     Renderer[] selectionRendererL = selectionL.GetComponentsInChildren<Renderer>();
@@ -271,6 +273,18 @@ public class WeaponGrab : MonoBehaviour
             }
         }
 
+        if (OVRInput.GetDown(OVRInput.RawButton.RIndexTrigger) && Time.time >= nextTimeToFire && currentGunRight != null)
+        {
+            nextTimeToFire = Time.time + 1f / fireRate;
+            currentGunRight.GetComponent<Gun>().Shoot();
+        }
+
+        if (OVRInput.GetDown(OVRInput.RawButton.LIndexTrigger) && Time.time >= nextTimeToFire && currentGunLeft != null)
+        {
+            nextTimeToFire = Time.time + 1f / fireRate;
+            currentGunLeft.GetComponent<Gun>().Shoot();
+        }
+
 
         //Right Hand Drop
         if (OVRInput.GetDown(OVRInput.Button.Two) && currentGunRight != null || Input.GetKeyDown(KeyCode.H) && currentGunRight != null)
@@ -289,14 +303,5 @@ public class WeaponGrab : MonoBehaviour
                 DropLeft();
             }
         }
-
-        if (OVRInput.GetDown(OVRInput.RawButton.RIndexTrigger))
-            {
-                currentGunRight.GetComponent<Animator>().SetTrigger("Fire");
-            }
-        if (OVRInput.GetDown(OVRInput.RawButton.LIndexTrigger))
-            {
-                currentGunLeft.GetComponent<Animator>().SetTrigger("Fire");
-            }
     }
 }

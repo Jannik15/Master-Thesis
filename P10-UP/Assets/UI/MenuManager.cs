@@ -11,6 +11,12 @@ public class MenuManager : MonoBehaviour
     public GameObject optionsMenu;
 
     public ProceduralLayoutGeneration handler;
+
+    public Transform dispensePoint;
+
+    public GameObject gun;
+
+    private GameObject spawnedGun;
     // Start is called before the first frame update
     void Start()
     {
@@ -34,6 +40,14 @@ public class MenuManager : MonoBehaviour
                 optionsMenu.SetActive(false);
             }
         }
+    }
+
+    public void Dispense()
+    {
+        float randomRange = Random.Range(40f, 100f);
+        Debug.Log("Dispensed");
+        spawnedGun = Instantiate(gun, dispensePoint.position, Quaternion.identity);
+        spawnedGun.GetComponent<Rigidbody>().AddForce(dispensePoint.forward * randomRange);
     }
 
     public void TestStart(){
