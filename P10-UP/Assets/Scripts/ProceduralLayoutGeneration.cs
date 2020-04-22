@@ -126,15 +126,24 @@ public class ProceduralLayoutGeneration : MonoBehaviour
         {
             if (!portalDoors[i].isLocked)
             {
-                //Debug.Log("PortalDoor[" + i + "] is not locked when generating layout - Trying to lock...");
                 Room portalDoorRoom = portalDoors[i].inRoom;
-                int checkLastXRooms = portalDoorRoom.GetRoomID() > 2 ? 3 : portalDoorRoom.GetRoomID();
-                //Debug.Log("Locking a door in room " + portalDoors[i].inRoom.gameObject.name + ", checkLastXRooms where X=" + checkLastXRooms);
                 bool caseSelected = false;
+                int doorRoomID = portalDoorRoom.GetRoomID();
+
                 // Case 1 - Unlock with pressure plate
+                int checkLastXRooms = doorRoomID > 2 ? 3 : doorRoomID;
+
+                // Randomize input
+                List<Room> roomSlice = new List<Room>(4);
                 for (int j = 0; j < checkLastXRooms; j++)
                 {
-                    Grid doorRoomGrid = rooms[portalDoorRoom.GetRoomID() - j].gameObject.GetComponent<Grid>();
+                    roomSlice.Add(rooms[doorRoomID - j]);
+                }
+                roomSlice.Randomize();
+
+                for (int j = 0; j < checkLastXRooms; j++)
+                {
+                    Grid doorRoomGrid = roomSlice[j].gameObject.GetComponent<Grid>();
                     doorEventTiles.Clear();
                     doorEventTiles.AddRange(doorRoomGrid.GetTilesAsList());
                     doorEventTiles.Randomize();
@@ -144,12 +153,11 @@ public class ProceduralLayoutGeneration : MonoBehaviour
                         if (!doorEventTiles[k].GetOccupied() && doorEventTiles[k].GetWalkable() && doorEventTiles[k].GetTileType() == TileGeneration.TileType.Event)
                         {
                             caseSelected = true;
-                            List<Tile> spawner = new List<Tile>();
+                            List<Tile> spawner = new List<Tile>(1); // Very inefficient, should change later (SpawnObjectOnTile should be able to take just a single gameObject)
                             spawner.Add(doorEventTiles[k]);
-                            GameObject pressurePlate = SpawnObjectOnTile(spawner, false, eventObjects[0], TileGeneration.TileType.Event, rooms[portalDoorRoom.GetRoomID() - j], false);
+                            GameObject pressurePlate = SpawnObjectOnTile(spawner, false, eventObjects[0], TileGeneration.TileType.Event, roomSlice[j], false);
                             // Pair door and pressure plate
                             portalDoors[i].Pair(DoorLock.DoorEvent.PressurePlate, pressurePlate);
-                            //pressurePlate.GetComponentInChildren<EventObjectBase>().Pair()
                             break;
                         }
                     }
@@ -157,15 +165,15 @@ public class ProceduralLayoutGeneration : MonoBehaviour
                         break;
                 }
                 if (caseSelected)
-                    break; 
+                    break;
 
                 // Case 2 - Unlock by shooting a target
 
-                // Case 3 - Unlock with keycard
-                if (keysList.Count < rooms.Count / 5)
-                {
-                    int roomToSpawnKeyCardIn = Random.Range(1, portalDoorRoom.GetRoomID());
 
+                // Case 3 - Unlock with keycard
+                if (keysList.Count < rooms.Count / 4)
+                {
+                    int roomToSpawnKeyCardIn = Random.Range(math.clamp(1,doorRoomID, doorRoomID-5), doorRoomID);
                     doorEventTiles.Clear();
                     Grid keyCardGrid = rooms[roomToSpawnKeyCardIn].gameObject.GetComponent<Grid>();
                     for (int j = 0; j < keyCardGrid.GetTilesAsList().Count; j++)

@@ -214,7 +214,6 @@ GameObject:
   - component: {fileID: 290781652517834726}
   - component: {fileID: 4442096568266445898}
   - component: {fileID: 8543506060039976400}
-  - component: {fileID: 3883670223955380985}
   m_Layer: 0
   m_Name: KeyPad
   m_TagString: Untagged
@@ -313,20 +312,6 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
---- !u!114 &3883670223955380985
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2032748870438812474}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b6db485241d41f742808781739d7fe29, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  KeyPadID: 0
-  Open: 0
 --- !u!1 &2314185139539266914
 GameObject:
   m_ObjectHideFlags: 0
@@ -1055,7 +1040,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2314185141162102270}
   m_LocalRotation: {x: -0.49999973, y: 0.5000005, z: -0.5000003, w: -0.49999952}
-  m_LocalPosition: {x: 0, y: -0.49900004, z: -0.05}
+  m_LocalPosition: {x: 0, y: -0.489, z: -0.05}
   m_LocalScale: {x: 0.1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 2314185141147467114}
@@ -1134,7 +1119,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2314185141192322145}
   m_LocalRotation: {x: -0.49999973, y: 0.5000005, z: -0.5000003, w: -0.49999952}
-  m_LocalPosition: {x: 0, y: -0.49900004, z: 0.05}
+  m_LocalPosition: {x: 0, y: -0.489, z: 0.05}
   m_LocalScale: {x: 0.1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 2314185140694309403}
@@ -1559,7 +1544,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: c81cad786187903478df60b6880c2d45, type: 2}
+  - {fileID: 2100000, guid: 3405440dfd572904d94cc0ea06e82718, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -1752,8 +1737,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   isLocked: 0
-  beenUnlocked: 0
+  isOpen: 0
   buttonTrigger: {fileID: 3277854828748745655}
+  lockEvent: 0
+  pairedKeyCard: {fileID: 0}
+  pairedPressurePlate: {fileID: 0}
 --- !u!65 &3021979592191686360
 BoxCollider:
   m_ObjectHideFlags: 0

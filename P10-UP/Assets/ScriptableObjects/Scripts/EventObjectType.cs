@@ -9,7 +9,8 @@ public class EventObjectType : ScriptableObject
     public enum ThisType
     {
         PressurePlate,
-        WinCondition
+        WinCondition,
+        ShootTarget
     }
     public ThisType thisEventType;
 }
