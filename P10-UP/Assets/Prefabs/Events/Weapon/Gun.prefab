@@ -1,5 +1,128 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!1 &327199145324433176
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4892363993118057997}
+  m_Layer: 0
+  m_Name: MuzzleFlash
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4892363993118057997
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 327199145324433176}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0.087, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1.9923}
+  m_Children:
+  - {fileID: 7238592256626518596}
+  m_Father: {fileID: 7673992916662828114}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &4000872412058019060
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7238592256626518596}
+  - component: {fileID: 6530819386037647685}
+  m_Layer: 0
+  m_Name: Point Light
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &7238592256626518596
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4000872412058019060}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 4892363993118057997}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!108 &6530819386037647685
+Light:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4000872412058019060}
+  m_Enabled: 1
+  serializedVersion: 10
+  m_Type: 2
+  m_Shape: 0
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Intensity: 1
+  m_Range: 10
+  m_SpotAngle: 30
+  m_InnerSpotAngle: 21.80208
+  m_CookieSize: 10
+  m_Shadows:
+    m_Type: 0
+    m_Resolution: -1
+    m_CustomResolution: -1
+    m_Strength: 1
+    m_Bias: 0.05
+    m_NormalBias: 0.4
+    m_NearPlane: 0.2
+    m_CullingMatrixOverride:
+      e00: 1
+      e01: 0
+      e02: 0
+      e03: 0
+      e10: 0
+      e11: 1
+      e12: 0
+      e13: 0
+      e20: 0
+      e21: 0
+      e22: 1
+      e23: 0
+      e30: 0
+      e31: 0
+      e32: 0
+      e33: 1
+    m_UseCullingMatrixOverride: 0
+  m_Cookie: {fileID: 0}
+  m_DrawHalo: 0
+  m_Flare: {fileID: 0}
+  m_RenderMode: 0
+  m_CullingMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_RenderingLayerMask: 1
+  m_Lightmapping: 4
+  m_LightShadowCasterMode: 0
+  m_AreaSize: {x: 1, y: 1}
+  m_BounceIntensity: 1
+  m_ColorTemperature: 6570
+  m_UseColorTemperature: 0
+  m_BoundingSphereOverride: {x: 0, y: 2.3510647e-38, z: 0, w: 0}
+  m_UseBoundingSphereOverride: 0
+  m_ShadowRadius: 0
+  m_ShadowAngle: 0
 --- !u!1 &7673992916491021911
 GameObject:
   m_ObjectHideFlags: 0
@@ -12,7 +135,7 @@ GameObject:
   - component: {fileID: 7673992916491021907}
   - component: {fileID: 7673992916491021906}
   - component: {fileID: 7673992916491021905}
-  m_Layer: 5
+  m_Layer: 10
   m_Name: Canvas
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -112,7 +235,7 @@ GameObject:
   - component: {fileID: 7673992916662828112}
   - component: {fileID: 7673992916665728114}
   - component: {fileID: 7673992916664598194}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: Gun_Loader
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -192,7 +315,7 @@ GameObject:
   - component: {fileID: 7673992916662828114}
   - component: {fileID: 7673992916665728116}
   - component: {fileID: 7673992916664598196}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: Gun_Bullet_Hole
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -209,7 +332,8 @@ Transform:
   m_LocalRotation: {x: 0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0.6386799, y: 0.3310955, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
+  m_Children:
+  - {fileID: 4892363993118057997}
   m_Father: {fileID: 7673992916662828118}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -271,7 +395,7 @@ GameObject:
   - component: {fileID: 7673992916662828116}
   - component: {fileID: 7673992916665728118}
   - component: {fileID: 7673992916664598198}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: Gun_Base
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -351,7 +475,8 @@ GameObject:
   - component: {fileID: 6867708490011962902}
   - component: {fileID: 6867708490011962903}
   - component: {fileID: 6867708490011962900}
-  m_Layer: 0
+  - component: {fileID: 1940992186405437932}
+  m_Layer: 10
   m_Name: Gun
   m_TagString: Weapon
   m_Icon: {fileID: 0}
@@ -418,6 +543,27 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 1.2223916, y: 0.26606977, z: 0.119719274}
   m_Center: {x: 0.030660369, y: 0.24428993, z: 0.0051532267}
+--- !u!114 &1940992186405437932
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7673992916662657142}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 678415d3dc118fc4a8cb5316434e9298, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  damage: 10
+  range: 100
+  fireRate: 5
+  impactForce: 30
+  line: {fileID: 7012440213560653009, guid: 039abd0236e64184089d25facf47a938, type: 3}
+  laserBullet: {fileID: 1104828355081784, guid: 1807a854759e3934f80dccb5b8d775ff,
+    type: 3}
+  currentAmmo: 200
+  barrelPoint: {fileID: 7673992916662828114}
 --- !u!1 &7673992916662657150
 GameObject:
   m_ObjectHideFlags: 0
@@ -429,7 +575,7 @@ GameObject:
   - component: {fileID: 7673992916662828126}
   - component: {fileID: 7673992916665728112}
   - component: {fileID: 7673992916664598192}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: Gun_Tigger
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -508,7 +654,7 @@ GameObject:
   - component: {fileID: 7673992916760878402}
   - component: {fileID: 7673992916760878524}
   - component: {fileID: 7673992916760878403}
-  m_Layer: 5
+  m_Layer: 10
   m_Name: Text (2)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -581,7 +727,7 @@ GameObject:
   - component: {fileID: 7673992916787963637}
   - component: {fileID: 7673992916787963639}
   - component: {fileID: 7673992916787963638}
-  m_Layer: 5
+  m_Layer: 10
   m_Name: Text (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -658,7 +804,7 @@ GameObject:
   - component: {fileID: 7673992916953558425}
   - component: {fileID: 7673992916953558427}
   - component: {fileID: 7673992916953558426}
-  m_Layer: 5
+  m_Layer: 10
   m_Name: Text
   m_TagString: Untagged
   m_Icon: {fileID: 0}
