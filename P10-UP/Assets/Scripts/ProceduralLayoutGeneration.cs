@@ -135,48 +135,60 @@ public class ProceduralLayoutGeneration : MonoBehaviour
         {
             if (!portalDoors[i].isLocked)
             {
+                int randomEvent = Random.Range(0, 9);
                 Room portalDoorRoom = portalDoors[i].inRoom;
                 bool caseSelected = false;
                 int doorRoomID = portalDoorRoom.GetRoomID();
 
-                // Case 1 - Unlock with pressure plate
-                int checkLastXRooms = doorRoomID > 2 ? 3 : doorRoomID;
-
-                // Randomize input
-                List<Room> roomSlice = new List<Room>(4);
-                for (int j = 0; j < checkLastXRooms; j++)
+                if (randomEvent < 6)
                 {
-                    roomSlice.Add(rooms[doorRoomID - j]);
-                }
-                roomSlice.Randomize();
+                    // Case 1 - Unlock with pressure plate
+                    int checkLastXRooms = doorRoomID > 2 ? 3 : doorRoomID;
 
-                for (int j = 0; j < checkLastXRooms; j++)
-                {
-                    Grid doorRoomGrid = roomSlice[j].gameObject.GetComponent<Grid>();
-                    doorEventTiles.Clear();
-                    doorEventTiles.AddRange(doorRoomGrid.GetTilesAsList());
-                    doorEventTiles.Randomize();
-                    int tileCount = doorEventTiles.Count;
-                    for (int k = tileCount - 1; k >= 0; k--)
+                    // Randomize input
+                    List<Room> roomSlice = new List<Room>(4);
+                    for (int j = 0; j < checkLastXRooms; j++)
                     {
-                        if (!doorEventTiles[k].GetOccupied() && doorEventTiles[k].GetWalkable() && doorEventTiles[k].GetTileType() == TileGeneration.TileType.Event)
+                        roomSlice.Add(rooms[doorRoomID - j]);
+                    }
+                    roomSlice.Randomize();
+
+                    for (int j = 0; j < checkLastXRooms; j++)
+                    {
+                        Grid doorRoomGrid = roomSlice[j].gameObject.GetComponent<Grid>();
+                        doorEventTiles.Clear();
+                        doorEventTiles.AddRange(doorRoomGrid.GetTilesAsList());
+                        doorEventTiles.Randomize();
+                        int tileCount = doorEventTiles.Count;
+                        for (int k = tileCount - 1; k >= 0; k--)
                         {
-                            Debug.Log("Spawning a pressure plate for this door");
-                            caseSelected = true;
-                            List<Tile> spawner = new List<Tile>(1); // Very inefficient, should change later (SpawnObjectOnTile should be able to take just a single gameObject)
-                            spawner.Add(doorEventTiles[k]);
-                            GameObject pressurePlate = SpawnObjectOnTile(spawner, false, eventObjects[0], TileGeneration.TileType.Event, roomSlice[j], false);
-                            // Pair door and pressure plate
-                            portalDoors[i].Pair(DoorLock.DoorEvent.PressurePlate, pressurePlate);
-                            break;
+                            if (!doorEventTiles[k].GetOccupied() && doorEventTiles[k].GetWalkable() && doorEventTiles[k].GetTileType() == TileGeneration.TileType.Event)
+                            {
+                                caseSelected = true;
+                                List<Tile> spawner = new List<Tile>(1); // Very inefficient, should change later (SpawnObjectOnTile should be able to take just a single gameObject)
+                                spawner.Add(doorEventTiles[k]);
+                                GameObject pressurePlate = SpawnObjectOnTile(spawner, false, eventObjects[0], TileGeneration.TileType.Event, roomSlice[j], false);
+                                // Pair door and pressure plate
+                                portalDoors[i].Pair(DoorLock.DoorEvent.PressurePlate, pressurePlate);
+                                break;
+                            }
                         }
+                        if (caseSelected)
+                            break;
                     }
                     if (caseSelected)
-                        break;
+                        continue;
                 }
 
-                // Case 2 - Unlock by shooting a target
-
+                //// Case 2 - Unlock by shooting a target
+                //if (randomEvent >= 6)
+                //{
+                //    Debug.Log("I DESTROYED PORTAL DOOR " + i + " IN ROOM " + portalDoors[i].inRoom.gameObject.name);
+                //    Destroy(portalDoors[i].gameObject);
+                //    caseSelected = true;
+                //}
+                //if (caseSelected)
+                //    continue;
 
                 // Case 3 - Unlock with keycard
 
@@ -659,19 +671,15 @@ public class ProceduralLayoutGeneration : MonoBehaviour
         if (interactableObject != null)
         {
             interactableObject.inRoom = roomToSpawnIn;
-            Debug.Log("Interactable object " + objectOnTile.name + " spawned in room " + roomToSpawnIn.gameObject.name);
         }
         roomToSpawnIn.AddObjectToRoom(objectOnTile.transform, playerCollision);
         Vector2 spawnObjectCenter = Vector2.zero;
-        string s = "------------ NAN TEST: " + spawnObjectCenter + " -------------------\n";
         int tileCount = tilesToSpawnObjectOn.Count;
         for (int m = 0; m < tileCount; m++)
         {
             tilesToSpawnObjectOn[m].PlaceExistingObject(objectOnTile);
-            s += "center= " + spawnObjectCenter + " + " + tilesToSpawnObjectOn[m].GetPosition() + "\n";
             spawnObjectCenter += tilesToSpawnObjectOn[m].GetPosition();
         }
-        s += "center= " + spawnObjectCenter + " / tileCount " + tileCount;
         spawnObjectCenter /= tileCount;
         if (flipped)
         {
@@ -702,8 +710,6 @@ public class ProceduralLayoutGeneration : MonoBehaviour
                             }
                         }
                         GameObject randomInteractableOject = interactableObjects[Random.Range(0, interactableObjects.Length)];
-                        Debug.Log("Attempting to spawn " + randomInteractableOject.name + " on availableTiles=" +
-                                  availableTiles.Count);
                         SpawnObjectOnTile(availableTiles, false, randomInteractableOject, TileGeneration.TileType.Empty, roomToSpawnIn, true);
                     }
                 }
@@ -845,6 +851,7 @@ public class ProceduralLayoutGeneration : MonoBehaviour
         connectedPortal.SetActive(true);
         portal.SetActive(false);
         portal.gameObject.layer = differentRoomLayer;
+
         // Step 2: Update shader matrix for previous room with the connected portals transform
         previousRoom.gameObject.transform.parent = connectedPortal.transform;
         CustomUtilities.UpdateShaderMatrix(previousRoom.gameObject, connectedPortal.transform);
