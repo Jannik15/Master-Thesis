@@ -14,6 +14,7 @@ ANY KIND, either express or implied. See the License for the specific language g
 permissions and limitations under the License.
 ************************************************************************************/
 
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -73,6 +74,7 @@ public class OVRGrabber : MonoBehaviour
     protected Quaternion m_grabbedObjectRotOff;
 	protected Dictionary<OVRGrabbable, int> m_grabCandidates = new Dictionary<OVRGrabbable, int>();
 	protected bool m_operatingWithoutOVRCameraRig = true;
+    public event Action<GameObject, bool> objectGrabEvent;
 
     /// <summary>
     /// The currently grabbed object.
@@ -321,6 +323,9 @@ public class OVRGrabber : MonoBehaviour
             {
                 m_grabbedObj.transform.parent = transform;
             }
+
+            // Jannik addition: Interactable objects need to know they have been grabbed
+            objectGrabEvent?.Invoke(m_grabbedObj.gameObject, true);
         }
     }
 
@@ -360,10 +365,12 @@ public class OVRGrabber : MonoBehaviour
 			Vector3 angularVelocity = trackingSpace.orientation * OVRInput.GetLocalControllerAngularVelocity(m_controller);
 
             GrabbableRelease(linearVelocity, angularVelocity);
+
         }
 
         // Re-enable grab volumes to allow overlap events
         GrabVolumeEnable(true);
+        
     }
 
     protected void GrabbableRelease(Vector3 linearVelocity, Vector3 angularVelocity)
@@ -371,6 +378,10 @@ public class OVRGrabber : MonoBehaviour
         m_grabbedObj.GrabEnd(linearVelocity, angularVelocity);
         if(m_parentHeldObject) m_grabbedObj.transform.parent = null;
         SetPlayerIgnoreCollision(m_grabbedObj.gameObject, false);
+        // Jannik Addition: Send an event that a currently grabbed obj has been released
+        objectGrabEvent?.Invoke(m_grabbedObj.gameObject, false);
+
+
         m_grabbedObj = null;
     }
 

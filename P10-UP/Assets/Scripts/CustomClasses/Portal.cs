@@ -34,14 +34,14 @@ public class Portal : MonoBehaviour
         }
     }
 
-    public Room GetRoom()
-    {
-        return inRoom;
-    }
-
     public Renderer GetRenderer()
     {
         return renderers[0];
+    }
+
+    public Room GetRoom()
+    {
+        return inRoom;
     }
 
     public Room GetConnectedRoom()
