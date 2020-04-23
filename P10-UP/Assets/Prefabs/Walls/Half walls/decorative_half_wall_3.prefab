@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 1450288084426358865}
   - component: {fileID: 1450288084422942377}
   - component: {fileID: 1450288084423983127}
-  - component: {fileID: 4862784498611648819}
+  - component: {fileID: 908557937441816328}
   m_Layer: 0
   m_Name: decorative_half_wall_3
   m_TagString: Untagged
@@ -28,7 +28,7 @@ Transform:
   m_GameObject: {fileID: 1450288084426121803}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 1, y: 1, z: 0.5}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 0
@@ -80,8 +80,8 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
---- !u!64 &4862784498611648819
-MeshCollider:
+--- !u!65 &908557937441816328
+BoxCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -90,7 +90,6 @@ MeshCollider:
   m_Material: {fileID: 0}
   m_IsTrigger: 0
   m_Enabled: 1
-  serializedVersion: 3
-  m_Convex: 0
-  m_CookingOptions: 30
-  m_Mesh: {fileID: 4300000, guid: ce40e961651af434ca660d2d087505cb, type: 3}
+  serializedVersion: 2
+  m_Size: {x: 1, y: 0.55, z: 0.05842741}
+  m_Center: {x: 0, y: 0.275, z: 0.029213667}

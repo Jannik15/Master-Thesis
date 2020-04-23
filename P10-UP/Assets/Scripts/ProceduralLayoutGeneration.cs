@@ -18,7 +18,6 @@ public class ProceduralLayoutGeneration : MonoBehaviour
     [SerializeField] private GameObject[] interactableObjects;
     [SerializeField] private GameObject portalPrefab, portalDoorPrefab, depthClearer, keyCard;
     [SerializeField] private Shader currentRoomMask, otherRoomMask;
-    [SerializeField] private LayerMask currentRoomLayer, differentRoomLayer, defaultLayer;
 
     // Public non-inspector variables
     [HideInInspector] public List<GameObject> keysList;
@@ -40,7 +39,7 @@ public class ProceduralLayoutGeneration : MonoBehaviour
     private List<List<Vector2>> previousPortalZones = new List<List<Vector2>>();
     private List<List<List<Vector2>>> portalZones = new List<List<List<Vector2>>>();
     private int keyCardID;
-    
+    private int currentRoomLayer, differentRoomLayer, defaultLayer, interactionLayer, currentPortalLayer, differentPortalLayer;
 
     public void AdjustRoomAmount(int newRoomAmount)
     {
@@ -54,7 +53,17 @@ public class ProceduralLayoutGeneration : MonoBehaviour
         Generic,
         Event
     }
-    
+
+    private void Awake()
+    {
+        currentRoomLayer = LayerMask.NameToLayer("CurrentRoom");
+        differentRoomLayer = LayerMask.NameToLayer("DifferentRoom");
+        defaultLayer = LayerMask.NameToLayer("Default");
+        interactionLayer = LayerMask.NameToLayer("Interactable");
+        currentPortalLayer = LayerMask.NameToLayer("CurrentRoomPortal");
+        differentPortalLayer = LayerMask.NameToLayer("DifferentRoomPortal");
+    }
+
     private void Start() // To uncomment a demo block, simply put a '/' in front of the '/*'
     {
         /* Procedural generation
@@ -152,6 +161,7 @@ public class ProceduralLayoutGeneration : MonoBehaviour
                     {
                         if (!doorEventTiles[k].GetOccupied() && doorEventTiles[k].GetWalkable() && doorEventTiles[k].GetTileType() == TileGeneration.TileType.Event)
                         {
+                            Debug.Log("Spawning a pressure plate for this door");
                             caseSelected = true;
                             List<Tile> spawner = new List<Tile>(1); // Very inefficient, should change later (SpawnObjectOnTile should be able to take just a single gameObject)
                             spawner.Add(doorEventTiles[k]);
@@ -164,26 +174,27 @@ public class ProceduralLayoutGeneration : MonoBehaviour
                     if (caseSelected)
                         break;
                 }
-                if (caseSelected)
-                    break;
 
                 // Case 2 - Unlock by shooting a target
 
 
                 // Case 3 - Unlock with keycard
+
                 if (keysList.Count < rooms.Count / 4)
                 {
-                    int roomToSpawnKeyCardIn = Random.Range(math.clamp(1,doorRoomID, doorRoomID-5), doorRoomID);
+                    int roomToSpawnKeyCardIn = Random.Range(math.clamp(doorRoomID - 5, 1, doorRoomID), doorRoomID);
                     doorEventTiles.Clear();
-                    Grid keyCardGrid = rooms[roomToSpawnKeyCardIn].gameObject.GetComponent<Grid>();
-                    for (int j = 0; j < keyCardGrid.GetTilesAsList().Count; j++)
+                    doorEventTiles.AddRange(rooms[roomToSpawnKeyCardIn].gameObject.GetComponent<Grid>().GetTilesAsList());
+                    int doorEventTilesCount = doorEventTiles.Count;
+                    Debug.Log(doorEventTilesCount);
+                    for (int j = doorEventTilesCount - 1; j >= 0; j--)
                     {
-                        if (keyCardGrid.GetTilesAsList()[j].GetWalkable() && !keyCardGrid.GetTilesAsList()[j].GetOccupied())
+                        if (!doorEventTiles[j].GetWalkable() || doorEventTiles[j].GetOccupied())
                         {
-                            doorEventTiles.Add(keyCardGrid.GetTilesAsList()[j]);
+                            doorEventTiles.RemoveAt(j);
                         }
                     }
-
+                    Debug.Log("Trying to spawn a keyCard in room " + rooms[roomToSpawnKeyCardIn].gameObject.name + " and there are " + doorEventTiles.Count + " available tiles.");
                     int keyCardTileIndex = Random.Range(0, doorEventTiles.Count);
                     keyCardToSpawn = doorEventTiles[keyCardTileIndex].PlaceObject(keyCard, rooms[roomToSpawnKeyCardIn].gameObject.transform);
                     rooms[roomToSpawnKeyCardIn].AddObjectToRoom(keyCardToSpawn.transform, true);
@@ -210,7 +221,7 @@ public class ProceduralLayoutGeneration : MonoBehaviour
         }
         for (int i = 1; i < roomID + 1; i++)
         {
-            rooms[i].SetLayer(CustomUtilities.LayerMaskToLayer(differentRoomLayer), CustomUtilities.LayerMaskToLayer(differentRoomLayer));
+            rooms[i].SetLayer(differentRoomLayer, differentRoomLayer);
         }
         roomID = 0;
         currentRoom = rooms[roomID];
@@ -644,14 +655,23 @@ public class ProceduralLayoutGeneration : MonoBehaviour
     private GameObject SpawnObjectOnTile(List<Tile> tilesToSpawnObjectOn, bool flipped, GameObject objectToSpawn, TileGeneration.TileType objectType, Room roomToSpawnIn, bool playerCollision)
     {
         GameObject objectOnTile = Instantiate(objectToSpawn, Vector3.zero, objectToSpawn.transform.rotation, roomToSpawnIn.gameObject.transform);
+        InteractableObject interactableObject = objectOnTile.GetComponentInChildren<InteractableObject>();
+        if (interactableObject != null)
+        {
+            interactableObject.inRoom = roomToSpawnIn;
+            Debug.Log("Interactable object " + objectOnTile.name + " spawned in room " + roomToSpawnIn.gameObject.name);
+        }
         roomToSpawnIn.AddObjectToRoom(objectOnTile.transform, playerCollision);
         Vector2 spawnObjectCenter = Vector2.zero;
+        string s = "------------ NAN TEST: " + spawnObjectCenter + " -------------------\n";
         int tileCount = tilesToSpawnObjectOn.Count;
         for (int m = 0; m < tileCount; m++)
         {
             tilesToSpawnObjectOn[m].PlaceExistingObject(objectOnTile);
+            s += "center= " + spawnObjectCenter + " + " + tilesToSpawnObjectOn[m].GetPosition() + "\n";
             spawnObjectCenter += tilesToSpawnObjectOn[m].GetPosition();
         }
+        s += "center= " + spawnObjectCenter + " / tileCount " + tileCount;
         spawnObjectCenter /= tileCount;
         if (flipped)
         {
@@ -669,28 +689,21 @@ public class ProceduralLayoutGeneration : MonoBehaviour
                     if (eventBase.eventType.thisEventType == EventObjectType.ThisType.PressurePlate)
                     {
                         List<Tile> availableTiles = new List<Tile>();
-                        if (tilesToSpawnObjectOn.Count > 1)
+                        availableTiles.AddRange(rooms[Random.Range(roomToSpawnIn.GetRoomID() - 1, roomToSpawnIn.GetRoomID() + 1)].roomGrid.GetTilesAsList());
+                        int availableTilesCount = availableTiles.Count;
+                        for (int i = availableTilesCount - 1; i >= 0; i--)
                         {
-                            for (int i = 0; i < tilesToSpawnObjectOn.Count; i++)
+                            if (!availableTiles[i].GetOccupied() && availableTiles[i].GetWalkable())
                             {
-                                if (!tilesToSpawnObjectOn[i].GetOccupied())
-                                {
-                                    availableTiles.Add(tilesToSpawnObjectOn[i]);
-                                }
-                            }
-                        }
-
-                        if (availableTiles.Count == 0)
-                        {
-                            for (int i = 0; i < gridTiles.Count; i++)
-                            {
-                                if (!gridTiles[i].GetOccupied())
-                                {
-                                    availableTiles.Add(gridTiles[i]);
-                                }
+                                Tile availableTile = availableTiles[i];
+                                availableTiles.Clear();
+                                availableTiles.Add(availableTile);
+                                break;
                             }
                         }
                         GameObject randomInteractableOject = interactableObjects[Random.Range(0, interactableObjects.Length)];
+                        Debug.Log("Attempting to spawn " + randomInteractableOject.name + " on availableTiles=" +
+                                  availableTiles.Count);
                         SpawnObjectOnTile(availableTiles, false, randomInteractableOject, TileGeneration.TileType.Empty, roomToSpawnIn, true);
                     }
                 }
@@ -720,18 +733,18 @@ public class ProceduralLayoutGeneration : MonoBehaviour
         {
             previousRoom.gameObject.transform.parent = currentPortal.transform;
         }
-        previousRoom.SetLayer(CustomUtilities.LayerMaskToLayer(differentRoomLayer), CustomUtilities.LayerMaskToLayer(differentRoomLayer));
+        previousRoom.SetLayer(differentRoomLayer, differentRoomLayer);
         for (int i = 0; i < previousRoom.GetPortalsInRoom().Count; i++)
         {
             if (previousRoom.GetPortalsInRoom()[i] != currentPortal)
             {
-                previousRoom.GetPortalsInRoom()[i].gameObject.layer = CustomUtilities.LayerMaskToLayer(differentRoomLayer);
+                previousRoom.GetPortalsInRoom()[i].gameObject.layer = differentPortalLayer;
             }
         }
-        currentRoom.SetLayer(CustomUtilities.LayerMaskToLayer(currentRoomLayer), CustomUtilities.LayerMaskToLayer(defaultLayer));
+        currentRoom.SetLayer(currentRoomLayer, defaultLayer);
         for (int i = 0; i < currentRoom.GetPortalsInRoom().Count; i++)
         {
-            currentRoom.GetPortalsInRoom()[i].gameObject.layer = CustomUtilities.LayerMaskToLayer(currentRoomLayer);
+            currentRoom.GetPortalsInRoom()[i].gameObject.layer = currentPortalLayer;
         }
         portalsInCurrentRoom.Clear();
 
@@ -831,7 +844,7 @@ public class ProceduralLayoutGeneration : MonoBehaviour
         Portal connectedPortal = portal.GetConnectedPortal();
         connectedPortal.SetActive(true);
         portal.SetActive(false);
-        portal.gameObject.layer = CustomUtilities.LayerMaskToLayer(differentRoomLayer);
+        portal.gameObject.layer = differentRoomLayer;
         // Step 2: Update shader matrix for previous room with the connected portals transform
         previousRoom.gameObject.transform.parent = connectedPortal.transform;
         CustomUtilities.UpdateShaderMatrix(previousRoom.gameObject, connectedPortal.transform);
