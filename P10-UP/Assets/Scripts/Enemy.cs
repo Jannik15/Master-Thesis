@@ -15,9 +15,24 @@ public class Enemy : MonoBehaviour
         }
     }
 
+    public void InteractableTarget()
+    {
+        OpenDoor();
+    }
+
     void Die()
     {
-        Destroy(gameObject);
+        Destroy(gameObject, 1f);
+    }
+
+    void Disable()
+    {
+
+    }
+
+    void OpenDoor()
+    {
+
     }
 
 }

@@ -1590,6 +1590,7 @@ GameObject:
   - component: {fileID: 1752234754871666534}
   - component: {fileID: 787301087660979353}
   - component: {fileID: 8131603281725115102}
+  - component: {fileID: 7668959539586217732}
   m_Layer: 0
   m_Name: ButtonHolder
   m_TagString: Untagged
@@ -1604,9 +1605,9 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6282803705081825775}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0.0984, y: 0, z: -0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -0.1377, y: 0.0001, z: 0.002}
+  m_LocalScale: {x: 0.04273925, y: 0.06721803, z: 0.05815286}
   m_Children: []
   m_Father: {fileID: 4096265623516657254}
   m_RootOrder: 1
@@ -1649,6 +1650,45 @@ MeshCollider:
   m_Convex: 1
   m_CookingOptions: 30
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!23 &7668959539586217732
+MeshRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6282803705081825775}
+  m_Enabled: 0
+  m_CastShadows: 1
+  m_ReceiveShadows: 1
+  m_DynamicOccludee: 1
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 2
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 0}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 3
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
 --- !u!1 &7743166612119743998
 GameObject:
   m_ObjectHideFlags: 0
@@ -1736,6 +1776,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 810a48751873d2c46906dd5282c25e03, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  x: 0
+  y: 1
+  z: 1
   isLocked: 0
   isOpen: 0
   buttonTrigger: {fileID: 3277854828748745655}
@@ -1979,7 +2022,7 @@ Rigidbody:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7743166612119743998}
   serializedVersion: 2
-  m_Mass: 1
+  m_Mass: 0.1
   m_Drag: 0
   m_AngularDrag: 0
   m_UseGravity: 1
@@ -1995,18 +2038,18 @@ SpringJoint:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7743166612119743998}
   m_ConnectedBody: {fileID: 1752234754871666534}
-  m_Anchor: {x: 0.5, y: 0, z: 0}
+  m_Anchor: {x: 0.018, y: 0, z: 0}
   m_AutoConfigureConnectedAnchor: 0
-  m_ConnectedAnchor: {x: 0.03399989, y: 0.033708945, z: 0.0017002225}
+  m_ConnectedAnchor: {x: 0.1, y: 0, z: 0}
   serializedVersion: 2
-  m_Spring: 10
-  m_Damper: 0.2
+  m_Spring: 100
+  m_Damper: 3.3
   m_MinDistance: 0
   m_MaxDistance: 0
   m_Tolerance: 0.025
   m_BreakForce: Infinity
   m_BreakTorque: Infinity
-  m_EnableCollision: 0
+  m_EnableCollision: 1
   m_EnablePreprocessing: 1
   m_MassScale: 1
   m_ConnectedMassScale: 1
