@@ -5,6 +5,15 @@ using UnityEngine;
 
 public class DoorLock : MonoBehaviour
 {
+
+    [Header("Freeze Local Position")]
+    [SerializeField]
+    bool x;
+    [SerializeField]
+    bool y;
+    [SerializeField]
+    bool z;
+
     public enum DoorEvent
     {
         Unlocked,
@@ -25,8 +34,12 @@ public class DoorLock : MonoBehaviour
     private ProceduralLayoutGeneration layoutGeneration;
     private PlayerInteractions playerInteractions;
 
+    Vector3 localPosition0;    //original local position
+
     void Awake()
     {
+        SetOriginalLocalPosition();
+
         minDistance = Vector3.Distance(buttonTrigger.transform.position, transform.position);
         maxDistance = buttonTrigger.transform.position.x;
         originalPosition = transform.position;
@@ -48,15 +61,43 @@ public class DoorLock : MonoBehaviour
             transform.position = new Vector3(maxDistance, transform.position.y, transform.position.z);
         }
 
-        if (rb)
-        {
-            Vector3 localVelocity = transform.InverseTransformDirection(rb.velocity);
-            localVelocity.y = 0;
-            localVelocity.z = 0;
+        //if (rb)
+        //{
+        //    Vector3 localVelocity = transform.InverseTransformDirection(rb.velocity);
+        //    localVelocity.y = 0;
+        //    localVelocity.z = 0;
 
-            rb.velocity = transform.TransformDirection(localVelocity);
-        }
+        //    rb.velocity = transform.TransformDirection(localVelocity);
+        //}
+
+        float x, y, z;
+
+
+        if (this.x)
+            x = localPosition0.x;
+        else
+            x = transform.localPosition.x;
+
+        if (this.y)
+            y = localPosition0.y;
+        else
+            y = transform.localPosition.y;
+
+        if (this.z)
+            z = localPosition0.z;
+        else
+            z = transform.localPosition.z;
+
+
+        transform.localPosition = new Vector3(x, y, z);
+
     }
+
+    public void SetOriginalLocalPosition()
+    {
+        localPosition0 = transform.localPosition;
+    }
+
 
     public void Pair(DoorEvent doorEvent, GameObject pairedObject)
     {
