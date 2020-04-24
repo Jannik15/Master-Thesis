@@ -144,11 +144,37 @@ public class Room
     {
         for (int i = 0; i < noPlayerCollisionObjectsInRoom.Count; i++)
         {
-            noPlayerCollisionObjectsInRoom[i].gameObject.layer = layerForNoPlayerCollisionObjects;
+            if (noPlayerCollisionObjectsInRoom[i] != null)
+            {
+                noPlayerCollisionObjectsInRoom[i].gameObject.layer = layerForNoPlayerCollisionObjects;
+            }
+            else
+            {
+                Debug.Log("You forgot to remove an object from the room that is set to not collide with the player!");
+            }
         }
         for (int i = 0; i < playerCollisionObjectsInRoom.Count; i++)
         {
-            playerCollisionObjectsInRoom[i].gameObject.layer = layerForPlayerCollisionObjects;
+            if (playerCollisionObjectsInRoom[i] != null)
+            {
+                playerCollisionObjectsInRoom[i].gameObject.layer = layerForPlayerCollisionObjects;
+            }
+            else
+            {
+                Debug.Log("You forgot to remove an object from the room that is set to collide with the player!");
+            }
+        }
+        Transform[] allChildren = gameObject.GetComponentsInChildren<Transform>();
+        for (int i = 0; i < allChildren.Length; i++)
+        {
+            if (!playerCollisionObjectsInRoom.Contains(allChildren[i]) &&
+                !noPlayerCollisionObjectsInRoom.Contains(allChildren[i]))
+            {
+                allChildren[i].gameObject.layer = layerForNoPlayerCollisionObjects;
+                Debug.Log(allChildren[i].gameObject.name + " was not assigned to room " + gameObject.name + " but is a child of it!");
+            }
+        
+
         }
     } 
 }

@@ -11,8 +11,6 @@ public class DebugWindow : MonoBehaviour
     public GameObject debugPanel;
     private ScrollRect scrollRect;
 
-    public GameObject testPrefab;
-
     void Awake()
     {
         //if (OVRInput.IsControllerConnected(OVRInput.Controller.RTrackedRemote))

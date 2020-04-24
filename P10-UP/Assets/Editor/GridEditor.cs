@@ -8,8 +8,6 @@ using Random = UnityEngine.Random;
 
 public class GridEditor : EditorWindow
 {
-    // TODO:    - Add bool for changing materials with selection from the container, or just the entire library (nice to have)
-    // TODO:    - Window resizing (empty space on the right side)
     // TODO:    - Loading a grid? (Out of scope)
 
     // Class references

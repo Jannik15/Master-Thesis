@@ -53,6 +53,7 @@ public class TileGeneration
         if (type == TileType.Empty)
         {
             this.material = Resources.Load<Material>("EmptyTile");
+            isWalkable = false;
         }
     }
 
