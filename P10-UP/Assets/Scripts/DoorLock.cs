@@ -22,7 +22,8 @@ public class DoorLock : MonoBehaviour
         KeyCard
     }
     public bool isLocked, isOpen;
-    public GameObject buttonTrigger;
+    public Transform button;
+    public Transform buttonTrigger;
     public Room inRoom;
     private Vector3 originalPosition;
     private Rigidbody rb;
@@ -33,69 +34,76 @@ public class DoorLock : MonoBehaviour
     public EventObjectBase pairedPressurePlate;
     private ProceduralLayoutGeneration layoutGeneration;
     private PlayerInteractions playerInteractions;
+    [SerializeField] private Transform buttonGroup;
 
     Vector3 localPosition0;    //original local position
 
     void Awake()
     {
-        SetOriginalLocalPosition();
-
-        minDistance = Vector3.Distance(buttonTrigger.transform.position, transform.position);
-        maxDistance = buttonTrigger.transform.position.x;
-        originalPosition = transform.position;
-
-        rb = GetComponent<Rigidbody>();
         doorAnimator = GetComponentInParent<Animator>();
         layoutGeneration = FindObjectOfType<ProceduralLayoutGeneration>();
         playerInteractions = FindObjectOfType<PlayerInteractions>();
+
+        if (buttonTrigger != null)
+        {
+            SetOriginalLocalPosition();
+            minDistance = Vector3.Distance(buttonTrigger.position, button.position);
+            maxDistance = buttonTrigger.position.x;
+            originalPosition = button.position;
+
+            rb = button.GetComponent<Rigidbody>();
+        }
     }
 
     void Update()
     {
-        if (Vector3.Distance(buttonTrigger.transform.position, transform.position) >= minDistance)
+        if (buttonTrigger != null)
         {
-            transform.position = originalPosition;
+            if (Vector3.Distance(buttonTrigger.position, button.position) >= minDistance)
+            {
+                button.position = originalPosition;
+            }
+            if (button.position.x <= maxDistance)
+            {
+                button.position = new Vector3(maxDistance, button.position.y, button.position.z);
+            }
+
+            //if (rb)
+            //{
+            //    Vector3 localVelocity = button.transform.InverseTransformDirection(rb.velocity);
+            //    localVelocity.y = 0;
+            //    localVelocity.z = 0;
+
+            //    rb.velocity = button.transform.TransformDirection(localVelocity);
+            //}
+
+            float x, y, z;
+
+
+            if (this.x)
+                x = localPosition0.x;
+            else
+                x = button.transform.localPosition.x;
+
+            if (this.y)
+                y = localPosition0.y;
+            else
+                y = button.transform.localPosition.y;
+
+            if (this.z)
+                z = localPosition0.z;
+            else
+                z = button.transform.localPosition.z;
+
+
+            button.transform.localPosition = new Vector3(x, y, z);
         }
-        if (transform.position.x <= maxDistance)
-        {
-            transform.position = new Vector3(maxDistance, transform.position.y, transform.position.z);
-        }
-
-        //if (rb)
-        //{
-        //    Vector3 localVelocity = transform.InverseTransformDirection(rb.velocity);
-        //    localVelocity.y = 0;
-        //    localVelocity.z = 0;
-
-        //    rb.velocity = transform.TransformDirection(localVelocity);
-        //}
-
-        float x, y, z;
-
-
-        if (this.x)
-            x = localPosition0.x;
-        else
-            x = transform.localPosition.x;
-
-        if (this.y)
-            y = localPosition0.y;
-        else
-            y = transform.localPosition.y;
-
-        if (this.z)
-            z = localPosition0.z;
-        else
-            z = transform.localPosition.z;
-
-
-        transform.localPosition = new Vector3(x, y, z);
 
     }
 
     public void SetOriginalLocalPosition()
     {
-        localPosition0 = transform.localPosition;
+        localPosition0 = button.transform.localPosition;
     }
 
 
@@ -142,6 +150,13 @@ public class DoorLock : MonoBehaviour
 
                 break;
         }
+    }
+
+    public void RemoveButton()
+    {
+        inRoom.RemoveObjectFromRoom(buttonGroup);
+        Destroy(buttonGroup.gameObject);
+
     }
 
     public void OpenDoor()

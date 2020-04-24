@@ -44,6 +44,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1179573195847294740}
   - component: {fileID: 7743166612171055313}
+  - component: {fileID: 1967810101632054604}
   m_Layer: 0
   m_Name: DoorWithLock
   m_TagString: PortalObjects
@@ -87,6 +88,28 @@ Animator:
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorControllerStateOnDisable: 0
+--- !u!114 &1967810101632054604
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1179573195847189300}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 810a48751873d2c46906dd5282c25e03, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  x: 0
+  y: 1
+  z: 1
+  isLocked: 0
+  isOpen: 0
+  button: {fileID: 2441071847795812328}
+  buttonTrigger: {fileID: 6188573162005090005}
+  lockEvent: 0
+  pairedKeyCard: {fileID: 0}
+  pairedPressurePlate: {fileID: 0}
 --- !u!1 &1179573195847189302
 GameObject:
   m_ObjectHideFlags: 0
@@ -1699,7 +1722,6 @@ GameObject:
   m_Component:
   - component: {fileID: 2441071847795812328}
   - component: {fileID: 7743166612119743997}
-  - component: {fileID: 7743166612119743995}
   - component: {fileID: 3021979592191686360}
   - component: {fileID: 276729091581787441}
   - component: {fileID: 7685385560487597097}
@@ -1764,27 +1786,6 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
---- !u!114 &7743166612119743995
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7743166612119743998}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 810a48751873d2c46906dd5282c25e03, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  x: 0
-  y: 1
-  z: 1
-  isLocked: 0
-  isOpen: 0
-  buttonTrigger: {fileID: 3277854828748745655}
-  lockEvent: 0
-  pairedKeyCard: {fileID: 0}
-  pairedPressurePlate: {fileID: 0}
 --- !u!65 &3021979592191686360
 BoxCollider:
   m_ObjectHideFlags: 0

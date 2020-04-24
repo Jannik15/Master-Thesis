@@ -149,10 +149,15 @@ public class ProceduralLayoutGeneration : MonoBehaviour
                     List<Room> roomSlice = new List<Room>(4);
                     for (int j = 0; j < checkLastXRooms; j++)
                     {
-                        roomSlice.Add(rooms[doorRoomID - j]);
+                        EventObjectBase eventInRoom = rooms[doorRoomID - j].gameObject.GetComponentInChildren<EventObjectBase>();
+                        if (!eventInRoom || eventInRoom.eventType.thisEventType != EventObjectType.ThisType.PressurePlate)
+                        {
+                            roomSlice.Add(rooms[doorRoomID - j]);
+                        }
                     }
                     roomSlice.Randomize();
 
+                    checkLastXRooms = roomSlice.Count;
                     for (int j = 0; j < checkLastXRooms; j++)
                     {
                         Grid doorRoomGrid = roomSlice[j].gameObject.GetComponent<Grid>();
@@ -184,21 +189,19 @@ public class ProceduralLayoutGeneration : MonoBehaviour
                 //if (randomEvent >= 6)
                 //{
                 //    Debug.Log("I DESTROYED PORTAL DOOR " + i + " IN ROOM " + portalDoors[i].inRoom.gameObject.name);
-                //    Destroy(portalDoors[i].gameObject);
+                //    portalDoors[i].RemoveButton();
                 //    caseSelected = true;
                 //}
                 //if (caseSelected)
                 //    continue;
 
                 // Case 3 - Unlock with keycard
-
-                if (keysList.Count < rooms.Count / 4)
+                if (keysList.Count < rooms.Count)
                 {
                     int roomToSpawnKeyCardIn = Random.Range(math.clamp(doorRoomID - 5, 1, doorRoomID), doorRoomID);
                     doorEventTiles.Clear();
                     doorEventTiles.AddRange(rooms[roomToSpawnKeyCardIn].gameObject.GetComponent<Grid>().GetTilesAsList());
                     int doorEventTilesCount = doorEventTiles.Count;
-                    Debug.Log(doorEventTilesCount);
                     for (int j = doorEventTilesCount - 1; j >= 0; j--)
                     {
                         if (!doorEventTiles[j].GetWalkable() || doorEventTiles[j].GetOccupied())
@@ -206,7 +209,6 @@ public class ProceduralLayoutGeneration : MonoBehaviour
                             doorEventTiles.RemoveAt(j);
                         }
                     }
-                    Debug.Log("Trying to spawn a keyCard in room " + rooms[roomToSpawnKeyCardIn].gameObject.name + " and there are " + doorEventTiles.Count + " available tiles.");
                     int keyCardTileIndex = Random.Range(0, doorEventTiles.Count);
                     keyCardToSpawn = doorEventTiles[keyCardTileIndex].PlaceObject(keyCard, rooms[roomToSpawnKeyCardIn].gameObject.transform);
                     rooms[roomToSpawnKeyCardIn].AddObjectToRoom(keyCardToSpawn.transform, true);
