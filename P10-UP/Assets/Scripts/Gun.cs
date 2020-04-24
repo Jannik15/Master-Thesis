@@ -12,6 +12,7 @@ public class Gun : MonoBehaviour
     public float impactForce = 30f;
     public GameObject line, laserBullet;
     public int currentAmmo = 200;
+    public LayerMask layerMask;
 
     public Transform barrelPoint;
 
@@ -34,9 +35,10 @@ public class Gun : MonoBehaviour
        if (currentAmmo > 0)
        {
            RaycastHit hit;
-           bool hasHit = Physics.Raycast(barrelPoint.position, barrelPoint.right, out hit, range);
-           if (Physics.Raycast(barrelPoint.position, barrelPoint.right, out hit, range))
+           bool hasHit = Physics.Raycast(barrelPoint.position, barrelPoint.right, out hit, range, layerMask);
+           if (Physics.Raycast(barrelPoint.position, barrelPoint.right, out hit, range, layerMask))
            {
+               Debug.Log(hit.transform.gameObject);
                Enemy enemy = hit.transform.GetComponent<Enemy>();
                if (enemy != null && enemy.transform.tag == "Enemy")
                {
@@ -44,7 +46,8 @@ public class Gun : MonoBehaviour
                } 
                else if (enemy != null && enemy.transform.tag == "InteractableTarget")
                {
-                    enemy.InteractableTarget();
+                    enemy.InteractableTarget(hit.transform.gameObject);
+                    Debug.Log("I hit an Interactable target with my Pistol, it was " + hit.transform.gameObject);
                }
 
                if (hit.rigidbody != null)

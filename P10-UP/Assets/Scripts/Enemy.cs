@@ -3,8 +3,16 @@ using UnityEngine;
 
 public class Enemy : MonoBehaviour
 {
+    private Room inRoom;
 
     public float Health = 10f;
+
+
+    public void AssignRoom(Room room, bool playerCanCollide)
+    {
+        this.inRoom = room;
+        room.AddObjectToRoom(transform, playerCanCollide);
+    }
 
     public void TakeDamage(float amount)
     {
@@ -15,13 +23,20 @@ public class Enemy : MonoBehaviour
         }
     }
 
-    public void InteractableTarget()
+    public void InteractableTarget(GameObject target)
     {
-        OpenDoor();
+        if (target.GetComponent<EventObjectBase>() != null)
+        {
+            target.GetComponent<EventObjectBase>().TargetShot();
+        }
     }
 
     void Die()
     {
+        if (inRoom != null)
+        {
+            inRoom.RemoveObjectFromRoom(gameObject.transform);
+        }
         Destroy(gameObject, 1f);
     }
 
