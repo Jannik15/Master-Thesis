@@ -31,7 +31,7 @@ public class DoorLock : MonoBehaviour
     private float minDistance, maxDistance;
     public DoorEvent lockEvent;
     public GameObject pairedKeyCard;
-    public EventObjectBase pairedPressurePlate;
+    public EventObjectBase pairedEvent;
     private ProceduralLayoutGeneration layoutGeneration;
     private PlayerInteractions playerInteractions;
     [SerializeField] private Transform buttonGroup;
@@ -98,7 +98,6 @@ public class DoorLock : MonoBehaviour
 
             button.transform.localPosition = new Vector3(x, y, z);
         }
-
     }
 
     public void SetOriginalLocalPosition()
@@ -111,17 +110,14 @@ public class DoorLock : MonoBehaviour
     {
         lockEvent = doorEvent;
         isLocked = true;
-        switch (doorEvent)
+        if (doorEvent == DoorEvent.KeyCard)
         {
-            case DoorEvent.PressurePlate:
-                pairedPressurePlate = pairedObject.GetComponentInChildren<EventObjectBase>();
-                pairedPressurePlate.connectedDoor = this;
-                break;
-            case DoorEvent.ShootTarget:
-                break;
-            case DoorEvent.KeyCard:
-                pairedKeyCard = pairedObject;
-                break;
+            pairedKeyCard = pairedObject;
+        }
+        else
+        {
+            pairedEvent = pairedObject.GetComponentInChildren<EventObjectBase>();
+            pairedEvent.connectedDoor = this;
         }
     }
 

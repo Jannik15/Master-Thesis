@@ -185,15 +185,28 @@ public class ProceduralLayoutGeneration : MonoBehaviour
                         continue;
                 }
 
-                //// Case 2 - Unlock by shooting a target
-                //if (randomEvent >= 6)
-                //{
-                //    Debug.Log("I DESTROYED PORTAL DOOR " + i + " IN ROOM " + portalDoors[i].inRoom.gameObject.name);
-                //    portalDoors[i].RemoveButton();
-                //    caseSelected = true;
-                //}
-                //if (caseSelected)
-                //    continue;
+                // Case 2 - Unlock by shooting a target
+                if (randomEvent >= 6)
+                {
+                    // Remove button since target should control the door lock
+                    portalDoors[i].RemoveButton();
+
+                    // Instantiate target and place it at the top front of the door
+                    GameObject shootTarget = Instantiate(eventObjects[1], Vector3.zero, Quaternion.identity);
+                    shootTarget.transform.parent = portalDoors[i].transform.parent;
+                    shootTarget.transform.position = portalDoors[i].transform.position;
+                    shootTarget.transform.localPosition = new Vector3(shootTarget.transform.localPosition.x, 1, -0.13f);
+                    shootTarget.transform.eulerAngles = portalDoors[i].transform.rotation.eulerAngles;
+                    shootTarget.transform.eulerAngles += new Vector3(0, 90, 0);
+
+                    // Pair and assign room
+                    portalDoors[i].Pair(DoorLock.DoorEvent.ShootTarget, shootTarget);
+                    EventObjectBase shootTargetEvent = shootTarget.GetComponentInChildren<EventObjectBase>();
+                    shootTargetEvent.AssignRoom(portalDoors[i].inRoom, false);
+                    caseSelected = true;
+                }
+                if (caseSelected)
+                    continue;
 
                 // Case 3 - Unlock with keycard
                 if (keysList.Count < rooms.Count)

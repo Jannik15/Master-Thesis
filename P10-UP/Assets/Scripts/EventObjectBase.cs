@@ -44,4 +44,16 @@ public class EventObjectBase : MonoBehaviour
                 break;
         }
     }
+
+    public void AssignRoom(Room room, bool playerCanCollide)
+    {
+        this.room = room;
+        room.AddObjectToRoom(transform, playerCanCollide);
+    }
+
+    public void TargetShot() // TODO: Add logic for calling when target is shot 
+    {
+        connectedDoor.isLocked = false;
+        connectedDoor.OpenDoor();
+    }
 }
