@@ -83,10 +83,12 @@ public class TileGeneration
 
     public Texture GetMaterialTexture()
     {
+#if UNITY_EDITOR
         if (tilePrefab != null)
         {
             return AssetPreview.GetAssetPreview(tilePrefab);
         }
+#endif
         return material.mainTexture;
     }
 
