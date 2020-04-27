@@ -18,7 +18,7 @@ public class Room
         portalsInRoom = new List<Portal>();
         portalsToRoom = new List<Portal>();
 
-        noPlayerCollisionObjectsInRoom.AddRange(gameObject.GetComponentsInChildren<Transform>());
+        playerCollisionObjectsInRoom.AddRange(gameObject.GetComponentsInChildren<Transform>());
     }
 
     public void UpdateRoomStencil(Transform portal, int newStencilValue, int renderQueue)
@@ -132,10 +132,6 @@ public class Room
             else
             {
                 Debug.Log("Attempted to remove " + objectToRemove.name + " from Room " + gameObject.name + " but that object was not found in the rooms object list.");
-                for (int j = 0; j < playerCollisionObjectsInRoom.Count; j++)
-                {
-                    Debug.Log(playerCollisionObjectsInRoom[j] + "==" + objectToRemoveAndItsChildren[i]);
-                }
             }
         }
     }

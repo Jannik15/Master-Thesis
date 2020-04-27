@@ -515,7 +515,6 @@ GameObject:
   m_Component:
   - component: {fileID: 1728271605461474169}
   - component: {fileID: 1728271605449159327}
-  - component: {fileID: 1728271605450417911}
   - component: {fileID: 1728271605450515369}
   - component: {fileID: 2843279031180814423}
   - component: {fileID: 2843279031180814418}
@@ -560,22 +559,6 @@ CharacterController:
   m_SkinWidth: 0.01
   m_MinMoveDistance: 0
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &1728271605450417911
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1728271605461370711}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4f07515ada089df47868559a20dd6783, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  quitKey: 27
-  fadeInTexture: {fileID: 0}
-  speedRotationIncrement: 0.05
-  layerName: Default
 --- !u!114 &1728271605450515369
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3386,6 +3369,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d7f9eaa981f008f42a1fefe497130b1d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  gunScript: {fileID: 0}
   layerMask:
     serializedVersion: 2
     m_Bits: 3072
@@ -3409,6 +3393,7 @@ MonoBehaviour:
   gun: {fileID: 0}
   currentGunRight: {fileID: 0}
   currentGunLeft: {fileID: 0}
+  fireRate: 3
 --- !u!1 &4150980294577550789
 GameObject:
   m_ObjectHideFlags: 0
@@ -4895,6 +4880,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d7f9eaa981f008f42a1fefe497130b1d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  gunScript: {fileID: 0}
   layerMask:
     serializedVersion: 2
     m_Bits: 3072
@@ -4918,6 +4904,7 @@ MonoBehaviour:
   gun: {fileID: 0}
   currentGunRight: {fileID: 0}
   currentGunLeft: {fileID: 0}
+  fireRate: 3
 --- !u!1 &4150980295220435969
 GameObject:
   m_ObjectHideFlags: 0

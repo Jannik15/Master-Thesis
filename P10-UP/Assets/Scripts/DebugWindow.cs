@@ -6,20 +6,17 @@ public class DebugWindow : MonoBehaviour
 {
     private string _dLog;
     private Queue _dLogQueue = new Queue();
-    private bool active;
     public Text debugText;
     public GameObject debugPanel;
     private ScrollRect scrollRect;
 
-    void Awake()
+    private void Awake()
     {
-        //if (OVRInput.IsControllerConnected(OVRInput.Controller.RTrackedRemote))
-        active = true;
-
-        if (!active || debugText == null)
+        if (debugText == null)
             return;
 
-        scrollRect = debugText.gameObject.GetComponent<ScrollRect>();
+        if (debugText.GetComponent<ScrollRect>() != null)
+            scrollRect = debugText.gameObject.GetComponent<ScrollRect>();
         InvokeRepeating("CustomUpdate", 1.0f, 3.0f);
     }
 
@@ -63,20 +60,18 @@ public class DebugWindow : MonoBehaviour
                 debugPanel.SetActive(!debugPanel.activeSelf);
         }
 
-        if (OVRInput.GetDown(OVRInput.Button.SecondaryThumbstickUp))
-            ScrollToTop();
-        else if (OVRInput.GetDown(OVRInput.Button.SecondaryThumbstickDown))
-            ScrollToBottom();
-    }
-
-    public void ScrollToTop()
-    {
-        if (scrollRect.normalizedPosition.y >= 0 && scrollRect.normalizedPosition.y <= 1)
-            scrollRect.normalizedPosition = new Vector2(scrollRect.normalizedPosition.x, scrollRect.normalizedPosition.y + 0.05f * Time.deltaTime);
-    }
-    public void ScrollToBottom()
-    {
-        if (scrollRect.normalizedPosition.y >= 0 && scrollRect.normalizedPosition.y <= 1)
-            scrollRect.normalizedPosition = new Vector2(scrollRect.normalizedPosition.x, scrollRect.normalizedPosition.y - 0.05f * Time.deltaTime);
+        if (scrollRect != null)
+        {
+            if (OVRInput.GetDown(OVRInput.Button.SecondaryThumbstickUp))
+            {
+                if (scrollRect.normalizedPosition.y >= 0 && scrollRect.normalizedPosition.y <= 1)
+                    scrollRect.normalizedPosition = new Vector2(scrollRect.normalizedPosition.x, scrollRect.normalizedPosition.y + 0.05f * Time.deltaTime);
+            }
+            else if (OVRInput.GetDown(OVRInput.Button.SecondaryThumbstickDown))
+            {
+                if (scrollRect.normalizedPosition.y >= 0 && scrollRect.normalizedPosition.y <= 1)
+                    scrollRect.normalizedPosition = new Vector2(scrollRect.normalizedPosition.x, scrollRect.normalizedPosition.y - 0.05f * Time.deltaTime);
+            }
+        }
     }
 }

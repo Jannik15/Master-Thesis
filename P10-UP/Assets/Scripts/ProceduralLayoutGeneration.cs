@@ -39,7 +39,7 @@ public class ProceduralLayoutGeneration : MonoBehaviour
     private List<List<Vector2>> previousPortalZones = new List<List<Vector2>>();
     private List<List<List<Vector2>>> portalZones = new List<List<List<Vector2>>>();
     private int keyCardID;
-    private int currentRoomLayer, differentRoomLayer, defaultLayer, interactionLayer, currentPortalLayer, differentPortalLayer;
+    private int differentRoomLayer, defaultLayer, interactionLayer, currentPortalLayer, differentPortalLayer;
 
     public void AdjustRoomAmount(int newRoomAmount)
     {
@@ -56,10 +56,9 @@ public class ProceduralLayoutGeneration : MonoBehaviour
 
     private void Awake()
     {
-        currentRoomLayer = LayerMask.NameToLayer("CurrentRoom");
-        differentRoomLayer = LayerMask.NameToLayer("DifferentRoom");
         defaultLayer = LayerMask.NameToLayer("Default");
         interactionLayer = LayerMask.NameToLayer("Interactable");
+        differentRoomLayer = LayerMask.NameToLayer("DifferentRoom");
         currentPortalLayer = LayerMask.NameToLayer("CurrentRoomPortal");
         differentPortalLayer = LayerMask.NameToLayer("DifferentRoomPortal");
     }
@@ -94,6 +93,16 @@ public class ProceduralLayoutGeneration : MonoBehaviour
         //SwitchCurrentRoom(rooms[0], null);
     }
 
+    private void Update()
+    {
+        if (mainMenuCanvas.activeSelf && Input.GetKeyDown(KeyCode.Y))
+        {
+            mainMenuCanvas.SetActive(false);
+            ProcedurallyGenerateRooms();
+            SwitchCurrentRoom();
+        }
+    }
+
     private void DuplicateDepthClearer(Transform depthParent, int stencilValue, int renderQueue)
     {
         GameObject newDepthClearer = Instantiate(depthClearer);
@@ -126,7 +135,6 @@ public class ProceduralLayoutGeneration : MonoBehaviour
 
         portalParent = new GameObject("Portals").transform;
 
-        //CreateRooms(1, grids, CustomRoomType.Start);
         CreateRooms(roomAmount - 2, genericGrids, CustomRoomType.Generic);
         CreateRooms(1, endGrids, CustomRoomType.End);
 
@@ -224,7 +232,7 @@ public class ProceduralLayoutGeneration : MonoBehaviour
                     }
                     int keyCardTileIndex = Random.Range(0, doorEventTiles.Count);
                     keyCardToSpawn = doorEventTiles[keyCardTileIndex].PlaceObject(keyCard, rooms[roomToSpawnKeyCardIn].gameObject.transform);
-                    rooms[roomToSpawnKeyCardIn].AddObjectToRoom(keyCardToSpawn.transform, true);
+                    rooms[roomToSpawnKeyCardIn].AddObjectToRoom(keyCardToSpawn.transform, false);
                     keysList.Add(keyCardToSpawn);
                     portalDoors[i].Pair(DoorLock.DoorEvent.KeyCard, keyCardToSpawn);
                 }
@@ -235,9 +243,9 @@ public class ProceduralLayoutGeneration : MonoBehaviour
         // Spawn objects
         //SpawnObjectType(genericRooms, TileGeneration.TileType.Event, eventObjects, null, 1, new Vector2(1, 1), false);
         SpawnObjectType(genericRooms, TileGeneration.TileType.Enemy, enemyObjects, null, 5, new Vector2(1, 1), false);
-        SpawnObjectType(genericRooms, TileGeneration.TileType.Scenery, largeSceneryObjects, null, 1, new Vector2(2, 2), false);
-        SpawnObjectType(genericRooms, TileGeneration.TileType.Scenery, mediumSceneryObjects, null, 2, new Vector2(2, 1), false);
-        SpawnObjectType(genericRooms, TileGeneration.TileType.Scenery, smallSceneryObjects, null, 2, new Vector2(1, 1), false);
+        SpawnObjectType(genericRooms, TileGeneration.TileType.Scenery, largeSceneryObjects, null, 1, new Vector2(2, 2), true);
+        SpawnObjectType(genericRooms, TileGeneration.TileType.Scenery, mediumSceneryObjects, null, 2, new Vector2(2, 1), true);
+        SpawnObjectType(genericRooms, TileGeneration.TileType.Scenery, smallSceneryObjects, null, 2, new Vector2(1, 1), true);
 
         for (int j = 0; j < portals.Count; j++)
         {
@@ -250,6 +258,7 @@ public class ProceduralLayoutGeneration : MonoBehaviour
         {
             rooms[i].SetLayer(differentRoomLayer, differentRoomLayer);
         }
+
         roomID = 0;
         currentRoom = rooms[roomID];
     }
@@ -297,9 +306,9 @@ public class ProceduralLayoutGeneration : MonoBehaviour
 
                     List<Room> endRooms = new List<Room>(1);
                     endRooms.Add(rooms[roomID]);
-                    SpawnObjectType(endRooms, TileGeneration.TileType.Event, endGameEventObjects, null, 1, new Vector2(2, 2), true);
-                    SpawnObjectType(endRooms, TileGeneration.TileType.Event, endGameEventObjects, null, 1, new Vector2(1, 2), true);
-                    SpawnObjectType(endRooms, TileGeneration.TileType.Event, endGameEventObjects, null, 1, new Vector2(1, 1), true);
+                    SpawnObjectType(endRooms, TileGeneration.TileType.Event, endGameEventObjects, null, 1, new Vector2(2, 2), false);
+                    SpawnObjectType(endRooms, TileGeneration.TileType.Event, endGameEventObjects, null, 1, new Vector2(1, 2), false);
+                    SpawnObjectType(endRooms, TileGeneration.TileType.Event, endGameEventObjects, null, 1, new Vector2(1, 1), false);
                     break;
                 case CustomRoomType.Generic:
                     success = CheckIfRoomsCanBePaired(gridObject, grid, ref roomRotation);
@@ -491,7 +500,6 @@ public class ProceduralLayoutGeneration : MonoBehaviour
                     }
                 }
             }
-            //Debug.Log("For grid " + gridObject.name + " false amount = " + falseAmount + ", so random rotation is set to " + randomRotation + "\n" + "{" + portalPositionCheck[0].ToString("0.00") + "=" + portalPositionValidation[0] + ", " + portalPositionCheck[1].ToString("0.00") + "=" + portalPositionValidation[1] + ", " + portalPositionCheck[2].ToString("0.00") + "=" + portalPositionValidation[2] + ", " + portalPositionCheck[3].ToString("0.00") + "=" + portalPositionValidation[3] + " }");
             //*/
             #endregion
             
@@ -552,20 +560,20 @@ public class ProceduralLayoutGeneration : MonoBehaviour
             {
                 if (oppositePortal.transform.GetChild(i).CompareTag("PortalObjects"))
                 {
-                    oppositePortal.transform.GetChild(i).ChangeRoom(null, rooms[roomID], false);
+                    rooms[roomID].AddObjectToRoom(oppositePortal.transform.GetChild(i), true);
                 }
             }
             for (int i = 0; i < portal.transform.childCount; i++)
             {
                 if (portal.transform.GetChild(i).CompareTag("PortalObjects"))
                 {
-                    portal.transform.GetChild(i).ChangeRoom(null, rooms[roomID - 1], false);
+                    rooms[roomID - 1].AddObjectToRoom(portal.transform.GetChild(i), true);
                 }
             }
 
             // Set layer for room and portal
-            portal.layer = CustomUtilities.LayerMaskToLayer(differentRoomLayer);
-            oppositePortal.layer = CustomUtilities.LayerMaskToLayer(differentRoomLayer);
+            portal.layer = differentPortalLayer;
+            oppositePortal.layer = differentPortalLayer;
 
             if (rooms.Count > 3)
             {
@@ -725,7 +733,7 @@ public class ProceduralLayoutGeneration : MonoBehaviour
                             }
                         }
                         GameObject randomInteractableOject = interactableObjects[Random.Range(0, interactableObjects.Length)];
-                        SpawnObjectOnTile(availableTiles, false, randomInteractableOject, TileGeneration.TileType.Empty, roomToSpawnIn, true);
+                        SpawnObjectOnTile(availableTiles, false, randomInteractableOject, TileGeneration.TileType.Empty, roomToSpawnIn, false);
                     }
                 }
                 else
@@ -762,7 +770,7 @@ public class ProceduralLayoutGeneration : MonoBehaviour
                 previousRoom.GetPortalsInRoom()[i].gameObject.layer = differentPortalLayer;
             }
         }
-        currentRoom.SetLayer(currentRoomLayer, defaultLayer);
+        currentRoom.SetLayer(defaultLayer, interactionLayer);
         for (int i = 0; i < currentRoom.GetPortalsInRoom().Count; i++)
         {
             currentRoom.GetPortalsInRoom()[i].gameObject.layer = currentPortalLayer;
@@ -865,7 +873,7 @@ public class ProceduralLayoutGeneration : MonoBehaviour
         Portal connectedPortal = portal.GetConnectedPortal();
         connectedPortal.SetActive(true);
         portal.SetActive(false);
-        portal.gameObject.layer = differentRoomLayer;
+        portal.gameObject.layer = differentPortalLayer;
 
         // Step 2: Update shader matrix for previous room with the connected portals transform
         previousRoom.gameObject.transform.parent = connectedPortal.transform;

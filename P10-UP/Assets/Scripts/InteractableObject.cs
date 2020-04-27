@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using Oculus.Platform;
 using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.UI;
@@ -11,8 +12,9 @@ public class InteractableObject : MonoBehaviour
     private CanvasRenderer[] uiRenderers, uiDuplicatedRenderers;
     public Room inRoom;
     public bool isHeld;
-    private LayerMask layer;
-    private int currentRoomLayer, differentRoomLayer, interactableLayer;
+    private int storedLayer, interactableLayer, differentRoomLayer,
+        mainStencil, duplicatedStencil, mainRQ, duplicatedRQ;
+    private ProceduralLayoutGeneration layout;
 
     private void Start()
     {
@@ -23,7 +25,6 @@ public class InteractableObject : MonoBehaviour
             renderers = GetComponentsInChildren<Renderer>();
             uiRenderers = GetComponentsInChildren<CanvasRenderer>();
             duplicatedMeshObject = Instantiate(gameObject, transform.position, transform.rotation, transform);
-            duplicatedMeshObject.transform.localScale = Vector3.one;
             duplicatedRenderers = duplicatedMeshObject.GetComponentsInChildren<Renderer>();
             uiDuplicatedRenderers = duplicatedMeshObject.GetComponentsInChildren<CanvasRenderer>();
 
@@ -40,6 +41,7 @@ public class InteractableObject : MonoBehaviour
                 for (int j = 0; j < duplicatedRenderers[i].materials.Length; j++)
                 {
                     duplicatedRenderers[i].materials[j] = Instantiate(duplicatedRenderers[i].materials[j]);
+                    duplicatedRenderers[i].materials[j].SetColor("_MainColor", Color.red);
                 }
             }
             for (int i = 0; i < uiRenderers.Length; i++)
@@ -65,9 +67,9 @@ public class InteractableObject : MonoBehaviour
                 grabbers[i].objectGrabEvent += GrabEventListener;
             }
 
-            currentRoomLayer = LayerMask.NameToLayer("CurrentRoom"); // TODO: Change to default when testable in VR
             differentRoomLayer = LayerMask.NameToLayer("DifferentRoom");
             interactableLayer = LayerMask.NameToLayer("Interactable");
+
         }
         else
         {
@@ -88,6 +90,7 @@ public class InteractableObject : MonoBehaviour
                 }
             }
             gameObject.SetActive(false);
+            transform.ResetLocal();
         }
     }
 
@@ -97,14 +100,10 @@ public class InteractableObject : MonoBehaviour
         if (gameObject == grabbedObject)
         {
             isHeld = isBeingGrabbed;
-            if (isHeld)
+            if (!isHeld)
             {
-                layer = gameObject.layer;
-                gameObject.layer = interactableLayer;   // To avoid terrain collision
-            }
-            else
-            {
-                gameObject.layer = layer;
+                gameObject.layer = storedLayer >= 0 ? storedLayer : gameObject.layer;
+                storedLayer = -1;
             }
         }
     }
@@ -118,37 +117,17 @@ public class InteractableObject : MonoBehaviour
             Room portalRoom = colliderPortal.GetRoom();
             Room portalConnectedRoom = colliderPortal.GetConnectedRoom();
 
-            Vector3 dir = (collider.transform.position - transform.position).normalized;
-            float dotProduct = math.dot(collider.transform.forward, dir);
-            // Enter from the correct side - set it to the next room
-            if (inRoom == portalRoom)
+            if (mainStencil != portalConnectedRoom.GetStencilValue())
             {
-                CustomUtilities.UpdateStencils(duplicatedRenderers, collider.transform, portalConnectedRoom.GetStencilValue(),
-                    colliderPortal.GetRenderer().material.renderQueue + 200);
-                if (!isHeld)
-                {
-                    Debug.Log("Setting " + gameObject.name + " to Interactable layer");
-                    gameObject.layer = interactableLayer;
-                }
-                layer = differentRoomLayer;
-            }
-            else if (inRoom == portalConnectedRoom) // TODO: How can you interact with something in a different room??
-            {
-                CustomUtilities.UpdateStencils(duplicatedRenderers, collider.transform, portalRoom.GetStencilValue(),
-                    colliderPortal.GetRenderer().material.renderQueue - 100);
-                if (!isHeld)
-                {
-                    Debug.Log("Setting " + gameObject.name + " to Interactable layer");
-                    gameObject.layer = interactableLayer;
-                }
-                layer = currentRoomLayer;
+                duplicatedStencil = portalConnectedRoom.GetStencilValue();
+                duplicatedRQ = colliderPortal.GetRenderer().material.renderQueue + 200; // Always 2300
             }
             else
             {
-                Debug.LogError("An error has occured for " + name + " interactable collision. Click for details." +
-                               "\nObject is in room: " + inRoom.gameObject.name + ". PortalRoom is " + portalRoom.gameObject.name + 
-                               " and PortalConnectedRoom is " + portalConnectedRoom.gameObject.name);
+                duplicatedStencil = portalRoom.GetStencilValue();
+                duplicatedRQ = colliderPortal.GetRenderer().material.renderQueue - 100; // Always 2100
             }
+            CustomUtilities.UpdateStencils(duplicatedRenderers, collider.transform, duplicatedStencil, duplicatedRQ);
         }
     }
 
@@ -156,7 +135,7 @@ public class InteractableObject : MonoBehaviour
     {
         if (collider.CompareTag("Portal"))
         {
-            Vector3 dir = (collider.transform.position - transform.position).normalized;
+            Vector3 dir = (transform.position - collider.transform.position).normalized; // From portal to cube
             dir.y = 0; // Remove y for angle comparison - portal y is always 0
             Portal colliderPortal = collider.GetComponentInChildren<Portal>();
             Room portalRoom = colliderPortal.GetRoom();
@@ -164,34 +143,39 @@ public class InteractableObject : MonoBehaviour
 
             if (math.dot(collider.transform.forward, dir) >= 0 && Vector3.Angle(collider.transform.forward, dir) < 60.0f) // Exited in the connected room
             {
-                CustomUtilities.UpdateStencils(renderers, collider.transform, portalConnectedRoom.GetStencilValue(),
-                    colliderPortal.GetRenderer().material.renderQueue + 200);
-                CustomUtilities.UpdateStencils(duplicatedRenderers, collider.transform, portalConnectedRoom.GetStencilValue(),
-                    colliderPortal.GetRenderer().material.renderQueue + 200);
+                mainStencil = portalConnectedRoom.GetStencilValue();
+                mainRQ = colliderPortal.GetRenderer().material.renderQueue + 200;
                 portalRoom.RemoveObjectFromRoom(transform);
                 portalConnectedRoom.AddObjectToRoom(transform, true);
                 transform.parent = portalConnectedRoom.gameObject.transform;
                 inRoom = portalConnectedRoom;
-                if (!isHeld)
+                if (isHeld)
+                {
+                    storedLayer = differentRoomLayer;
+                }
+                else
                 {
                     gameObject.layer = differentRoomLayer;
                 }
             }
             else // Exited in the room where the portal is
             {
-                CustomUtilities.UpdateStencils(renderers, collider.transform, portalRoom.GetStencilValue(),
-                    colliderPortal.GetRenderer().material.renderQueue - 100);
-                CustomUtilities.UpdateStencils(duplicatedRenderers, collider.transform, portalRoom.GetStencilValue(),
-                    colliderPortal.GetRenderer().material.renderQueue - 100);
+                mainStencil = portalRoom.GetStencilValue();
+                mainRQ = colliderPortal.GetRenderer().material.renderQueue - 100;
                 portalConnectedRoom.RemoveObjectFromRoom(transform);
                 portalRoom.AddObjectToRoom(transform, true);
                 transform.parent = portalRoom.gameObject.transform;
                 inRoom = portalRoom;
-                if (!isHeld)
+                if (isHeld)
                 {
-                    gameObject.layer = currentRoomLayer;
+                    storedLayer = interactableLayer;
+                }
+                else
+                {
+                    gameObject.layer = interactableLayer;
                 }
             }
+            CustomUtilities.UpdateStencils(renderers, collider.transform, mainStencil, mainRQ);
             duplicatedMeshObject.SetActive(false);
         }
     }
