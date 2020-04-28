@@ -106,7 +106,7 @@ MonoBehaviour:
   isLocked: 0
   isOpen: 0
   button: {fileID: 2441071847795812328}
-  buttonTrigger: {fileID: 6188573162005090005}
+  buttonTrigger: {fileID: 6781041873629380714}
   lockEvent: 0
   pairedKeyCard: {fileID: 0}
   pairedEvent: {fileID: 0}
@@ -1362,9 +1362,9 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3277854828748745655}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0.0198, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -0.0066, y: 0.0001, z: 0.0017}
+  m_LocalScale: {x: 0.04273925, y: 0.06721803, z: 0.05815286}
   m_Children: []
   m_Father: {fileID: 4096265623516657254}
   m_RootOrder: 3
@@ -1385,11 +1385,11 @@ BoxCollider:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3277854828748745655}
   m_Material: {fileID: 0}
-  m_IsTrigger: 1
+  m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Size: {x: 0.033223372, y: 0.051112592, z: 0.0703343}
-  m_Center: {x: -0.005023368, y: 0, z: -5.4344156e-15}
+  m_Size: {x: 1, y: 1, z: 1}
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!114 &4414876527104607183
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1630,7 +1630,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6282803705081825775}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.1377, y: 0.0001, z: 0.002}
+  m_LocalPosition: {x: -0.1156, y: 0.0001, z: 0.002}
   m_LocalScale: {x: 0.04273925, y: 0.06721803, z: 0.05815286}
   m_Children: []
   m_Father: {fileID: 4096265623516657254}
@@ -1671,7 +1671,7 @@ MeshCollider:
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Convex: 1
+  m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
 --- !u!23 &7668959539586217732
@@ -2040,9 +2040,9 @@ SpringJoint:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7743166612119743998}
   m_ConnectedBody: {fileID: 1752234754871666534}
-  m_Anchor: {x: 0.018, y: 0, z: 0}
+  m_Anchor: {x: 0, y: 0, z: 0}
   m_AutoConfigureConnectedAnchor: 0
-  m_ConnectedAnchor: {x: 0.1, y: 0, z: 0}
+  m_ConnectedAnchor: {x: 0.69, y: 0, z: 0}
   serializedVersion: 2
   m_Spring: 100
   m_Damper: 3.3
