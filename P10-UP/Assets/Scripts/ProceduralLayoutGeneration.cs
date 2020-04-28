@@ -232,7 +232,7 @@ public class ProceduralLayoutGeneration : MonoBehaviour
                     }
                     int keyCardTileIndex = Random.Range(0, doorEventTiles.Count);
                     keyCardToSpawn = doorEventTiles[keyCardTileIndex].PlaceObject(keyCard, rooms[roomToSpawnKeyCardIn].gameObject.transform);
-                    rooms[roomToSpawnKeyCardIn].AddObjectToRoom(keyCardToSpawn.transform, false);
+                    rooms[roomToSpawnKeyCardIn].AddObjectToRoom(keyCardToSpawn.transform, true);
                     keysList.Add(keyCardToSpawn);
                     portalDoors[i].Pair(DoorLock.DoorEvent.KeyCard, keyCardToSpawn);
                 }
