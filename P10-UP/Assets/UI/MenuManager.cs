@@ -80,6 +80,7 @@ public class MenuManager : MonoBehaviour
             spawnedGun = Instantiate(gun, dispensePoint.position, Quaternion.identity);
             spawnedGun.GetComponent<Rigidbody>().AddForce(dispensePoint.forward * randomRange);
             currentStock--;
+            Debug.Log("Gun transform children: " + spawnedGun.GetComponentsInChildren<Transform>(true).Length + " | Prefab transform children: " + gun.GetComponentsInChildren<Transform>().Length);
 
             if (inRoom != null)
             {
