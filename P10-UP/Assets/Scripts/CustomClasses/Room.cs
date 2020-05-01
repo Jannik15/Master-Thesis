@@ -146,7 +146,7 @@ public class Room
             }
             else
             {
-                Debug.Log("You forgot to remove an object from the room that is set to not collide with the player!");
+                //Debug.Log("You forgot to remove an object from the room that is set to not collide with the player!");
             }
         }
         for (int i = 0; i < playerCollisionObjectsInRoom.Count; i++)
@@ -157,7 +157,7 @@ public class Room
             }
             else
             {
-                Debug.Log("You forgot to remove an object from the room that is set to collide with the player!");
+                //Debug.Log("You forgot to remove an object from the room that is set to collide with the player!");
             }
         }
         Transform[] allChildren = gameObject.GetComponentsInChildren<Transform>();

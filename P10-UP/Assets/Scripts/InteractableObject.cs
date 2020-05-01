@@ -81,6 +81,7 @@ public class InteractableObject : MonoBehaviour
                     allComponents[i].GetType() != typeof(MeshFilter) &&
                     allComponents[i].GetType() != typeof(MeshRenderer) &&
                     allComponents[i].GetType() != typeof(RectTransform) &&
+                    allComponents[i].GetType() != typeof(Canvas) &&
                     allComponents[i].GetType() != typeof(CanvasRenderer) &&
                     allComponents[i].GetType() != typeof(Text) &&
                     allComponents[i].GetType() != typeof(Image) &&

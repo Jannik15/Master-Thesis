@@ -22,7 +22,7 @@ public class WeaponGrab : MonoBehaviour
     public Material HandDefaultMaterial;
     public Material RightHandHighlightMaterial;
     public Material LeftHandHighlightMaterial;
-    public bool handRight;
+    public bool handRight, isHeld;
     private bool holdingGunRight = false;
     private bool holdingGunLeft = false;
     private Vector3 gunPositionRight = new Vector3(0.024f, 0.014f, 0.0798f);
@@ -103,15 +103,16 @@ public class WeaponGrab : MonoBehaviour
         currentGunLeft = null;
     }
 
-    private void OnDrawGizmosSelected()
-    {
-        Gizmos.color = Color.red;
-        Debug.DrawLine(transform.position, transform.position + transform.forward * 5);
-        Gizmos.DrawWireSphere(transform.position + transform.forward * 5, 0.35f);
-    }
-
     void Start()
     {
+        // Register grab events
+        OVRGrabber[] grabbers = Resources.FindObjectsOfTypeAll<OVRGrabber>();
+        for (int i = 0; i < grabbers.Length; i++)
+        {
+            grabbers[i].objectGrabEvent += GrabEventListener;
+        }
+
+
         oVRGrabber = GetComponent<OVRGrabber>();
 
         if (holdingGunRight == false){
@@ -119,6 +120,22 @@ public class WeaponGrab : MonoBehaviour
         }
         if (holdingGunLeft == false){
             oVRGrabber.enabled = true;
+        }
+    }
+
+    private void GrabEventListener(GameObject grabbedObject, bool isBeingGrabbed)
+    {
+        // The object being grabbed is this object
+        if (handRight == true && gameObject == grabbedObject)
+        {
+            isHeld = isBeingGrabbed;
+            Debug.Log("Grabbing Right Hand");
+        }
+        else if (handRight != true && gameObject == grabbedObject)
+        {
+            isHeld = isBeingGrabbed;
+            Debug.Log("Grabbing Left Hand");
+
         }
     }
 
@@ -199,7 +216,7 @@ public class WeaponGrab : MonoBehaviour
              //Right Hand pickup
             if (OVRInput.Get(OVRInput.RawButton.RHandTrigger) && gun != null || Input.GetKeyDown(KeyCode.E) && gun != null)
             {
-                if (holdingGunRight == false)
+                if (holdingGunRight == false && isHeld == false)
                 {
                     if (hitRight.transform.CompareTag("Weapon"))
                     {
@@ -255,7 +272,7 @@ public class WeaponGrab : MonoBehaviour
             //Left hand Pickup
             if (OVRInput.Get(OVRInput.RawButton.LHandTrigger) && gun != null || Input.GetKeyDown(KeyCode.R) && gun != null)
             {
-                if (holdingGunLeft == false)
+                if (holdingGunLeft == false && isHeld == false)
                 {
                     if (hitLeft.transform.CompareTag("Weapon"))
                     {
