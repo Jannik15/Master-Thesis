@@ -1,7 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using TMPro;
 using Unity.Mathematics;
 using UnityEngine;
+using UnityEngine.UI;
 using Random = UnityEngine.Random;
 
 public static class CustomUtilities
@@ -58,6 +60,40 @@ public static class CustomUtilities
                 {
                     renderers[i].materials[j].SetMatrix("_WorldToPortal", portal.worldToLocalMatrix);
                 }
+            }
+        }
+        Text[] texts = parent.GetComponentsInChildren<Text>();
+        for (int i = 0; i < texts.Length; i++)
+        {
+            texts[i].material.SetInt("_Stencil", newStencilValue);
+            if (renderQueue > 0)
+            {
+                texts[i].material.renderQueue = renderQueue + 5;
+            }
+        }
+        TextMeshProUGUI[] tmpTexts = parent.GetComponentsInChildren<TextMeshProUGUI>();
+        for (int i = 0; i < tmpTexts.Length; i++)
+        {
+            for (int j = 0; j < tmpTexts[i].fontMaterials.Length; j++)
+            {
+                tmpTexts[i].fontMaterials[j].SetInt("_Stencil", newStencilValue);
+                if (renderQueue > 0)
+                {
+                    tmpTexts[i].fontMaterials[j].renderQueue = renderQueue + 6;
+                }
+            }
+        }
+        Image[] childImages = parent.GetComponentsInChildren<Image>();
+        for (int i = 0; i < childImages.Length; i++)
+        {
+            childImages[i].material.SetInt("_Stencil", newStencilValue);
+            if (childImages[i].material.GetInt("_StencilComp") != 3)
+            {
+                childImages[i].material.SetInt("_StencilComp", 3);
+            }
+            if (renderQueue > 0)
+            {
+                childImages[i].material.renderQueue = renderQueue + 1;
             }
         }
     }
@@ -190,7 +226,7 @@ public static class CustomUtilities
                 zones[connections[0]].Add(tiles[i]);
                 if (connections.Count > 1)
                 {
-                    for (int j = 1; j < connections.Count; j++)
+                    for (int j = connections.Count - 1; j > 0; j--)
                     {
                         zones[connections[0]].AddRange(zones[connections[j]]);
                         zones.RemoveAt(connections[j]);
@@ -299,10 +335,17 @@ public static class CustomUtilities
 
     #region Rooms
 
-    public static void ChangeRoom(this Transform thisObject, Room currentRoom, Room newRoom, bool playerCanCollide)
+    public static Room FindParentRoom(GameObject parent, List<Room> possibleRooms)
     {
-        currentRoom?.RemoveObjectFromRoom(thisObject); // If there is a 'Room' component in parent (meaning it has previously been assigned to a room) remove it from that room.
-        newRoom.AddObjectToRoom(thisObject, playerCanCollide);
+        for (int i = 0; i < possibleRooms.Count; i++)
+        {
+            if (possibleRooms[i].gameObject == parent)
+            {
+                return possibleRooms[i];
+            }
+        }
+        Debug.Log("No parent found for parent: " + parent.name + " in list of rooms with count " + possibleRooms.Count);
+        return null;
     }
 
     #endregion

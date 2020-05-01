@@ -154,7 +154,7 @@ public class OVRGrabber : MonoBehaviour
     {
         // Don't want to MovePosition multiple times in a frame, as it causes high judder in conjunction
         // with the hand position prediction in the runtime.
-        if (alreadyUpdated) return;
+        if (alreadyUpdated || m_parentTransform == null) return;
         alreadyUpdated = true;
 
         Vector3 destPos = m_parentTransform.TransformPoint(m_anchorOffsetPosition);

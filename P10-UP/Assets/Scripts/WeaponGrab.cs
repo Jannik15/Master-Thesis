@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -31,6 +32,7 @@ public class WeaponGrab : MonoBehaviour
     private Vector3 gunRotationLeft = new Vector3(263.62f, -181.869f, 88.99999f);
     public Shader defaultMaterial;
     public Color rightHighlight, leftHighlight;
+    private ProceduralLayoutGeneration layout;
     
     private Transform _selectionR;
     private Transform _selectionL;
@@ -41,7 +43,7 @@ public class WeaponGrab : MonoBehaviour
     [SerializeField]
     private GameObject currentGunLeft = null;
 
-
+    public event Action<GameObject, bool> gunGrabEvent;
     public float fireRate = 3f;
     private float nextTimeToFire = 0f;
 
@@ -51,6 +53,7 @@ public class WeaponGrab : MonoBehaviour
         currentGunRight.transform.parent = transform;
         currentGunRight.transform.localPosition = gunPositionRight;
         currentGunRight.transform.localEulerAngles = gunRotationRight;
+        currentGunRight.GetComponentInChildren<InteractableObject>().AssignRoom(null);
         //simpleShoot = currentGunRight.GetComponent<SimpleShoot>();
         rbR = currentGunRight.GetComponent<Rigidbody>();
         rbR.isKinematic = true;
@@ -58,7 +61,7 @@ public class WeaponGrab : MonoBehaviour
         holdingGunRight = true;
         //simpleShoot.enabled = true; //on
         oVRGrabber.enabled = false; //off
-
+        gunGrabEvent?.Invoke(currentGunRight, true);
     }
 
     void DropRight()
@@ -67,9 +70,10 @@ public class WeaponGrab : MonoBehaviour
         //simpleShoot.enabled = false; //off
         oVRGrabber.enabled = true; //on
         rbR.isKinematic = false;
-        currentGunRight.transform.parent = null;
+        currentGunRight.GetComponentInChildren<InteractableObject>().AssignRoom(layout.currentRoom);
         rbR.velocity = trackingSpace.rotation * OVRInput.GetLocalControllerVelocity(OVRInput.Controller.RTouch);
         rbR.angularVelocity = OVRInput.GetLocalControllerAngularVelocity(OVRInput.Controller.RTouch);
+        gunGrabEvent?.Invoke(currentGunRight, false);
         gun = null;
         currentGunRight = null;
     }
@@ -80,6 +84,7 @@ public class WeaponGrab : MonoBehaviour
         currentGunLeft.transform.parent = transform;
         currentGunLeft.transform.localPosition = gunPositionLeft;
         currentGunLeft.transform.localEulerAngles = gunRotationLeft;
+        currentGunLeft.GetComponent<InteractableObject>().AssignRoom(null);
         //simpleShoot = currentGunLeft.GetComponent<SimpleShoot>();
         rbL = currentGunLeft.GetComponent<Rigidbody>();
         rbL.isKinematic = true;
@@ -87,7 +92,7 @@ public class WeaponGrab : MonoBehaviour
         holdingGunLeft = true;
         //simpleShoot.enabled = true; //on
         oVRGrabber.enabled = false; //off
-
+        gunGrabEvent?.Invoke(currentGunLeft, true);
     }
 
     void DropLeft()
@@ -96,9 +101,10 @@ public class WeaponGrab : MonoBehaviour
         //simpleShoot.enabled = false; //off
         oVRGrabber.enabled = true; //on
         rbL.isKinematic = false;
-        currentGunLeft.transform.parent = null;
+        currentGunLeft.GetComponent<InteractableObject>().AssignRoom(layout.currentRoom);
         rbL.velocity = trackingSpace.rotation * OVRInput.GetLocalControllerVelocity(OVRInput.Controller.LTouch);
         rbL.angularVelocity = OVRInput.GetLocalControllerAngularVelocity(OVRInput.Controller.LTouch);
+        gunGrabEvent?.Invoke(currentGunLeft, false);
         gun = null;
         currentGunLeft = null;
     }
@@ -113,7 +119,7 @@ public class WeaponGrab : MonoBehaviour
     void Start()
     {
         oVRGrabber = GetComponent<OVRGrabber>();
-
+        layout = FindObjectOfType<ProceduralLayoutGeneration>();
         if (holdingGunRight == false){
             oVRGrabber.enabled = true; //on
         }
@@ -303,5 +309,27 @@ public class WeaponGrab : MonoBehaviour
                 DropLeft();
             }
         }
+
+        // Jannik PC testing
+        if (!holdingGunRight && handRight)
+        {
+            if (Input.GetKeyDown(KeyCode.N))
+            {
+                currentGunRight = FindObjectOfType<Gun>().gameObject;
+                currentGunRight.transform.parent = transform;
+                currentGunRight.transform.localPosition = gunPositionRight;
+                currentGunRight.transform.localEulerAngles = gunRotationRight;
+                currentGunRight.GetComponentInChildren<InteractableObject>().AssignRoom(null);
+                //simpleShoot = currentGunRight.GetComponent<SimpleShoot>();
+                rbR = currentGunRight.GetComponent<Rigidbody>();
+                rbR.isKinematic = true;
+
+                holdingGunRight = true;
+                //simpleShoot.enabled = true; //on
+                oVRGrabber.enabled = false; //off
+                gunGrabEvent?.Invoke(currentGunRight, true);
+            }
+        }
+        
     }
 }

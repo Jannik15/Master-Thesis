@@ -1,11 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Threading;
-using System.Xml;
 using Unity.Mathematics;
 using UnityEngine;
-using UnityEngine.EventSystems;
-using UnityEngine.XR;
 using Random = UnityEngine.Random;
 
 public class ProceduralLayoutGeneration : MonoBehaviour
@@ -27,7 +23,7 @@ public class ProceduralLayoutGeneration : MonoBehaviour
 
     // Private variables
     private List<Vector2> possiblePortalPositions = new List<Vector2>();
-    private List<Portal> portals = new List<Portal>(), portalsInCurrentRoom = new List<Portal>(4);
+    private List<Portal> portals = new List<Portal>();
     private List<DoorLock> portalDoors = new List<DoorLock>();
     private GameObject roomObject, keyCardToSpawn; // Functions as the index in rooms, tracking which room the player is in
     private int roomID, portalIterator, keycardIterator;
@@ -38,8 +34,10 @@ public class ProceduralLayoutGeneration : MonoBehaviour
     private List<List<Tile>> specificTypeZones = new List<List<Tile>>();
     private List<List<Vector2>> previousPortalZones = new List<List<Vector2>>();
     private List<List<List<Vector2>>> portalZones = new List<List<List<Vector2>>>();
+    public event Action proceduralGenerationFinished; 
     private int keyCardID;
     private int differentRoomLayer, defaultLayer, interactionLayer, currentPortalLayer, differentPortalLayer;
+    public event Action<Room, Portal> roomSwitched;
 
     public void AdjustRoomAmount(int newRoomAmount)
     {
@@ -157,7 +155,7 @@ public class ProceduralLayoutGeneration : MonoBehaviour
                     List<Room> roomSlice = new List<Room>(4);
                     for (int j = 0; j < checkLastXRooms; j++)
                     {
-                        EventObjectBase eventInRoom = rooms[doorRoomID - j].gameObject.GetComponentInChildren<EventObjectBase>();
+                        EventObjectBase eventInRoom = rooms[doorRoomID - j].gameObject.GetComponentInChildren<EventObjectBase>(true);
                         if (!eventInRoom || eventInRoom.eventType.thisEventType != EventObjectType.ThisType.PressurePlate)
                         {
                             roomSlice.Add(rooms[doorRoomID - j]);
@@ -209,7 +207,7 @@ public class ProceduralLayoutGeneration : MonoBehaviour
 
                     // Pair and assign room
                     portalDoors[i].Pair(DoorLock.DoorEvent.ShootTarget, shootTarget);
-                    EventObjectBase shootTargetEvent = shootTarget.GetComponentInChildren<EventObjectBase>();
+                    EventObjectBase shootTargetEvent = shootTarget.GetComponentInChildren<EventObjectBase>(true);
                     shootTargetEvent.AssignRoom(portalDoors[i].inRoom, false);
                     caseSelected = true;
                 }
@@ -242,7 +240,7 @@ public class ProceduralLayoutGeneration : MonoBehaviour
 
         // Spawn objects
         //SpawnObjectType(genericRooms, TileGeneration.TileType.Event, eventObjects, null, 1, new Vector2(1, 1), false);
-        SpawnObjectType(genericRooms, TileGeneration.TileType.Enemy, enemyObjects, null, 5, new Vector2(1, 1), false);
+        SpawnObjectType(genericRooms, TileGeneration.TileType.Enemy, enemyObjects, null, 5, new Vector2(1, 1), true);
         SpawnObjectType(genericRooms, TileGeneration.TileType.Scenery, largeSceneryObjects, null, 1, new Vector2(2, 2), true);
         SpawnObjectType(genericRooms, TileGeneration.TileType.Scenery, mediumSceneryObjects, null, 2, new Vector2(2, 1), true);
         SpawnObjectType(genericRooms, TileGeneration.TileType.Scenery, smallSceneryObjects, null, 2, new Vector2(1, 1), true);
@@ -258,9 +256,11 @@ public class ProceduralLayoutGeneration : MonoBehaviour
         {
             rooms[i].SetLayer(differentRoomLayer, differentRoomLayer);
         }
+        portals[0].gameObject.layer = currentPortalLayer;
 
         roomID = 0;
         currentRoom = rooms[roomID];
+        proceduralGenerationFinished?.Invoke();
     }
 
     private void CreateRooms(int roomCount, GameObject[] gridInputList, CustomRoomType roomType)
@@ -508,7 +508,7 @@ public class ProceduralLayoutGeneration : MonoBehaviour
             if (spawnDoor < 8 && roomID > 1)
             {
                 portal = Instantiate(portalDoorPrefab, portalPosition.ToVector3XZ(), Quaternion.Euler(0, randomRotation, 0), portalParent);
-                DoorLock portalDoor = portal.GetComponentInChildren<DoorLock>();
+                DoorLock portalDoor = portal.GetComponentInChildren<DoorLock>(true);
                 portalDoor.inRoom = rooms[roomID - 1];
                 portalDoor.lockEvent = DoorLock.DoorEvent.Unlocked;
                 portalDoors.Add(portalDoor);
@@ -583,6 +583,7 @@ public class ProceduralLayoutGeneration : MonoBehaviour
         return possiblePortalPositions.Count > 0; // return whether or not portal tiles in current room are overlapping with portal tiles in previous rooms
     }
 
+    #region Object spawning
     private void SpawnObjectType(List<Room> roomsToSpawnObjectsIn, TileGeneration.TileType objectTypeToSpawn, GameObject[] objectsToSpawn, GameObject specificObjectToSpawn, 
         int maxObjectsPerRoom, Vector2 tilesPerObject, bool canCollideWithPlayer)
     {
@@ -615,7 +616,7 @@ public class ProceduralLayoutGeneration : MonoBehaviour
                     specificTypeTiles.Add(gridTiles[j]);
                 }
             }
-
+            specificTypeTiles.Randomize();
             if (specificTypeTiles.Count > 0)
             {
                 specificTypeZones.Clear();
@@ -691,11 +692,14 @@ public class ProceduralLayoutGeneration : MonoBehaviour
     {
         GameObject objectOnTile = Instantiate(objectToSpawn, Vector3.zero, objectToSpawn.transform.rotation, roomToSpawnIn.gameObject.transform);
         InteractableObject interactableObject = objectOnTile.GetComponentInChildren<InteractableObject>();
-        if (interactableObject != null)
+        if (interactableObject == null || !interactableObject.isInteractable)
         {
-            interactableObject.inRoom = roomToSpawnIn;
+            roomToSpawnIn.AddObjectToRoom(objectOnTile.transform, playerCollision);
         }
-        roomToSpawnIn.AddObjectToRoom(objectOnTile.transform, playerCollision);
+        else
+        {
+            interactableObject.AssignRoom(roomToSpawnIn);
+        }
         Vector2 spawnObjectCenter = Vector2.zero;
         int tileCount = tilesToSpawnObjectOn.Count;
         for (int m = 0; m < tileCount; m++)
@@ -713,7 +717,7 @@ public class ProceduralLayoutGeneration : MonoBehaviour
         switch (objectType)
         {
             case TileGeneration.TileType.Event:
-                EventObjectBase eventBase = objectOnTile.GetComponentInChildren<EventObjectBase>();
+                EventObjectBase eventBase = objectOnTile.GetComponentInChildren<EventObjectBase>(true);
                 if (eventBase != null)
                 {
                     eventBase.room = roomToSpawnIn;
@@ -744,6 +748,7 @@ public class ProceduralLayoutGeneration : MonoBehaviour
         }
         return objectOnTile;
     }
+    #endregion
 
     #region World switching on portal collision
     /// <summary>
@@ -763,19 +768,8 @@ public class ProceduralLayoutGeneration : MonoBehaviour
             previousRoom.gameObject.transform.parent = currentPortal.transform;
         }
         previousRoom.SetLayer(differentRoomLayer, differentRoomLayer);
-        for (int i = 0; i < previousRoom.GetPortalsInRoom().Count; i++)
-        {
-            if (previousRoom.GetPortalsInRoom()[i] != currentPortal)
-            {
-                previousRoom.GetPortalsInRoom()[i].gameObject.layer = differentPortalLayer;
-            }
-        }
         currentRoom.SetLayer(defaultLayer, interactionLayer);
-        for (int i = 0; i < currentRoom.GetPortalsInRoom().Count; i++)
-        {
-            currentRoom.GetPortalsInRoom()[i].gameObject.layer = currentPortalLayer;
-        }
-        portalsInCurrentRoom.Clear();
+        roomSwitched?.Invoke(currentRoom, currentPortal);
 
         #region Disable rooms connected to rooms that are connected to the previous room
 
@@ -872,6 +866,14 @@ public class ProceduralLayoutGeneration : MonoBehaviour
         // Step 1: Enable the connected portal and disable the current portal from the previous room
         Portal connectedPortal = portal.GetConnectedPortal();
         connectedPortal.SetActive(true);
+        for (int i = 0; i < previousRoom.GetPortalsInRoom().Count; i++)
+        {
+            previousRoom.GetPortalsInRoom()[i].gameObject.layer = differentPortalLayer;
+        }
+        for (int i = 0; i < currentRoom.GetPortalsInRoom().Count; i++)
+        {
+            currentRoom.GetPortalsInRoom()[i].gameObject.layer = currentPortalLayer;
+        }
         portal.SetActive(false);
         portal.gameObject.layer = differentPortalLayer;
 

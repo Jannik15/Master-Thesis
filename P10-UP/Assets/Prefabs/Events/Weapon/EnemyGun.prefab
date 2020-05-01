@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 8833993656327111494}
   - component: {fileID: 3372199210845450662}
   - component: {fileID: 8493733150840984578}
-  m_Layer: 10
+  m_Layer: 13
   m_Name: BulletAmount
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -89,7 +89,7 @@ GameObject:
   - component: {fileID: 7673992916491021907}
   - component: {fileID: 7673992916491021906}
   - component: {fileID: 7673992916491021905}
-  m_Layer: 10
+  m_Layer: 13
   m_Name: Canvas
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -189,7 +189,7 @@ GameObject:
   - component: {fileID: 7673992916662828112}
   - component: {fileID: 7673992916665728114}
   - component: {fileID: 7673992916664598194}
-  m_Layer: 10
+  m_Layer: 13
   m_Name: Gun_Loader
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -269,7 +269,7 @@ GameObject:
   - component: {fileID: 7673992916662828114}
   - component: {fileID: 7673992916665728116}
   - component: {fileID: 7673992916664598196}
-  m_Layer: 10
+  m_Layer: 13
   m_Name: Gun_Bullet_Hole
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -348,7 +348,7 @@ GameObject:
   - component: {fileID: 7673992916662828116}
   - component: {fileID: 7673992916665728118}
   - component: {fileID: 7673992916664598198}
-  m_Layer: 10
+  m_Layer: 13
   m_Name: Gun_Base
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -425,8 +425,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7673992916662828118}
-  - component: {fileID: 7866567478120280228}
-  m_Layer: 10
+  - component: {fileID: -8325543917834956196}
+  m_Layer: 13
   m_Name: EnemyGun
   m_TagString: Weapon
   m_Icon: {fileID: 0}
@@ -451,7 +451,7 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &7866567478120280228
+--- !u!114 &-8325543917834956196
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -460,14 +460,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 7673992916662657142}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 76ee749a8ce34ff47ad03525b5d5307d, type: 3}
+  m_Script: {fileID: 11500000, guid: e62a9700c359e5f4cad09eeea354eedd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  shaderToApply: {fileID: 0}
-  stencilValueToApply: 0
-  stencilMaskValueToApply: 0
-  renderQueueToApply: -1
-  shaderMatrixTransform: {fileID: 0}
+  isInteractable: 0
+  isHeld: 0
 --- !u!1 &7673992916662657150
 GameObject:
   m_ObjectHideFlags: 0
@@ -479,7 +476,7 @@ GameObject:
   - component: {fileID: 7673992916662828126}
   - component: {fileID: 7673992916665728112}
   - component: {fileID: 7673992916664598192}
-  m_Layer: 10
+  m_Layer: 13
   m_Name: Gun_Tigger
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -558,7 +555,7 @@ GameObject:
   - component: {fileID: 7673992916787963637}
   - component: {fileID: 7673992916787963639}
   - component: {fileID: 7673992916787963638}
-  m_Layer: 10
+  m_Layer: 13
   m_Name: Text (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -635,7 +632,7 @@ GameObject:
   - component: {fileID: 7673992916953558425}
   - component: {fileID: 7673992916953558427}
   - component: {fileID: 7673992916953558426}
-  m_Layer: 10
+  m_Layer: 13
   m_Name: Text
   m_TagString: Untagged
   m_Icon: {fileID: 0}

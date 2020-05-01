@@ -7,21 +7,17 @@ using UnityEngine.UI;
 
 public class MenuManager : MonoBehaviour
 {
-
     public Animator animatorDoor;
-
     public GameObject optionsMenu;
-
     public ProceduralLayoutGeneration handler;
-
     public Transform dispensePoint;
-
     public GameObject gun;
-
     private GameObject spawnedGun;
-
+    private Room inRoom;
+    private List<Transform> spawnedGuns = new List<Transform>();
     public int currentStock = 5;
     public TMP_Text stockAmount;
+    public bool dispenser;
 
     // Start is called before the first frame update
     void Start()
@@ -29,6 +25,21 @@ public class MenuManager : MonoBehaviour
         if (handler == null)
         {
             handler = FindObjectOfType<ProceduralLayoutGeneration>();
+        }
+
+        if (dispenser)
+        {
+            handler.proceduralGenerationFinished += OnProceduralGeneration;
+        }
+    }
+
+    void OnProceduralGeneration()
+    {
+        inRoom = CustomUtilities.FindParentRoom(GetComponentInParent<Grid>().gameObject, handler.rooms);
+        for (int i = 0; i < spawnedGuns.Count; i++)
+        {
+            inRoom.AddObjectToRoom(spawnedGuns[i], false);
+            spawnedGuns[i].GetComponentInChildren<InteractableObject>().AssignRoom(inRoom);
         }
     }
 
@@ -38,6 +49,14 @@ public class MenuManager : MonoBehaviour
         if (stockAmount != null)
         {
             stockAmount.text = currentStock.ToString();
+        }
+
+        if (dispenser)
+        {
+            if (Input.GetKeyDown(KeyCode.J))
+            {
+                Dispense();
+            }
         }
 
         if (OVRInput.Get(OVRInput.RawButton.Start))
@@ -58,10 +77,20 @@ public class MenuManager : MonoBehaviour
         if (currentStock > 0)
         {
             float randomRange = Random.Range(40f, 100f);
-            Debug.Log("Dispensed");
             spawnedGun = Instantiate(gun, dispensePoint.position, Quaternion.identity);
             spawnedGun.GetComponent<Rigidbody>().AddForce(dispensePoint.forward * randomRange);
             currentStock--;
+
+            if (inRoom != null)
+            {
+                inRoom.AddObjectToRoom(spawnedGun.transform, false);
+                spawnedGun.GetComponentInChildren<InteractableObject>().AssignRoom(inRoom);
+            }
+            else
+            {
+                spawnedGuns.Add(spawnedGun.transform);
+                spawnedGun.transform.parent = handler.rooms[0].gameObject.transform;
+            }
         }
     }
 

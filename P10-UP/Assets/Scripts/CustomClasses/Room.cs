@@ -18,7 +18,7 @@ public class Room
         portalsInRoom = new List<Portal>();
         portalsToRoom = new List<Portal>();
 
-        playerCollisionObjectsInRoom.AddRange(gameObject.GetComponentsInChildren<Transform>());
+        playerCollisionObjectsInRoom.AddRange(gameObject.GetComponentsInChildren<Transform>(true));
     }
 
     public void UpdateRoomStencil(Transform portal, int newStencilValue, int renderQueue)
@@ -62,19 +62,12 @@ public class Room
         return portalsToRoom;
     }
 
-    /// <summary>
-    /// TODO
-    /// </summary>
-    /// <param name="objectToAdd"></param>
-    /// <param name="tileToPlaceObjectOn"></param>
-    /// <param name="parent"></param>
-    /// <param name="playerCanCollide"></param>
     public void InstantiateStaticObjectInRoom(GameObject objectToAdd, Tile tileToPlaceObjectOn, Transform parent, bool playerCanCollide)
     {
         GameObject objectIsAdded = tileToPlaceObjectOn.PlaceObject(objectToAdd, parent);
         if (objectIsAdded != null)
         {
-            Transform[] objectToAddAndItsChildren = objectIsAdded.GetComponentsInChildren<Transform>();
+            Transform[] objectToAddAndItsChildren = objectIsAdded.GetComponentsInChildren<Transform>(true);
             if (playerCanCollide)
             {
                 playerCollisionObjectsInRoom.AddRange(objectToAddAndItsChildren);
@@ -88,7 +81,7 @@ public class Room
 
     public void AddObjectToRoom(Transform objectToAdd, bool playerCanCollide)
     {
-        Transform[] objectToAddAndItsChildren = objectToAdd.GetComponentsInChildren<Transform>();
+        Transform[] objectToAddAndItsChildren = objectToAdd.GetComponentsInChildren<Transform>(true);
         if (playerCanCollide)
         {
             playerCollisionObjectsInRoom.AddRange(objectToAddAndItsChildren);
@@ -100,25 +93,9 @@ public class Room
         objectToAdd.SetParent(gameObject.transform);
     }
 
-    public void AddObjectsToRoom(IEnumerable<Transform> objectsToAdd, bool playerCanCollide)
-    {
-        if (playerCanCollide)
-        {
-            playerCollisionObjectsInRoom.AddRange(objectsToAdd);
-        }
-        else
-        {
-            noPlayerCollisionObjectsInRoom.AddRange(objectsToAdd);
-        }
-        foreach (var objectToAdd in objectsToAdd)
-        {
-            objectToAdd.SetParent(gameObject.transform);
-        }
-    }
-
     public void RemoveObjectFromRoom(Transform objectToRemove)
     {
-        Transform[] objectToRemoveAndItsChildren = objectToRemove.GetComponentsInChildren<Transform>();
+        Transform[] objectToRemoveAndItsChildren = objectToRemove.GetComponentsInChildren<Transform>(true);
         for (int i = 0; i < objectToRemoveAndItsChildren.Length; i++)
         {
             if (noPlayerCollisionObjectsInRoom.Contains(objectToRemoveAndItsChildren[i]))
@@ -131,7 +108,7 @@ public class Room
             }
             else
             {
-                Debug.Log("Attempted to remove " + objectToRemove.name + " from Room " + gameObject.name + " but that object was not found in the rooms object list.");
+                Debug.Log("Attempted to remove " + objectToRemoveAndItsChildren[i].name + " from Room " + gameObject.name + " but that object was not found in the rooms object list.");
             }
         }
     }
@@ -160,17 +137,15 @@ public class Room
                 Debug.Log("You forgot to remove an object from the room that is set to collide with the player!");
             }
         }
-        Transform[] allChildren = gameObject.GetComponentsInChildren<Transform>();
+        Transform[] allChildren = gameObject.GetComponentsInChildren<Transform>(true);
         for (int i = 0; i < allChildren.Length; i++)
         {
             if (!playerCollisionObjectsInRoom.Contains(allChildren[i]) &&
                 !noPlayerCollisionObjectsInRoom.Contains(allChildren[i]))
             {
                 allChildren[i].gameObject.layer = layerForNoPlayerCollisionObjects;
-                Debug.Log(allChildren[i].gameObject.name + " was not assigned to room " + gameObject.name + " but is a child of it!");
+                Debug.Log("allChildren[" + i + "] " + allChildren[i].gameObject.name + " was not assigned to room " + gameObject.name + " but is a child of it!");
             }
-        
-
         }
     } 
 }

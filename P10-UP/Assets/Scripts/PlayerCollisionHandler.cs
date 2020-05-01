@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿using System;
+using System.Collections.Generic;
+using UnityEngine;
 using Unity.Mathematics;
 
 public class PlayerCollisionHandler : MonoBehaviour
@@ -14,6 +16,7 @@ public class PlayerCollisionHandler : MonoBehaviour
         proceduralLayout = FindObjectOfType<ProceduralLayoutGeneration>();
         playerCam = Camera.main.transform;
     }
+
     private void Update()
     {
         //*/ Portal culling based on view cone
@@ -58,7 +61,6 @@ public class PlayerCollisionHandler : MonoBehaviour
             inPortal = true;
             thisPortal = triggerCollider.GetComponent<Portal>(); 
             thisPortal.SwitchActiveSubPortal();
-
             // Switch world
             proceduralLayout.SwitchCurrentRoom(thisPortal.GetConnectedRoom(), thisPortal);
         }
