@@ -5,8 +5,12 @@ public class Enemy : MonoBehaviour
 {
     private Room inRoom;
 
-    public float Health = 10f;
+    public float Health = 1f;
 
+    void Awake()
+    {
+        SetKinematic(true);
+    }
 
     public void AssignRoom(Room room, bool playerCanCollide)
     {
@@ -14,12 +18,21 @@ public class Enemy : MonoBehaviour
         room.AddObjectToRoom(transform, playerCanCollide);
     }
 
-    public void TakeDamage(float amount)
+    public void TakeDamage(float amount, Vector3 hitpoint)
     {
         Health -= amount;
         if (Health <= 0f)
         {
-            Die();
+            Die(hitpoint);
+        }
+    }
+
+    public void SetKinematic(bool newValue)
+    {
+        Rigidbody[] bodies = GetComponentsInChildren<Rigidbody>();
+        foreach (Rigidbody rb in bodies)
+        {
+            rb.isKinematic = newValue;
         }
     }
 
@@ -31,13 +44,26 @@ public class Enemy : MonoBehaviour
         }
     }
 
-    void Die()
+    void Die(Vector3 hitpoint2)
     {
+        GetComponent<Animator>().enabled = false;
+        Rigidbody rbMain = GetComponent<Rigidbody>();
+        rbMain.isKinematic = false;
+        SetKinematic(false);
+        foreach (var item in Physics.OverlapSphere(hitpoint2,0.5f))
+        {
+            Rigidbody rb = item.GetComponent<Rigidbody>();
+            if (rb)
+            {
+                rb.AddExplosionForce(450, hitpoint2, 0.5f);
+            }
+        }
+        
         if (inRoom != null)
         {
             inRoom.RemoveObjectFromRoom(gameObject.transform);
         }
-        Destroy(gameObject, 1f);
+        Destroy(gameObject, 20f);
     }
 
     void Disable()

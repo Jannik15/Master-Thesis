@@ -3,26 +3,31 @@ using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class PlayerInteractions : MonoBehaviour
 {
     public List<GameObject> keyUI;
     public LayerMask layerMaskRay;
-    public GameObject handler;
+    public float health = 100;
+    public Animator fadeAnimator;
+ 
 
     private Ray ray;
     private Camera playerCamera;
     private int keyHoldID;
     private int maxKeysList;
     private ProceduralLayoutGeneration proLG;
+
+
+    private UIWatch uiWatch;
     // Start is called before the first frame update
     void Start()
     {
-        
+        uiWatch = GetComponentInChildren<UIWatch>();
         proLG = FindObjectOfType<ProceduralLayoutGeneration>();
         playerCamera = GetComponentInChildren<Camera>();
     }
-
     // Update is called once per frame
     void Update()
     {
@@ -32,6 +37,28 @@ public class PlayerInteractions : MonoBehaviour
         {
             DoorAction(hit.collider);
         }
+    }
+
+    public void TakeDamage(float amount)
+    {
+        uiWatch.healthUpdate((int)amount);
+        health -= amount;
+        if (health <= 0f)
+        {
+            Die();
+        }
+    }
+
+    private void Die()
+    {
+        fadeAnimator.SetTrigger("FadeToBlack");
+        //Fade to black and restart
+    }
+
+    public void OnFadeComplete()
+    {
+        SceneManager.LoadScene("Main");
+        fadeAnimator.SetTrigger("FadeIn");
     }
 
     public void DoorAction(Collider other)
@@ -53,6 +80,15 @@ public class PlayerInteractions : MonoBehaviour
         }
     }
 
+    private void OnCollisionEnter(Collision collission)
+    {
+        Debug.Log("I've been hit by " + collission.gameObject);
+        if (collission.gameObject.CompareTag("HostileProjectile"))
+        {
+
+            TakeDamage(10f);
+        }
+    }
 
     private void OnTriggerEnter(Collider collider)
     {
