@@ -13,9 +13,14 @@ public class FadeAnimator : MonoBehaviour
         
     }
 
+    public void WhiteFading()
+    {
+        playInt.OnGameComplete();
+    }
 
     public void DoneFading()
     {
+        //ToBlack
         playInt.OnFadeComplete();
     }
 

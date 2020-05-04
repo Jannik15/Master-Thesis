@@ -4,6 +4,8 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.ProBuilder.MeshOperations;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
+
 
 public class MenuManager : MonoBehaviour
 {
@@ -96,11 +98,16 @@ public class MenuManager : MonoBehaviour
     }
 
     public void TestStart(){
-
-        //animatorDoor.SetTrigger("Open");
-        optionsMenu.SetActive(false);
-        handler.ProcedurallyGenerateRooms();
-        handler.SwitchCurrentRoom();
+        if (SceneManager.GetActiveScene().name == "Main")
+        {
+            //animatorDoor.SetTrigger("Open");
+            optionsMenu.SetActive(false);
+            handler.ProcedurallyGenerateRooms();
+            handler.SwitchCurrentRoom();
+        } else if (SceneManager.GetActiveScene().name == "EndScreen")
+        {
+            SceneManager.LoadScene("Main");
+        }
 
     }
 
