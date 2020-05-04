@@ -23,7 +23,7 @@ public class EventObjectBase : MonoBehaviour
                 if (collider.CompareTag("Player"))
                 {
                     Debug.Log("You Win!");
-                    SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex); // TODO: Proper win screen
+                    collider.gameObject.GetComponentInChildren<Animator>().SetTrigger("FadeToWhite");
                 }
                 break;
         }

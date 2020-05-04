@@ -55,8 +55,15 @@ public class PlayerInteractions : MonoBehaviour
         //Fade to black and restart
     }
 
+    public void OnGameComplete()
+    {
+        //Plays when FadeToWhite animation is finished
+        SceneManager.LoadScene("EndScreen");
+    }
+
     public void OnFadeComplete()
     {
+        //Plays when FadeToBlack animation is finished
         SceneManager.LoadScene("Main");
         fadeAnimator.SetTrigger("FadeIn");
     }

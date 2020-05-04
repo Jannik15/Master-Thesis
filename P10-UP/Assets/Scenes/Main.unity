@@ -156,7 +156,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 358.4, y: 43.299988}
+  m_AnchoredPosition: {x: 358.40002, y: 43.299988}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &72876352
@@ -1118,6 +1118,11 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 43.299988
       objectReference: {fileID: 0}
+    - target: {fileID: 3467233368113893503, guid: 69708ba056c0cf940814f6645b1e8410,
+        type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 136.90002
+      objectReference: {fileID: 0}
     - target: {fileID: 3467233368130407140, guid: 69708ba056c0cf940814f6645b1e8410,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -1351,7 +1356,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 192.7, y: 43.299988}
+  m_AnchoredPosition: {x: 192.70001, y: 43.299988}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1065932622
@@ -2606,6 +2611,21 @@ PrefabInstance:
       propertyPath: m_Enabled
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 2137716694423357767, guid: 0967ec9781beaa6419ed77db7196dbe1,
+        type: 3}
+      propertyPath: m_Color.a
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2217347616378252945, guid: 0967ec9781beaa6419ed77db7196dbe1,
+        type: 3}
+      propertyPath: playInt
+      value: 
+      objectReference: {fileID: 1661008944126036383}
+    - target: {fileID: 2322121527911228031, guid: 0967ec9781beaa6419ed77db7196dbe1,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 2843279031180814418, guid: 0967ec9781beaa6419ed77db7196dbe1,
         type: 3}
       propertyPath: keyUI.Array.data[0]
@@ -2656,6 +2676,11 @@ PrefabInstance:
       propertyPath: keyUI.Array.data[9]
       value: 
       objectReference: {fileID: 1219030136}
+    - target: {fileID: 2843279031180814418, guid: 0967ec9781beaa6419ed77db7196dbe1,
+        type: 3}
+      propertyPath: health
+      value: 10000
+      objectReference: {fileID: 0}
     - target: {fileID: 4150980294547686811, guid: 0967ec9781beaa6419ed77db7196dbe1,
         type: 3}
       propertyPath: weaponInHandPosition.x
@@ -2804,6 +2829,18 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 1661008944126036381}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1661008944126036383 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 2843279031180814418, guid: 0967ec9781beaa6419ed77db7196dbe1,
+    type: 3}
+  m_PrefabInstance: {fileID: 1661008944126036381}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6196d6bb02b13f344a5d9c61c1cdb46a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &1681638761727936356
 PrefabInstance:
   m_ObjectHideFlags: 0

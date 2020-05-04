@@ -35,11 +35,19 @@ public class EnemyAI : MonoBehaviour
 
     }
 
+    void OnAnimatorIK(int layerIndex)
+    {
+        animator.SetIKPositionWeight(AvatarIKGoal.RightHand, 1f);
+        animator.SetIKRotationWeight(AvatarIKGoal.RightHand, 1f);
+        animator.SetIKPosition(AvatarIKGoal.RightHand, gun.transform.position);
+        animator.SetIKRotation(AvatarIKGoal.RightHand, gun.transform.rotation);
+    }
 
     void EnemyShoot()
     {
-        //if bool is true
+        
         gun.transform.LookAt(new Vector3(playerCam.position.x, playerCam.position.y -0.5f, playerCam.position.z));
+        
 
         if (Time.time >= nextTimeToFire)
         {
