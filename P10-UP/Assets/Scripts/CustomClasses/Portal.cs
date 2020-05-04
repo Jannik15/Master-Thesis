@@ -53,6 +53,19 @@ public class Portal : MonoBehaviour
         return connectedPortal;
     }
 
+    public void SetLayer(int layer)
+    {
+        gameObject.layer = layer;
+        for (int i = 0; i < transform.childCount; i++)
+        {
+            if (transform.GetChild(i).CompareTag("InteractionHandler"))
+            {
+                transform.GetChild(i).gameObject.layer = layer;
+                break;
+            }
+        }
+    }
+
     public void SetMaskShader(Shader shader,int stencilValue, int readMaskValue, int renderQueue)
     {
         for (int i = 0; i < renderers.Count; i++)

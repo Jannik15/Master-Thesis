@@ -38,6 +38,9 @@ public class ProceduralLayoutGeneration : MonoBehaviour
     private int keyCardID;
     private int differentRoomLayer, defaultLayer, interactionLayer, currentPortalLayer, differentPortalLayer;
     public event Action<Room, Portal> roomSwitched;
+    public event Action<Portal> disabledPortal;
+    private Transform playerCam;
+    private PlayerCollisionHandler playerCollisionHandler;
 
     public void AdjustRoomAmount(int newRoomAmount)
     {
@@ -89,6 +92,8 @@ public class ProceduralLayoutGeneration : MonoBehaviour
         //*/
 
         //SwitchCurrentRoom(rooms[0], null);
+        playerCam = Camera.main.transform;
+        playerCollisionHandler = FindObjectOfType<PlayerCollisionHandler>();
     }
 
     private void Update()
@@ -99,6 +104,41 @@ public class ProceduralLayoutGeneration : MonoBehaviour
             ProcedurallyGenerateRooms();
             SwitchCurrentRoom();
         }
+        //*/ Portal culling based on view cone
+        for (int i = 0; i < activeThroughPortals.Count; i++)
+        {
+            Vector3 cameraDirToPortal = (currentRoom.GetPortalsInRoom()[i].transform.position - playerCam.position).normalized;
+            bool isPortalVisible = math.dot(cameraDirToPortal, currentRoom.GetPortalsInRoom()[i].transform.forward) >= 0;
+            if (!playerCollisionHandler.inPortal)
+            {
+                if (isPortalVisible && !currentRoom.GetPortalsInRoom()[i].gameObject.activeSelf)
+                {
+                    currentRoom.GetPortalsInRoom()[i].SetActive(true);
+                }
+                else if (!isPortalVisible && currentRoom.GetPortalsInRoom()[i].gameObject.activeSelf)
+                {
+                    currentRoom.GetPortalsInRoom()[i].SetActive(false);
+                    disabledPortal?.Invoke(currentRoom.GetPortalsInRoom()[i]);
+                }
+            }
+
+            for (int j = 0; j < activeThroughPortals[i].Count; j++)
+            {
+                if (isPortalVisible)
+                {
+                    if (!activeThroughPortals[i][j].gameObject.activeSelf)
+                    {
+                        activeThroughPortals[i][j].gameObject.SetActive(true);
+                    }
+                }
+                else if (activeThroughPortals[i][j].gameObject.activeSelf)
+                {
+                    activeThroughPortals[i][j].gameObject.SetActive(false);
+                    disabledPortal?.Invoke(activeThroughPortals[i][j]);
+                }
+            }
+        }
+        //*/
     }
 
     private void DuplicateDepthClearer(Transform depthParent, int stencilValue, int renderQueue)
@@ -256,7 +296,7 @@ public class ProceduralLayoutGeneration : MonoBehaviour
         {
             rooms[i].SetLayer(differentRoomLayer, differentRoomLayer);
         }
-        portals[0].gameObject.layer = currentPortalLayer;
+        portals[0].SetLayer(currentPortalLayer);
 
         roomID = 0;
         currentRoom = rooms[roomID];
@@ -572,8 +612,8 @@ public class ProceduralLayoutGeneration : MonoBehaviour
             }
 
             // Set layer for room and portal
-            portal.layer = differentPortalLayer;
-            oppositePortal.layer = differentPortalLayer;
+            portalComponent.SetLayer(differentPortalLayer);
+            oppositePortalComponent.SetLayer(differentPortalLayer);
 
             if (rooms.Count > 3)
             {
@@ -769,7 +809,6 @@ public class ProceduralLayoutGeneration : MonoBehaviour
         }
         previousRoom.SetLayer(differentRoomLayer, differentRoomLayer);
         currentRoom.SetLayer(defaultLayer, interactionLayer);
-        roomSwitched?.Invoke(currentRoom, currentPortal);
 
         #region Disable rooms connected to rooms that are connected to the previous room
 
@@ -788,6 +827,7 @@ public class ProceduralLayoutGeneration : MonoBehaviour
                             previousRoomConnection.GetPortalsInRoom()[j].GetConnectedRoom().gameObject.SetActive(false);
                         }
                         previousRoomConnection.GetPortalsInRoom()[j].SetActive(false);
+                        disabledPortal?.Invoke(previousRoomConnection.GetPortalsInRoom()[j]);
                     }
                 }
             }
@@ -833,9 +873,10 @@ public class ProceduralLayoutGeneration : MonoBehaviour
             activeThroughPortals.Add(new List<Portal>());
             for (int j = 0; j < p.GetConnectedRoom().GetPortalsInRoom().Count; j++)
             {
-                if (p.GetConnectedRoom().GetPortalsInRoom()[j].GetConnectedPortal() != p)
+                Portal pIndex = p.GetConnectedRoom().GetPortalsInRoom()[j];
+                if (pIndex.GetConnectedPortal().gameObject.activeSelf && pIndex.GetConnectedPortal() != p)
                 {
-                    activeThroughPortals[i].Add(p.GetConnectedRoom().GetPortalsInRoom()[j]);
+                    activeThroughPortals[i].Add(pIndex);
                 }
             }
             
@@ -845,7 +886,8 @@ public class ProceduralLayoutGeneration : MonoBehaviour
                 Vector3 dir = (activeThroughPortals[i][j].transform.position - p.transform.position).normalized;
                 if (math.dot(dir, p.transform.forward) < 0 || math.dot(dir, activeThroughPortals[i][j].transform.forward) < 0)
                 {
-                    activeThroughPortals[i][j].gameObject.SetActive(false);
+                    activeThroughPortals[i][j].SetActive(false);
+                    disabledPortal?.Invoke(activeThroughPortals[i][j]);
                     activeThroughPortals[i].RemoveAt(j);
                 }
             }
@@ -853,6 +895,11 @@ public class ProceduralLayoutGeneration : MonoBehaviour
 
             stencilValue += stencilValue; // BitShift 1 to the left
         }
+        if (currentPortal != null)
+            Debug.Log("Invoking roomSwitched with arguments: Room=" + currentRoom + ", Portal=" + currentPortal);
+        else
+            Debug.Log("Invoking roomSwitched with arguments: Room=" + currentRoom + ", Portal=NULL");
+        roomSwitched?.Invoke(currentRoom, currentPortal);
         #endregion
     }
     
@@ -865,21 +912,23 @@ public class ProceduralLayoutGeneration : MonoBehaviour
     {
         // Step 1: Enable the connected portal and disable the current portal from the previous room
         Portal connectedPortal = portal.GetConnectedPortal();
+        portal.SetActive(false);
+        disabledPortal?.Invoke(portal);
+        portal.SetLayer(differentPortalLayer);
         connectedPortal.SetActive(true);
         for (int i = 0; i < previousRoom.GetPortalsInRoom().Count; i++)
         {
-            previousRoom.GetPortalsInRoom()[i].gameObject.layer = differentPortalLayer;
+            previousRoom.GetPortalsInRoom()[i].SetLayer(differentPortalLayer);
         }
         for (int i = 0; i < currentRoom.GetPortalsInRoom().Count; i++)
         {
-            currentRoom.GetPortalsInRoom()[i].gameObject.layer = currentPortalLayer;
+            currentRoom.GetPortalsInRoom()[i].SetLayer(currentPortalLayer);
         }
-        portal.SetActive(false);
-        portal.gameObject.layer = differentPortalLayer;
 
         // Step 2: Update shader matrix for previous room with the connected portals transform
         previousRoom.gameObject.transform.parent = connectedPortal.transform;
         CustomUtilities.UpdateShaderMatrix(previousRoom.gameObject, connectedPortal.transform);
+        roomSwitched?.Invoke(currentRoom, null);
     }
     #endregion
 }

@@ -35,12 +35,12 @@ public class MenuManager : MonoBehaviour
 
     void OnProceduralGeneration()
     {
-        inRoom = CustomUtilities.FindParentRoom(GetComponentInParent<Grid>().gameObject, handler.rooms);
-        for (int i = 0; i < spawnedGuns.Count; i++)
-        {
-            inRoom.AddObjectToRoom(spawnedGuns[i], false);
-            spawnedGuns[i].GetComponentInChildren<InteractableObject>().AssignRoom(inRoom);
-        }
+        //inRoom = CustomUtilities.FindParentRoom(GetComponentInParent<Grid>().gameObject, handler.rooms);
+        //for (int i = 0; i < spawnedGuns.Count; i++)
+        //{
+        //    inRoom.AddObjectToRoom(spawnedGuns[i], false);
+        //    spawnedGuns[i].GetComponentInChildren<InteractableObject>().AssignRoom(inRoom);
+        //}
     }
 
     // Update is called once per frame
@@ -80,16 +80,14 @@ public class MenuManager : MonoBehaviour
             spawnedGun = Instantiate(gun, dispensePoint.position, Quaternion.identity);
             spawnedGun.GetComponent<Rigidbody>().AddForce(dispensePoint.forward * randomRange);
             currentStock--;
-            Debug.Log("Gun transform children: " + spawnedGun.GetComponentsInChildren<Transform>(true).Length + " | Prefab transform children: " + gun.GetComponentsInChildren<Transform>().Length);
 
             if (inRoom != null)
             {
-                inRoom.AddObjectToRoom(spawnedGun.transform, false);
                 spawnedGun.GetComponentInChildren<InteractableObject>().AssignRoom(inRoom);
             }
             else
             {
-                spawnedGuns.Add(spawnedGun.transform);
+                //spawnedGuns.Add(spawnedGun.transform);
                 spawnedGun.transform.parent = handler.rooms[0].gameObject.transform;
             }
         }

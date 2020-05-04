@@ -3,53 +3,320 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-
-
-
 public class WeaponGrab : MonoBehaviour
 {
-    OVRGrabber oVRGrabber;
-    //SimpleShoot simpleShoot;
-    Rigidbody rbR;
-    Rigidbody rbL;
-    public Gun gunScript;
     public LayerMask layerMask;
     public Transform trackingSpace;
-    public Shader highlightMaterialR;
-    public Shader highlightMaterialL;
+    [SerializeField] private float fireRate = 3f, fireDelay;
+    [SerializeField] private WeaponGrab otherHand;
+    [SerializeField] private Vector3 weaponInHandPosition, weaponInHandRotation;
+    [SerializeField] private Color weaponHighlight;
+    [SerializeField] private Material handHighlightMaterial;
+    [SerializeField] private GameObject handModel;
+    [SerializeField] private bool handRight;
+    [HideInInspector] public Transform weaponHit, weaponHeld;
+    public event Action<GameObject, bool, OVRInput.Controller> gunGrabEvent;
+
+    private bool holdingNonWeaponObject;
+    private Rigidbody weaponRb;
+    private Material handDefaultMaterial;
+    private ProceduralLayoutGeneration layout;
+    private OVRGrabber oVRGrabber;
+    private Renderer[] weaponHitRends;
+    private Renderer handModelRend;
+    private List<List<Color>> storedColors = new List<List<Color>>();
+    private Gun currentGun;
+
+    #region Old
+    /*
+    [Header("Deprecated")]
+    public Gun gunScript;
+    private List<List<Color>> storedRightColors = new List<List<Color>>(), storedLeftColors = new List<List<Color>>();
     public Camera camera;
     public GameObject rightHandModel;
     public GameObject leftHandModel;
     public Material HandDefaultMaterial;
     public Material RightHandHighlightMaterial;
     public Material LeftHandHighlightMaterial;
-    public bool handRight, isHeld;
-    private bool holdingGunRight = false;
-    private bool holdingGunLeft = false;
-    private Vector3 gunPositionRight = new Vector3(0.024f, 0.014f, 0.0798f);
-    private Vector3 gunRotationRight = new Vector3(90f, -80f, 9f);
-    private Vector3 gunPositionLeft = new Vector3(-0.024f, 0.014f, 0.076f);
-    private Vector3 gunRotationLeft = new Vector3(263.62f, -181.869f, 88.99999f);
-    public Shader defaultMaterial;
+    public bool isHeld;
+    private bool holdingGun;
+    public Vector3 gunPositionRight = new Vector3(0.024f, 0.014f, 0.0798f);
+    public Vector3 gunRotationRight = new Vector3(90f, -80f, 9f);
+    public Vector3 gunPositionLeft = new Vector3(-0.024f, 0.014f, 0.076f);
+    public Vector3 gunRotationLeft = new Vector3(263.62f, -181.869f, 88.99999f);
     public Color rightHighlight, leftHighlight;
-    private ProceduralLayoutGeneration layout;
-    
-    private Transform _selectionR;
-    private Transform _selectionL;
-    [SerializeField]
-    private GameObject gun = null;
-    [SerializeField]
-    private GameObject currentGunRight = null;
-    [SerializeField]
-    private GameObject currentGunLeft = null;
+    Rigidbody rbR;
+    Rigidbody rbL;
+    [SerializeField] private GameObject gun = null;
+    [SerializeField] private GameObject currentGunRight = null;
+    [SerializeField] private GameObject currentGunLeft = null;
+    private Transform objectHitR, objectHitL;
+    private Renderer[] objHitRendsR, objHitRendsL;
+    public event Action<Transform> weaponGrabDetection;
+    //*/
+    #endregion
 
-    public event Action<GameObject, bool> gunGrabEvent;
-    public float fireRate = 3f;
-    private float nextTimeToFire = 0f;
-
-    void PickUpRight(RaycastHit hitRight)
+    void Start()
     {
-        currentGunRight = hitRight.collider.transform.gameObject;
+        // Register grab events
+        OVRGrabber[] grabbers = Resources.FindObjectsOfTypeAll<OVRGrabber>();
+        for (int i = 0; i < grabbers.Length; i++)
+        {
+            grabbers[i].objectGrabEvent += GrabEventListener;
+        }
+
+        oVRGrabber = GetComponent<OVRGrabber>();
+        layout = FindObjectOfType<ProceduralLayoutGeneration>();
+        if (handModel == null)
+        {
+            handModel = GetComponentInChildren<SkinnedMeshRenderer>().gameObject;
+            Debug.LogError(gameObject.name + " does not have a Hand Model assigned - searching for skinned mesh renderers in children.");
+        }
+        handModelRend = handModel.GetComponentInChildren<Renderer>();
+        handDefaultMaterial = handModelRend.material;
+    }
+
+    // TODO: Test if it is possible to pick up a gun while holding a cube - if yes, make sure that is not possible with below code
+    private void GrabEventListener(GameObject grabbedObject, bool isBeingGrabbed, OVRInput.Controller controller)
+    {
+        // The object being grabbed is this object
+        if (handRight && controller == OVRInput.Controller.RTouch ||
+            !handRight && controller == OVRInput.Controller.LTouch)
+        {
+            holdingNonWeaponObject = isBeingGrabbed;
+        }
+    }
+
+    void Update()
+    {
+        if (holdingNonWeaponObject) return;
+
+        // RayCast pickup
+        if (weaponHeld == null) // Can't pick up new weapon if another weapon is already held
+        {
+            if (Physics.SphereCast(transform.position, 0.15f, transform.forward, out RaycastHit hit, 5, layerMask)) //right Hand cast
+            {
+                if (hit.transform.CompareTag("Weapon") && hit.transform != weaponHit && hit.transform != otherHand.weaponHit)
+                {
+                    if (weaponHit != null) // When raycast hit's a new weapon, before the previous hit has had its materials reset
+                    {
+                        for (int i = 0; i < weaponHitRends.Length; i++)
+                        {
+                            for (int j = 0; j < weaponHitRends[i].materials.Length; j++)
+                            {
+                                weaponHitRends[i].materials[j].SetColor("_MainColor", storedColors[i][j]);
+                            }
+                        }
+                    }
+                    weaponHit = hit.transform;
+                    weaponHitRends = weaponHit.GetComponentsInChildren<Renderer>();
+                    storedColors.Clear();
+                    if (weaponHitRends != null)
+                    {
+                        for (int i = 0; i < weaponHitRends.Length; i++)
+                        {
+                            storedColors.Add(new List<Color>(weaponHitRends[i].materials.Length));
+                            for (int j = 0; j < weaponHitRends[i].materials.Length; j++)
+                            {
+                                storedColors[i].Add(weaponHitRends[i].materials[j].GetColor("_MainColor"));
+                                weaponHitRends[i].materials[j].SetColor("_MainColor", weaponHighlight);
+                            }
+                        }
+                        handModelRend.material = handHighlightMaterial;
+                    }
+                }
+            }
+            else if (weaponHit != null) // When raycast doesn't hit anything
+            {
+                for (int i = 0; i < weaponHitRends.Length; i++)
+                {
+                    for (int j = 0; j < weaponHitRends[i].materials.Length; j++)
+                    {
+                        weaponHitRends[i].materials[j].SetColor("_MainColor", storedColors[i][j]);
+                    }
+                }
+                handModelRend.material = handDefaultMaterial;
+                weaponHit = null;
+            }
+
+            if (weaponHit != null)
+            {
+                // Register pickup input
+                bool inputRegistered = false;
+                if (handRight && (OVRInput.Get(OVRInput.RawButton.RHandTrigger) || Input.GetKeyDown(KeyCode.E)))
+                {
+                    inputRegistered = true;
+                }
+                else if (!handRight && (OVRInput.Get(OVRInput.RawButton.LHandTrigger) || Input.GetKeyDown(KeyCode.E)))
+                {
+                    inputRegistered = true;
+                }
+                if (inputRegistered)
+                {
+                    if (weaponHit == otherHand.weaponHeld)
+                    {
+                        otherHand.DropWeapon();
+                    }
+                    PickUpWeapon(weaponHit);
+                }
+            }
+        }
+        else // Weapon is held
+        {
+            if (Time.time >= fireDelay && 
+                (handRight && OVRInput.GetDown(OVRInput.RawButton.RIndexTrigger) ||
+                !handRight && OVRInput.GetDown(OVRInput.RawButton.LIndexTrigger)))
+            {
+                fireDelay = Time.time + 1f / fireRate;
+                currentGun.Shoot();
+            }
+
+            if (handRight && (OVRInput.GetDown(OVRInput.Button.Two) || Input.GetKeyDown(KeyCode.H)) ||
+                !handRight && (OVRInput.GetDown(OVRInput.Button.Four)|| Input.GetKeyDown(KeyCode.J)))
+            {
+                DropWeapon();
+            }
+        }
+
+        #region Old for left hand
+        /*
+        if (!handRight && !holdingGun)
+        {
+            if (Physics.SphereCast(transform.position, 0.15f, transform.forward, out RaycastHit hitLeft, 5, layerMask))
+            {
+                if (hitLeft.transform.CompareTag("Weapon") && hitLeft.transform != objectHitL && hitLeft.transform != objectHitR)
+                {
+                    if (objectHitL != null)
+                    {
+                        for (int i = 0; i < objHitRendsL.Length; i++)
+                        {
+                            for (int j = 0; j < objHitRendsL[i].materials.Length; j++)
+                            {
+                                objHitRendsL[i].materials[j].SetColor("_MainColor", storedLeftColors[i][j]);
+                            }
+                        }
+                    }
+
+                    objectHitL = hitLeft.transform;
+                    weaponGrabDetection?.Invoke(objectHitL);
+                    gun = hitLeft.collider.transform.gameObject;
+                    objHitRendsL = objectHitL.GetComponentsInChildren<Renderer>();
+                    storedLeftColors.Clear();
+                    if (objHitRendsL != null)
+                    {
+                        for (int i = 0; i < objHitRendsL.Length; i++)
+                        {
+                            storedLeftColors.Add(new List<Color>(objHitRendsL[i].materials.Length));
+                            for (int j = 0; j < objHitRendsL[i].materials.Length; j++)
+                            {
+                                storedLeftColors[i].Add(objHitRendsL[i].materials[j].GetColor("_MainColor"));
+                                objHitRendsL[i].materials[j].SetColor("_MainColor", leftHighlight);
+                            }
+                        }
+
+                        leftHandModel.GetComponent<Renderer>().material = LeftHandHighlightMaterial;
+                    }
+                }
+            }
+            else if (objectHitL != null)
+            {
+                for (int i = 0; i < objHitRendsL.Length; i++)
+                {
+                    for (int j = 0; j < objHitRendsL[i].materials.Length; j++)
+                    {
+                        objHitRendsL[i].materials[j].SetColor("_MainColor", storedLeftColors[i][j]);
+                    }
+                }
+                leftHandModel.GetComponent<Renderer>().material = HandDefaultMaterial;
+                gun = null;
+                objectHitL = null;
+                weaponGrabDetection?.Invoke(objectHitL);
+            }
+
+            //Left hand Pickup
+            if (OVRInput.Get(OVRInput.RawButton.LHandTrigger) && gun != null ||
+                Input.GetKeyDown(KeyCode.R) && gun != null)
+            {
+                if (objectHitL != null)
+                {
+                    if (objectHitL.parent != null && objectHitL.parent.GetComponent<WeaponGrab>() != null)
+                    {
+                        objectHitL.parent.GetComponent<WeaponGrab>().DropRight();
+                    }
+                    PickUpLeft(objectHitL);
+                }
+            }
+        }
+        //*/
+        #endregion
+    }
+
+    private void PickUpWeapon(Transform weaponToPickUp)
+    {
+        weaponHeld = weaponToPickUp; 
+        for (int i = 0; i < weaponHitRends.Length; i++)
+        {
+            for (int j = 0; j < weaponHitRends[i].materials.Length; j++)
+            {
+                weaponHitRends[i].materials[j].SetColor("_MainColor", storedColors[i][j]);
+            }
+        }
+        handModelRend.material = handDefaultMaterial;
+        weaponHeld.GetComponentInChildren<InteractableObject>().AssignRoom(null);
+        weaponHeld.parent = transform;
+        weaponHeld.localPosition = weaponInHandPosition;
+        weaponHeld.localEulerAngles = weaponInHandRotation;
+        weaponRb = weaponHeld.GetComponentInChildren<Rigidbody>();
+        weaponRb.constraints = RigidbodyConstraints.FreezeAll;
+        oVRGrabber.enabled = false;
+        currentGun = weaponHeld.GetComponentInChildren<Gun>();
+        if (handRight)
+        {
+            gunGrabEvent?.Invoke(weaponHeld.gameObject, true, OVRInput.Controller.RTouch);
+        }
+        else
+        {
+            gunGrabEvent?.Invoke(weaponHeld.gameObject, true, OVRInput.Controller.LTouch);
+        }
+    }
+
+    public void DropWeapon()
+    {
+        oVRGrabber.enabled = true;
+        weaponRb.constraints = RigidbodyConstraints.None;
+        weaponHeld.GetComponentInChildren<InteractableObject>().AssignRoom(layout.currentRoom);
+        if (handRight)
+        {
+            weaponRb.velocity = trackingSpace.rotation * OVRInput.GetLocalControllerVelocity(OVRInput.Controller.RTouch);
+            weaponRb.angularVelocity = OVRInput.GetLocalControllerAngularVelocity(OVRInput.Controller.RTouch);
+            gunGrabEvent?.Invoke(weaponHeld.gameObject, false, OVRInput.Controller.RTouch);
+        }
+        else
+        {
+            weaponRb.velocity = trackingSpace.rotation * OVRInput.GetLocalControllerVelocity(OVRInput.Controller.LTouch);
+            weaponRb.angularVelocity = OVRInput.GetLocalControllerAngularVelocity(OVRInput.Controller.LTouch);
+            gunGrabEvent?.Invoke(weaponHeld.gameObject, false, OVRInput.Controller.LTouch);
+        }
+        weaponHeld = null;
+    }
+
+    #region Old 
+    /*/
+    private void RegisterOtherWeaponGrabber(Transform objectHitByOtherWeaponGrabber)
+    {
+        if (handRight)
+        {
+            objectHitL = objectHitByOtherWeaponGrabber;
+        }
+        else
+        {
+            objectHitR = objectHitByOtherWeaponGrabber;
+        }
+    }
+
+    void PickUpRight(Transform hitRight)
+    {
+        currentGunRight = hitRight.gameObject;
         currentGunRight.transform.parent = transform;
         currentGunRight.transform.localPosition = gunPositionRight;
         currentGunRight.transform.localEulerAngles = gunRotationRight;
@@ -58,7 +325,7 @@ public class WeaponGrab : MonoBehaviour
         rbR = currentGunRight.GetComponent<Rigidbody>();
         rbR.isKinematic = true;
 
-        holdingGunRight = true;
+        holdingGun = true;
         //simpleShoot.enabled = true; //on
         oVRGrabber.enabled = false; //off
         gunGrabEvent?.Invoke(currentGunRight, true);
@@ -66,7 +333,7 @@ public class WeaponGrab : MonoBehaviour
 
     void DropRight()
     {
-        holdingGunRight = false;
+        holdingGun = false;
         //simpleShoot.enabled = false; //off
         oVRGrabber.enabled = true; //on
         rbR.isKinematic = false;
@@ -78,9 +345,9 @@ public class WeaponGrab : MonoBehaviour
         currentGunRight = null;
     }
 
-    void PickUpLeft(RaycastHit hitLeft)
+    void PickUpLeft(Transform hitLeft)
     {
-        currentGunLeft = hitLeft.collider.transform.gameObject;
+        currentGunLeft = hitLeft.gameObject;
         currentGunLeft.transform.parent = transform;
         currentGunLeft.transform.localPosition = gunPositionLeft;
         currentGunLeft.transform.localEulerAngles = gunRotationLeft;
@@ -89,7 +356,7 @@ public class WeaponGrab : MonoBehaviour
         rbL = currentGunLeft.GetComponent<Rigidbody>();
         rbL.isKinematic = true;
 
-        holdingGunLeft = true;
+        holdingGun = true;
         //simpleShoot.enabled = true; //on
         oVRGrabber.enabled = false; //off
         gunGrabEvent?.Invoke(currentGunLeft, true);
@@ -97,7 +364,7 @@ public class WeaponGrab : MonoBehaviour
 
     void DropLeft()
     {
-        holdingGunLeft = false;
+        holdingGun = false;
         //simpleShoot.enabled = false; //off
         oVRGrabber.enabled = true; //on
         rbL.isKinematic = false;
@@ -108,245 +375,6 @@ public class WeaponGrab : MonoBehaviour
         gun = null;
         currentGunLeft = null;
     }
-
-    void Start()
-    {
-        // Register grab events
-        OVRGrabber[] grabbers = Resources.FindObjectsOfTypeAll<OVRGrabber>();
-        for (int i = 0; i < grabbers.Length; i++)
-        {
-            grabbers[i].objectGrabEvent += GrabEventListener;
-        }
-
-
-        oVRGrabber = GetComponent<OVRGrabber>();
-        layout = FindObjectOfType<ProceduralLayoutGeneration>();
-        if (holdingGunRight == false){
-            oVRGrabber.enabled = true; //on
-        }
-        if (holdingGunLeft == false){
-            oVRGrabber.enabled = true;
-        }
-    }
-
-    private void GrabEventListener(GameObject grabbedObject, bool isBeingGrabbed)
-    {
-        // The object being grabbed is this object
-        if (handRight == true && gameObject == grabbedObject)
-        {
-            isHeld = isBeingGrabbed;
-            Debug.Log("Grabbing Right Hand");
-        }
-        else if (handRight != true && gameObject == grabbedObject)
-        {
-            isHeld = isBeingGrabbed;
-            Debug.Log("Grabbing Left Hand");
-
-        }
-    }
-
-    void Update()
-    {
-        //Pickup Raycasting
-        if (_selectionR != null)
-        {
-            Renderer[] selectionRendererR = _selectionR.GetComponentsInChildren<Renderer>();
-            for (int i = 0; i < selectionRendererR.Length; i++)
-            {
-                for (int j = 0; j < selectionRendererR[i].materials.Length; j++)
-                {
-                    selectionRendererR[i].materials[j].shader = null;
-                    selectionRendererR[i].materials[j].shader = defaultMaterial;
-                }
-            }
-            rightHandModel.GetComponent<Renderer>().material = HandDefaultMaterial;
-            gun = null;
-            _selectionR = null;
-        }
-
-        if (_selectionL != null)
-        {
-            Renderer[] selectionRendererL = _selectionL.GetComponentsInChildren<Renderer>();
-
-            for (int i = 0; i < selectionRendererL.Length; i++)
-            {
-                for (int j = 0; j < selectionRendererL[i].materials.Length; j++)
-                {
-                    selectionRendererL[i].materials[j].shader = null;
-                    selectionRendererL[i].materials[j].shader = defaultMaterial;
-                }
-            }
-            leftHandModel.GetComponent<Renderer>().material = HandDefaultMaterial;
-            gun = null;
-            _selectionL = null;
-        }
-
-        if (handRight && holdingGunRight != true) //right Hand cast
-        {
-
-            //var ray = camera.ScreenPointToRay(Input.mousePosition);
-            RaycastHit hitRight;
-            //if(Physics.Raycast(transform.position, transform.forward, out hitRight, 5, layerMask))   //Vr (Not tested)
-            if (Physics.SphereCast(transform.position, 0.15f, transform.forward, out hitRight, 5, layerMask))
-            //if (Physics.CapsuleCast(transform.position + (transform.up * 0.5f), transform.position + (transform.up * -0.5f), 0.15f, transform.forward, out hitRight, 5, layerMask))
-
-
-            //if (Physics.SphereCast(camera.transform.position, 0.3f, camera.transform.forward, out hit, 10)) // Non VR
-            {
-                if (hitRight.transform.CompareTag("Weapon"))
-                {
-                    gun = hitRight.collider.transform.gameObject;
-
-                    var selectionR = hitRight.transform;
-                    Renderer[] selectionRendererR = selectionR.GetComponentsInChildren<Renderer>();
-
-
-
-                    if (selectionRendererR != null)
-                    {
-                        for (int i = 0; i < selectionRendererR.Length; i++)
-                        {
-                            for (int j = 0; j < selectionRendererR[i].materials.Length; j++)
-                            {
-                                selectionRendererR[i].materials[j].shader = highlightMaterialR;
-                                selectionRendererR[i].materials[j].SetColor("outlineColor", rightHighlight);
-                            }
-                        }
-                    rightHandModel.GetComponent<Renderer>().material = RightHandHighlightMaterial;
-                    }
-                    _selectionR = selectionR;
-                }
-
-            }
-
-             //Right Hand pickup
-            if (OVRInput.Get(OVRInput.RawButton.RHandTrigger) && gun != null || Input.GetKeyDown(KeyCode.E) && gun != null)
-            {
-                if (holdingGunRight == false && isHeld == false)
-                {
-                    if (hitRight.transform.CompareTag("Weapon"))
-                    {
-                        if(hitRight.transform.parent == null || hitRight.transform.parent.GetComponent<WeaponGrab>() == null)
-                        {
-                            PickUpRight(hitRight);
-                        }
-                        else
-                        {
-                            hitRight.transform.parent.GetComponent<WeaponGrab>().DropLeft();
-                            PickUpRight(hitRight);
-                        }
-                    }
-                }
-            }
-        }
-
-        if (!handRight && holdingGunLeft != true)
-        {
-
-            //var ray = camera.ScreenPointToRay(Input.mousePosition);
-            RaycastHit hitLeft;
-            //if(Physics.Raycast(transform.position, transform.forward, out hit, Mathf.Infinity))   //Vr (Not tested)
-            if (Physics.SphereCast(transform.position, 0.15f, transform.forward, out hitLeft, 5, layerMask))
-
-            //if (Physics.SphereCast(camera.transform.position, 0.3f, camera.transform.forward, out hit, 10)) // Non VR
-            {
-                if (hitLeft.transform.CompareTag("Weapon"))
-                {
-                    gun = hitLeft.collider.transform.gameObject;
-
-                    var selectionL = hitLeft.transform;
-                    Renderer[] selectionRendererL = selectionL.GetComponentsInChildren<Renderer>();
-
-
-
-                    if (selectionRendererL != null)
-                    {
-                        for (int i = 0; i < selectionRendererL.Length; i++)
-                        {
-                            for (int j = 0; j < selectionRendererL[i].materials.Length; j++)
-                            {
-                                selectionRendererL[i].materials[j].shader = highlightMaterialL;
-                                selectionRendererL[i].materials[j].SetColor("outlineColor", leftHighlight);
-                            }
-                        }
-                        leftHandModel.GetComponent<Renderer>().material = LeftHandHighlightMaterial;
-                    }
-                    _selectionL = selectionL;
-                }
-
-            }
-            //Left hand Pickup
-            if (OVRInput.Get(OVRInput.RawButton.LHandTrigger) && gun != null || Input.GetKeyDown(KeyCode.R) && gun != null)
-            {
-                if (holdingGunLeft == false && isHeld == false)
-                {
-                    if (hitLeft.transform.CompareTag("Weapon"))
-                    {
-                        if (hitLeft.transform.parent == null || hitLeft.transform.parent.GetComponent<WeaponGrab>() == null)
-                        {
-                            PickUpLeft(hitLeft);
-                        }
-                        else
-                        {
-                            hitLeft.transform.parent.GetComponent<WeaponGrab>().DropRight();
-                            PickUpLeft(hitLeft);
-                        }
-                    }
-                }
-            }
-        }
-
-        if (OVRInput.GetDown(OVRInput.RawButton.RIndexTrigger) && Time.time >= nextTimeToFire && currentGunRight != null)
-        {
-            nextTimeToFire = Time.time + 1f / fireRate;
-            currentGunRight.GetComponent<Gun>().Shoot();
-        }
-
-        if (OVRInput.GetDown(OVRInput.RawButton.LIndexTrigger) && Time.time >= nextTimeToFire && currentGunLeft != null)
-        {
-            nextTimeToFire = Time.time + 1f / fireRate;
-            currentGunLeft.GetComponent<Gun>().Shoot();
-        }
-
-
-        //Right Hand Drop
-        if (OVRInput.GetDown(OVRInput.Button.Two) && currentGunRight != null || Input.GetKeyDown(KeyCode.H) && currentGunRight != null)
-        {
-            if (holdingGunRight == true)
-            {
-                DropRight();
-            }
-        }
-
-        //Left Hand Drop
-        if (OVRInput.GetDown(OVRInput.Button.Four) && currentGunLeft != null || Input.GetKeyDown(KeyCode.J) && currentGunLeft != null)
-        {
-            if (holdingGunLeft == true)
-            {
-                DropLeft();
-            }
-        }
-
-        // Jannik PC testing
-        if (!holdingGunRight && handRight)
-        {
-            if (Input.GetKeyDown(KeyCode.N))
-            {
-                currentGunRight = FindObjectOfType<Gun>().gameObject;
-                currentGunRight.transform.parent = transform;
-                currentGunRight.transform.localPosition = gunPositionRight;
-                currentGunRight.transform.localEulerAngles = gunRotationRight;
-                currentGunRight.GetComponentInChildren<InteractableObject>().AssignRoom(null);
-                //simpleShoot = currentGunRight.GetComponent<SimpleShoot>();
-                rbR = currentGunRight.GetComponent<Rigidbody>();
-                rbR.isKinematic = true;
-
-                holdingGunRight = true;
-                //simpleShoot.enabled = true; //on
-                oVRGrabber.enabled = false; //off
-                gunGrabEvent?.Invoke(currentGunRight, true);
-            }
-        }
-        
-    }
+    //*/
+    #endregion
 }

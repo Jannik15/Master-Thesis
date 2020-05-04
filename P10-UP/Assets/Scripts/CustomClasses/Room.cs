@@ -84,11 +84,23 @@ public class Room
         Transform[] objectToAddAndItsChildren = objectToAdd.GetComponentsInChildren<Transform>(true);
         if (playerCanCollide)
         {
-            playerCollisionObjectsInRoom.AddRange(objectToAddAndItsChildren);
+            for (int i = 0; i < objectToAddAndItsChildren.Length; i++)
+            {
+                if (!playerCollisionObjectsInRoom.Contains(objectToAddAndItsChildren[i]))
+                {
+                    playerCollisionObjectsInRoom.Add(objectToAddAndItsChildren[i]);
+                }
+            }
         }
         else
         {
-            noPlayerCollisionObjectsInRoom.AddRange(objectToAddAndItsChildren);
+            for (int i = 0; i < objectToAddAndItsChildren.Length; i++)
+            {
+                if (!noPlayerCollisionObjectsInRoom.Contains(objectToAddAndItsChildren[i]))
+                {
+                    noPlayerCollisionObjectsInRoom.Add(objectToAddAndItsChildren[i]);
+                }
+            }
         }
         objectToAdd.SetParent(gameObject.transform);
     }
@@ -108,7 +120,7 @@ public class Room
             }
             else
             {
-                Debug.Log("Attempted to remove " + objectToRemoveAndItsChildren[i].name + " from Room " + gameObject.name + " but that object was not found in the rooms object list.");
+                //Debug.Log("Attempted to remove " + objectToRemoveAndItsChildren[i].name + " from Room " + gameObject.name + " but that object was not found in the rooms object list.");
             }
         }
     }
@@ -144,7 +156,7 @@ public class Room
                 !noPlayerCollisionObjectsInRoom.Contains(allChildren[i]))
             {
                 allChildren[i].gameObject.layer = layerForNoPlayerCollisionObjects;
-                Debug.Log("allChildren[" + i + "] " + allChildren[i].gameObject.name + " was not assigned to room " + gameObject.name + " but is a child of it!");
+                //Debug.Log("allChildren[" + i + "] " + allChildren[i].gameObject.name + " was not assigned to room " + gameObject.name + " but is a child of it!");
             }
         }
     } 
