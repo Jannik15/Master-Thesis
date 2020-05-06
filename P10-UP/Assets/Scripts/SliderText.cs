@@ -7,12 +7,11 @@ using UnityEngine.UI;
 public class SliderText : MonoBehaviour
 {
     private TMP_Text text;
-    public GameObject handler;
     private ProceduralLayoutGeneration proLG;
     void Start()
     {
         text = GetComponent<TMP_Text>();
-        proLG = handler.GetComponent<ProceduralLayoutGeneration>();
+        proLG = FindObjectOfType<ProceduralLayoutGeneration>();
     }
 
     // Update is called once per frame

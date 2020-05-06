@@ -20,6 +20,8 @@ public class MenuManager : MonoBehaviour
     public int currentStock = 5;
     public TMP_Text stockAmount;
     public bool dispenser;
+    public CharacterController steeringController;
+    public OVRPlayerController ovrSteeringController;
 
     // Start is called before the first frame update
     void Start()
@@ -112,6 +114,19 @@ public class MenuManager : MonoBehaviour
     public void TestClose()
     {
         animatorDoor.SetTrigger("Close");
+    }
+
+    public void SetSteering(bool b)
+    {
+        if (steeringController == null)
+        {
+            Debug.Log("Steering controller was null, attempting to find...");
+            steeringController = FindObjectOfType<CharacterController>();
+            ovrSteeringController = steeringController.GetComponent<OVRPlayerController>();
+        }
+        steeringController.enabled = b;
+        ovrSteeringController.enabled = b;
+        Debug.Log("Steering controllers set to " + b);
     }
 
     public void QuitGame()

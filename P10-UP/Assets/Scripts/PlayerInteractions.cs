@@ -11,22 +11,18 @@ public class PlayerInteractions : MonoBehaviour
     public LayerMask layerMaskRay;
     public float health = 100;
     public Animator fadeAnimator;
- 
-
     private Ray ray;
     private Camera playerCamera;
-    private int keyHoldID;
-    private int maxKeysList;
     private ProceduralLayoutGeneration proLG;
-
-
     private UIWatch uiWatch;
+    public Transform virtualParent;
+
     // Start is called before the first frame update
     void Start()
     {
-        uiWatch = GetComponentInChildren<UIWatch>();
+        uiWatch = transform.parent.parent.GetComponentInChildren<UIWatch>();
         proLG = FindObjectOfType<ProceduralLayoutGeneration>();
-        playerCamera = GetComponentInChildren<Camera>();
+        playerCamera = Camera.main;
     }
     // Update is called once per frame
     void Update()
@@ -36,6 +32,11 @@ public class PlayerInteractions : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.F) && Physics.Raycast(ray, out hit, 1.5f, layerMaskRay) && hit.collider.gameObject.tag == "Button")
         {
             DoorAction(hit.collider);
+        }
+
+        if (virtualParent != null)
+        {
+            transform.position = virtualParent.position;
         }
     }
 
@@ -101,6 +102,7 @@ public class PlayerInteractions : MonoBehaviour
     {
         if (collider.CompareTag("Keycard"))
         {
+            Debug.Log("Collided with keycard");
             // Loop through the list of keyCards to enable the correct one in the UI.
             for (int i = 0; i < proLG.keysList.Count; i++)
             {

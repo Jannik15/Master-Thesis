@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class Enemy : MonoBehaviour
 {
-    private Room inRoom;
+    public Room inRoom;
 
     public float Health = 1f;
 
@@ -14,8 +14,8 @@ public class Enemy : MonoBehaviour
 
     public void AssignRoom(Room room, bool playerCanCollide)
     {
-        this.inRoom = room;
-        room.AddObjectToRoom(transform, playerCanCollide);
+        inRoom = room;
+        inRoom.AddObjectToRoom(transform, playerCanCollide);
     }
 
     public void TakeDamage(float amount, Vector3 hitpoint)

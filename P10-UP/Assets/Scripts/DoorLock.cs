@@ -5,7 +5,8 @@ using UnityEngine;
 
 public class DoorLock : MonoBehaviour
 {
-
+    #region Button (deprecated)
+    /*
     [Header("Freeze Local Position")]
     [SerializeField]
     bool x;
@@ -13,7 +14,14 @@ public class DoorLock : MonoBehaviour
     bool y;
     [SerializeField]
     bool z;
-
+    public Transform button;
+    public Transform buttonTrigger;
+    [SerializeField] private Transform buttonGroup;
+    private float minDistance, maxDistance;
+    private Vector3 originalPosition;
+    private Rigidbody rb;
+    */
+    #endregion
     public enum DoorEvent
     {
         Unlocked,
@@ -22,21 +30,14 @@ public class DoorLock : MonoBehaviour
         KeyCard
     }
     public bool isLocked, isOpen;
-    public Transform button;
-    public Transform buttonTrigger;
     public Room inRoom;
-    private Vector3 originalPosition;
-    private Rigidbody rb;
     private Animator doorAnimator;
-    private float minDistance, maxDistance;
     public DoorEvent lockEvent;
     public GameObject pairedKeyCard;
     public EventObjectBase pairedEvent;
     private ProceduralLayoutGeneration layoutGeneration;
     private PlayerInteractions playerInteractions;
-    [SerializeField] private Transform buttonGroup;
-
-    Vector3 localPosition0;    //original local position
+    public Transform keycardScanner;
 
     void Awake()
     {
@@ -44,6 +45,7 @@ public class DoorLock : MonoBehaviour
         layoutGeneration = FindObjectOfType<ProceduralLayoutGeneration>();
         playerInteractions = FindObjectOfType<PlayerInteractions>();
 
+        /*
         if (buttonTrigger != null)
         {
             SetOriginalLocalPosition();
@@ -53,57 +55,13 @@ public class DoorLock : MonoBehaviour
 
             rb = button.GetComponent<Rigidbody>();
         }
+        */
     }
 
-    void Update()
-    {
-        if (buttonTrigger != null)
-        {
-            if (Vector3.Distance(buttonTrigger.position, button.position) >= minDistance)
-            {
-                button.position = originalPosition;
-            }
-            if (button.position.x <= maxDistance)
-            {
-                button.position = new Vector3(maxDistance, button.position.y, button.position.z);
-            }
-
-            //if (rb)
-            //{
-            //    Vector3 localVelocity = button.transform.InverseTransformDirection(rb.velocity);
-            //    localVelocity.y = 0;
-            //    localVelocity.z = 0;
-
-            //    rb.velocity = button.transform.TransformDirection(localVelocity);
-            //}
-
-            float x, y, z;
-
-
-            if (this.x)
-                x = localPosition0.x;
-            else
-                x = button.transform.localPosition.x;
-
-            if (this.y)
-                y = localPosition0.y;
-            else
-                y = button.transform.localPosition.y;
-
-            if (this.z)
-                z = localPosition0.z;
-            else
-                z = button.transform.localPosition.z;
-
-
-            button.transform.localPosition = new Vector3(x, y, z);
-        }
-    }
-
-    public void SetOriginalLocalPosition()
-    {
-        localPosition0 = button.transform.localPosition;
-    }
+    //public void SetOriginalLocalPosition()
+    //{
+    //    localPosition0 = button.transform.localPosition;
+    //}
 
 
     public void Pair(DoorEvent doorEvent, GameObject pairedObject)
@@ -113,6 +71,7 @@ public class DoorLock : MonoBehaviour
         if (doorEvent == DoorEvent.KeyCard)
         {
             pairedKeyCard = pairedObject;
+
         }
         else
         {
@@ -143,27 +102,29 @@ public class DoorLock : MonoBehaviour
                         }
                     }
                 }
-
                 break;
         }
     }
 
     public void RemoveButton()
     {
-        inRoom.RemoveObjectFromRoom(buttonGroup);
-        DestroyImmediate(buttonGroup.gameObject); // Destroy immediate should be used since Destroy is too slow for procedural generation
-
+        //inRoom.RemoveObjectFromRoom(buttonGroup);
+        //DestroyImmediate(buttonGroup.gameObject); // Destroy immediate should be used since Destroy is too slow for procedural generation
+        inRoom.RemoveObjectFromRoom(keycardScanner);
+        DestroyImmediate(keycardScanner.gameObject); // Destroy immediate should be used since Destroy is too slow for procedural generation
     }
 
     public void OpenDoor()
     {
         doorAnimator.CrossFadeInFixedTime("DoorOpen", 0.9f, 0, 0);
         isOpen = true;
+        // TODO: Enable portal here
     }
 
     public void CloseDoor()
     {
         doorAnimator.CrossFadeInFixedTime("DoorClose", 0.9f, 0, 0);
         isOpen = false;
+        // TODO: Disable portal here
     }
 }

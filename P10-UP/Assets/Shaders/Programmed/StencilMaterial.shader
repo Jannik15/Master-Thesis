@@ -64,7 +64,6 @@
             {
                 // sample the texture
                 fixed4 col = tex2D(_MainTex, i.uv);
-                //col.rgb += _MainColor.rgb;
                 float3 lightDir = _WorldSpaceLightPos0.xyz;
                 float3 viewDir = normalize(_WorldSpaceCameraPos - i.worldPos);
                 float3 lightColor = _LightColor0.rgb;

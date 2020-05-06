@@ -11,28 +11,36 @@ public class EnemyAI : MonoBehaviour
     public Transform barrelPoint;
     public LayerMask layerMask;
     public Animator animator;
+    private ProceduralLayoutGeneration layout;
+    public bool _canShoot;
 
-
-    private Enemy enemy;
+    private Enemy thisEnemy;
     private float nextTimeToFire = 0f;
 
     private bool looking;
     // Start is called before the first frame update
     void Start()
     {
-        enemy = GetComponentInParent<Enemy>();
+        thisEnemy = GetComponentInParent<Enemy>();
         playerCam = Camera.main.transform;
         looking = true;
+
+        layout = FindObjectOfType<ProceduralLayoutGeneration>();
+        layout.roomSwitched += UpdatePlayerRoom;
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (enemy.Health > 0)
+        if (thisEnemy.Health > 0 && _canShoot) // Only when in the same room and can see the player
         {
             EnemyShoot();
         }
+    }
 
+    private void UpdatePlayerRoom(Room playerRoom, Portal p)
+    {
+        _canShoot = playerRoom == thisEnemy.inRoom;
     }
 
     void OnAnimatorIK(int layerIndex)

@@ -27,6 +27,7 @@ public class InteractableObject : MonoBehaviour
     private PlayerCollisionHandler player;
     private bool _inInteractionCollider, _inPortalCollider, _roomChanged;
     private int activePortalCollisions, activePortalInteractionCollisions;
+    [HideInInspector] public bool _alreadyDuplicated;
 
     private void Awake()
     {
@@ -39,7 +40,10 @@ public class InteractableObject : MonoBehaviour
             TMPTexts = GetComponentsInChildren<TextMeshProUGUI>();
             images = GetComponentsInChildren<Image>();
 
-            duplicatedMeshObject = Instantiate(gameObject, transform.position, transform.rotation, transform);
+            if (!_alreadyDuplicated)
+            {
+                duplicatedMeshObject = Instantiate(gameObject, transform.position, transform.rotation, transform);
+            }
             duplicatedRenderers = duplicatedMeshObject.GetComponentsInChildren<Renderer>();
             duplicatedTexts = duplicatedMeshObject.GetComponentsInChildren<Text>();
             duplicatedTMPTexts = duplicatedMeshObject.GetComponentsInChildren<TextMeshProUGUI>();
@@ -165,8 +169,10 @@ public class InteractableObject : MonoBehaviour
             inRoom = room;
             if (duplicatedMeshObject == null)
             {
-                Debug.Log("Adding " + transform.name + " to " + inRoom.gameObject.name + " before duplicatedObjects have been instantiated");
+                _alreadyDuplicated = true;
+                duplicatedMeshObject = Instantiate(gameObject, transform.position, transform.rotation, transform);
             }
+
             inRoom.AddObjectToRoom(transform, false);
         }
         else if (inRoom != null)

@@ -160,8 +160,6 @@ Shader "Stencils/URPShaderStencilTemplate"
             // LWRP Lit shader.
             #include "Packages/com.unity.render-pipelines.universal/Shaders/LitInput.hlsl"
 			
-			int _StencilValue;
-			float4x4 _WorldToPortal;
             struct Attributes
             {
                 float4 positionOS   : POSITION;
@@ -188,7 +186,6 @@ Shader "Stencils/URPShaderStencilTemplate"
                 float4 shadowCoord              : TEXCOORD6; // compute shadow coord per-vertex for the main light
 #endif
                 float4 positionCS               : SV_POSITION;
-				float3 worldPos					: TEXCOORD7;
             };
 
             Varyings LitPassVertex(Attributes input)
@@ -318,20 +315,6 @@ Shader "Stencils/URPShaderStencilTemplate"
                 // Mix the pixel color with fogColor. You can optionaly use MixFogColor to override the fogColor
                 // with a custom one.
                 color = MixFog(color, fogFactor);
-				
-				// Discard geometry based on z axis proximity, but not when camera is close enough to the portal
-				if (_StencilValue > 0) {
-					if (mul(_WorldToPortal, float4(_WorldSpaceCameraPos, 1.0)).z > 0.1)
-					{
-						if (mul(_WorldToPortal, float4(input.worldPos, 1.0)).z > 0.11)
-							discard;
-					}
-					else if (mul(_WorldToPortal, float4(_WorldSpaceCameraPos, 1.0)).z < -0.1)
-					{
-						if (mul(_WorldToPortal, float4(input.worldPos, 1.0)).z < -0.11)
-							discard;
-					}
-				}
                 return half4(color, surfaceData.alpha);
             }
             ENDHLSL

@@ -16,7 +16,10 @@ public class EventObjectBase : MonoBehaviour
             case EventObjectType.ThisType.PressurePlate:
                 if (collider.CompareTag("Button"))
                 {
-                    connectedDoor.isLocked = false;
+                    if (!connectedDoor.isOpen)
+                    {
+                        connectedDoor.OpenDoor();
+                    }
                 }
                 break;
             case EventObjectType.ThisType.WinCondition:
@@ -35,7 +38,6 @@ public class EventObjectBase : MonoBehaviour
             case EventObjectType.ThisType.PressurePlate:
                 if (collider.CompareTag("Button"))
                 {
-                    connectedDoor.isLocked = true;
                     if (connectedDoor.isOpen)
                     {
                         connectedDoor.CloseDoor();

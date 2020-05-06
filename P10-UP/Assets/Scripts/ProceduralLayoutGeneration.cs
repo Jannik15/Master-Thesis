@@ -96,19 +96,19 @@ public class ProceduralLayoutGeneration : MonoBehaviour
         playerCollisionHandler = FindObjectOfType<PlayerCollisionHandler>();
     }
 
-    private void Update()
+    private void FixedUpdate()
     {
-        if (mainMenuCanvas.activeSelf && Input.GetKeyDown(KeyCode.Y))
+        if (mainMenuCanvas.activeSelf && Input.GetKeyDown(KeyCode.Y)) // PC Debug only
         {
             mainMenuCanvas.SetActive(false);
             ProcedurallyGenerateRooms();
             SwitchCurrentRoom();
         }
-        //*/ Portal culling based on view cone
+        //*/ Portal culling based on view cone and portal to portal direction
         for (int i = 0; i < activeThroughPortals.Count; i++)
         {
-            Vector3 cameraDirToPortal = (currentRoom.GetPortalsInRoom()[i].transform.position - playerCam.position).normalized;
-            bool isPortalVisible = math.dot(cameraDirToPortal, currentRoom.GetPortalsInRoom()[i].transform.forward) >= 0;
+            bool isPortalVisible = math.dot((currentRoom.GetPortalsInRoom()[i].transform.position - playerCam.position).normalized, 
+                                       currentRoom.GetPortalsInRoom()[i].transform.forward) >= 0;
             if (!playerCollisionHandler.inPortal)
             {
                 if (isPortalVisible && !currentRoom.GetPortalsInRoom()[i].gameObject.activeSelf)
@@ -124,7 +124,9 @@ public class ProceduralLayoutGeneration : MonoBehaviour
 
             for (int j = 0; j < activeThroughPortals[i].Count; j++)
             {
-                if (isPortalVisible)
+                bool isThroughPortalVisible = math.dot((activeThroughPortals[i][j].transform.position - playerCam.position).normalized,
+                                                  activeThroughPortals[i][j].transform.forward) >= 0;
+                if (isThroughPortalVisible && currentRoom.GetPortalsInRoom()[i].gameObject.activeSelf)
                 {
                     if (!activeThroughPortals[i][j].gameObject.activeSelf)
                     {
@@ -186,7 +188,7 @@ public class ProceduralLayoutGeneration : MonoBehaviour
                 bool caseSelected = false;
                 int doorRoomID = portalDoorRoom.GetRoomID();
 
-                if (randomEvent < 6)
+                if (randomEvent < 3)
                 {
                     // Case 1 - Unlock with pressure plate
                     int checkLastXRooms = doorRoomID > 2 ? 3 : doorRoomID;
@@ -220,6 +222,7 @@ public class ProceduralLayoutGeneration : MonoBehaviour
                                 spawner.Add(doorEventTiles[k]);
                                 GameObject pressurePlate = SpawnObjectOnTile(spawner, false, eventObjects[0], TileGeneration.TileType.Event, roomSlice[j], false);
                                 // Pair door and pressure plate
+                                portalDoors[i].RemoveButton();
                                 portalDoors[i].Pair(DoorLock.DoorEvent.PressurePlate, pressurePlate);
                                 break;
                             }
@@ -280,10 +283,10 @@ public class ProceduralLayoutGeneration : MonoBehaviour
 
         // Spawn objects
         //SpawnObjectType(genericRooms, TileGeneration.TileType.Event, eventObjects, null, 1, new Vector2(1, 1), false);
-        SpawnObjectType(genericRooms, TileGeneration.TileType.Enemy, enemyObjects, null, 5, new Vector2(1, 1), true);
-        SpawnObjectType(genericRooms, TileGeneration.TileType.Scenery, largeSceneryObjects, null, 1, new Vector2(2, 2), true);
-        SpawnObjectType(genericRooms, TileGeneration.TileType.Scenery, mediumSceneryObjects, null, 2, new Vector2(2, 1), true);
-        SpawnObjectType(genericRooms, TileGeneration.TileType.Scenery, smallSceneryObjects, null, 2, new Vector2(1, 1), true);
+        SpawnObjectType(genericRooms, TileGeneration.TileType.Enemy, enemyObjects, null, 5, new Vector2Int(1, 1), true);
+        SpawnObjectType(genericRooms, TileGeneration.TileType.Scenery, largeSceneryObjects, null, 1, new Vector2Int(2, 2), true);
+        SpawnObjectType(genericRooms, TileGeneration.TileType.Scenery, mediumSceneryObjects, null, 2, new Vector2Int(2, 1), true);
+        SpawnObjectType(genericRooms, TileGeneration.TileType.Scenery, smallSceneryObjects, null, 2, new Vector2Int(1, 1), true);
 
         for (int j = 0; j < portals.Count; j++)
         {
@@ -346,9 +349,9 @@ public class ProceduralLayoutGeneration : MonoBehaviour
 
                     List<Room> endRooms = new List<Room>(1);
                     endRooms.Add(rooms[roomID]);
-                    SpawnObjectType(endRooms, TileGeneration.TileType.Event, endGameEventObjects, null, 1, new Vector2(2, 2), false);
-                    SpawnObjectType(endRooms, TileGeneration.TileType.Event, endGameEventObjects, null, 1, new Vector2(1, 2), false);
-                    SpawnObjectType(endRooms, TileGeneration.TileType.Event, endGameEventObjects, null, 1, new Vector2(1, 1), false);
+                    SpawnObjectType(endRooms, TileGeneration.TileType.Event, endGameEventObjects, null, 1, new Vector2Int(2, 2), true);
+                    SpawnObjectType(endRooms, TileGeneration.TileType.Event, endGameEventObjects, null, 1, new Vector2Int(1, 2), true);
+                    SpawnObjectType(endRooms, TileGeneration.TileType.Event, endGameEventObjects, null, 1, new Vector2Int(1, 1), true);
                     break;
                 case CustomRoomType.Generic:
                     success = CheckIfRoomsCanBePaired(gridObject, grid, ref roomRotation);
@@ -625,7 +628,7 @@ public class ProceduralLayoutGeneration : MonoBehaviour
 
     #region Object spawning
     private void SpawnObjectType(List<Room> roomsToSpawnObjectsIn, TileGeneration.TileType objectTypeToSpawn, GameObject[] objectsToSpawn, GameObject specificObjectToSpawn, 
-        int maxObjectsPerRoom, Vector2 tilesPerObject, bool canCollideWithPlayer)
+        int maxObjectsPerRoom, Vector2Int tilesPerObject, bool canCollideWithPlayer)
     {
         for (int i = 0; i < roomsToSpawnObjectsIn.Count; i++)
         {
@@ -785,6 +788,10 @@ public class ProceduralLayoutGeneration : MonoBehaviour
                     Debug.LogError("Tried spawning an event in room " + roomToSpawnIn.gameObject.name + " but it did not contain an EventObjectBase");
                 }
                 break;
+            case TileGeneration.TileType.Enemy:
+                Enemy enemyScript = objectOnTile.GetComponentInChildren<Enemy>();
+                enemyScript.AssignRoom(roomToSpawnIn, true);
+                break;
         }
         return objectOnTile;
     }
@@ -874,7 +881,7 @@ public class ProceduralLayoutGeneration : MonoBehaviour
             for (int j = 0; j < p.GetConnectedRoom().GetPortalsInRoom().Count; j++)
             {
                 Portal pIndex = p.GetConnectedRoom().GetPortalsInRoom()[j];
-                if (pIndex.GetConnectedPortal().gameObject.activeSelf && pIndex.GetConnectedPortal() != p)
+                if (pIndex.gameObject.activeSelf && pIndex.GetConnectedPortal() != p)
                 {
                     activeThroughPortals[i].Add(pIndex);
                 }
@@ -895,10 +902,6 @@ public class ProceduralLayoutGeneration : MonoBehaviour
 
             stencilValue += stencilValue; // BitShift 1 to the left
         }
-        if (currentPortal != null)
-            Debug.Log("Invoking roomSwitched with arguments: Room=" + currentRoom + ", Portal=" + currentPortal);
-        else
-            Debug.Log("Invoking roomSwitched with arguments: Room=" + currentRoom + ", Portal=NULL");
         roomSwitched?.Invoke(currentRoom, currentPortal);
         #endregion
     }
