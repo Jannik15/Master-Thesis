@@ -9,7 +9,7 @@ public class WeaponGrab : MonoBehaviour
     public Transform trackingSpace;
     [SerializeField] private float fireRate = 3f, fireDelay;
     [SerializeField] private WeaponGrab otherHand;
-    [SerializeField] private Vector3 weaponInHandPosition, weaponInHandRotation;
+    [SerializeField] private Vector3 weaponInHandPosition, weaponInHandRotation, cardInHandPosition, cardInHandRotation;
     [SerializeField] private Color weaponHighlight;
     [SerializeField] private Material handHighlightMaterial;
     [SerializeField] private GameObject handModel;
@@ -18,6 +18,7 @@ public class WeaponGrab : MonoBehaviour
     public event Action<GameObject, bool, OVRInput.Controller> gunGrabEvent;
 
     private bool holdingNonWeaponObject;
+    private Animator weaponAnim;
     private Rigidbody weaponRb;
     private Material handDefaultMaterial;
     private ProceduralLayoutGeneration layout;
@@ -95,7 +96,7 @@ public class WeaponGrab : MonoBehaviour
         {
             if (Physics.SphereCast(transform.position, 0.15f, transform.forward, out RaycastHit hit, 5, layerMask)) //right Hand cast
             {
-                if (hit.transform.CompareTag("Weapon") && hit.transform != weaponHit && hit.transform != otherHand.weaponHit)
+                if (hit.transform.CompareTag("Weapon") && hit.transform != weaponHit && hit.transform != otherHand.weaponHit || hit.transform.CompareTag("Keycard") && hit.transform != weaponHit && hit.transform != otherHand.weaponHit)
                 {
                     if (weaponHit != null) // When raycast hit's a new weapon, before the previous hit has had its materials reset
                     {
@@ -150,13 +151,21 @@ public class WeaponGrab : MonoBehaviour
                 {
                     inputRegistered = true;
                 }
-                if (inputRegistered)
+                if (inputRegistered && weaponHit.CompareTag("Weapon"))
                 {
                     if (weaponHit == otherHand.weaponHeld)
                     {
                         otherHand.DropWeapon();
                     }
                     PickUpWeapon(weaponHit);
+                }
+                else if (inputRegistered && weaponHit.CompareTag("Keycard"))
+                {
+                    if (weaponHit == otherHand.weaponHeld)
+                    {
+                        otherHand.DropWeapon();
+                    }
+                    PickUpKeycard(weaponHit);
                 }
             }
         }
@@ -250,6 +259,37 @@ public class WeaponGrab : MonoBehaviour
         #endregion
     }
 
+    private void PickUpKeycard(Transform cardToPickUp)
+    {
+        weaponHeld = cardToPickUp;
+        for (int i = 0; i < weaponHitRends.Length; i++)
+        {
+            for (int j = 0; j < weaponHitRends[i].materials.Length; j++)
+            {
+                weaponHitRends[i].materials[j].SetColor("_MainColor", storedColors[i][j]);
+            }
+        }
+        handModelRend.material = handDefaultMaterial;
+        weaponHeld.GetComponentInChildren<InteractableObject>().AssignRoom(null);
+        weaponHeld.parent = transform;
+        weaponHeld.localPosition = cardInHandPosition;
+        weaponHeld.localEulerAngles = cardInHandRotation;
+        weaponAnim = weaponHeld.GetComponent<Animator>();
+        weaponAnim.enabled = false;
+        weaponRb = weaponHeld.GetComponentInParent<Rigidbody>();
+        weaponRb.constraints = RigidbodyConstraints.FreezeAll;
+        oVRGrabber.enabled = false;
+        currentGun = null;
+        if (handRight)
+        {
+            gunGrabEvent?.Invoke(weaponHeld.gameObject, true, OVRInput.Controller.RTouch);
+        }
+        else
+        {
+            gunGrabEvent?.Invoke(weaponHeld.gameObject, true, OVRInput.Controller.LTouch);
+        }
+    }
+
     private void PickUpWeapon(Transform weaponToPickUp)
     {
         weaponHeld = weaponToPickUp; 
@@ -282,8 +322,20 @@ public class WeaponGrab : MonoBehaviour
     public void DropWeapon()
     {
         oVRGrabber.enabled = true;
-        weaponRb.constraints = RigidbodyConstraints.None;
-        weaponHeld.GetComponentInChildren<InteractableObject>().AssignRoom(layout.currentRoom);
+        if (weaponHeld.CompareTag("Keycard"))
+        {
+            weaponHeld.localEulerAngles = new Vector3(0,0,0);
+            //weaponRb.constraints = RigidbodyConstraints.None;
+            weaponRb.constraints = RigidbodyConstraints.FreezeRotation;
+            weaponAnim.enabled = true;
+            weaponHeld.GetComponentInChildren<InteractableObject>().AssignRoom(layout.currentRoom);
+        }
+        else
+        {
+            weaponRb.constraints = RigidbodyConstraints.None;
+            weaponHeld.GetComponentInChildren<InteractableObject>().AssignRoom(layout.currentRoom);
+        }
+
         if (handRight)
         {
             weaponRb.velocity = trackingSpace.rotation * OVRInput.GetLocalControllerVelocity(OVRInput.Controller.RTouch);
