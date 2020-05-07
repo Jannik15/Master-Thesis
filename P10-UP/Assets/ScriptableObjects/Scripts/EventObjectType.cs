@@ -10,7 +10,8 @@ public class EventObjectType : ScriptableObject
     {
         PressurePlate,
         WinCondition,
-        ShootTarget
+        ShootTarget,
+        Keycard
     }
     public ThisType thisEventType;
 }

@@ -27,6 +27,11 @@ public class PlayerInteractions : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (virtualParent != null)
+        {
+            transform.position = virtualParent.position;
+        }
+
         RaycastHit hit;
         ray = playerCamera.ScreenPointToRay(Input.mousePosition);
         if (Input.GetKeyDown(KeyCode.F) && Physics.Raycast(ray, out hit, 1.5f, layerMaskRay) && hit.collider.gameObject.tag == "Button")
@@ -34,10 +39,6 @@ public class PlayerInteractions : MonoBehaviour
             DoorAction(hit.collider);
         }
 
-        if (virtualParent != null)
-        {
-            transform.position = virtualParent.position;
-        }
     }
 
     public void TakeDamage(float amount)
@@ -114,7 +115,7 @@ public class PlayerInteractions : MonoBehaviour
                     }
                     else
                     {
-                        Debug.Log("Picked up keyCard #" + (i+1) + " but this number is not present in the UI and cannot be enabled!");
+                        Debug.Log("Picked up keyCard #" + (i + 1) + " but this number is not present in the UI and cannot be enabled!");
                     }
                 }
             }

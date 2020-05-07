@@ -77,7 +77,6 @@ public class WeaponGrab : MonoBehaviour
         handDefaultMaterial = handModelRend.material;
     }
 
-    // TODO: Test if it is possible to pick up a gun while holding a cube - if yes, make sure that is not possible with below code
     private void GrabEventListener(GameObject grabbedObject, bool isBeingGrabbed, OVRInput.Controller controller)
     {
         // The object being grabbed is this object

@@ -126,7 +126,6 @@ public class MenuManager : MonoBehaviour
         }
         steeringController.enabled = b;
         ovrSteeringController.enabled = b;
-        Debug.Log("Steering controllers set to " + b);
     }
 
     public void QuitGame()

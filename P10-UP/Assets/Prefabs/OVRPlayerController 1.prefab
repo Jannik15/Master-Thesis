@@ -707,7 +707,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0950df82e7936c84983497630bde5b54, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Acceleration: 0.1
+  Acceleration: 0.03
   Damping: 0.3
   BackAndSideDampen: 0.5
   JumpForce: 0.3
@@ -1042,7 +1042,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a569fe2a608e3764bb9622c58514dcc9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  playInt: {fileID: 0}
+  playInt: {fileID: 8609048487002956927}
 --- !u!1 &3810446932215054804
 GameObject:
   m_ObjectHideFlags: 0
@@ -1093,7 +1093,7 @@ Canvas:
   m_Enabled: 1
   serializedVersion: 3
   m_RenderMode: 2
-  m_Camera: {fileID: 0}
+  m_Camera: {fileID: 1728271605461942767}
   m_PlaneDistance: 1
   m_PixelPerfect: 0
   m_ReceivesEvents: 1
@@ -5945,9 +5945,9 @@ GameObject:
   - component: {fileID: 5092643597188371042}
   - component: {fileID: 5092643597188371040}
   - component: {fileID: 5092643597188371043}
-  m_Layer: 0
+  m_Layer: 12
   m_Name: VRPlayerCollisionHandler
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -6055,7 +6055,7 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Camera
       value: 
-      objectReference: {fileID: 0}
+      objectReference: {fileID: 1728271605461942767}
     - target: {fileID: 6970780815873102353, guid: 57915822d3d8da14da7c60746d895d2a,
         type: 3}
       propertyPath: m_SortingOrder

@@ -108,8 +108,6 @@ public class DoorLock : MonoBehaviour
 
     public void RemoveButton()
     {
-        //inRoom.RemoveObjectFromRoom(buttonGroup);
-        //DestroyImmediate(buttonGroup.gameObject); // Destroy immediate should be used since Destroy is too slow for procedural generation
         inRoom.RemoveObjectFromRoom(keycardScanner);
         DestroyImmediate(keycardScanner.gameObject); // Destroy immediate should be used since Destroy is too slow for procedural generation
     }
