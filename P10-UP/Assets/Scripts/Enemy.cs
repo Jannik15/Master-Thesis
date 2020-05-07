@@ -1,5 +1,4 @@
-﻿using System.Linq.Expressions;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class Enemy : MonoBehaviour
 {
@@ -49,6 +48,7 @@ public class Enemy : MonoBehaviour
         GetComponent<Animator>().enabled = false;
         Rigidbody rbMain = GetComponent<Rigidbody>();
         rbMain.isKinematic = false;
+        Destroy(GetComponentInChildren<EnemyAI>().lineInstanced);
         SetKinematic(false);
         foreach (var item in Physics.OverlapSphere(hitpoint2,0.5f))
         {
@@ -64,16 +64,6 @@ public class Enemy : MonoBehaviour
             inRoom.RemoveObjectFromRoom(gameObject.transform);
         }
         Destroy(gameObject, 20f);
-    }
-
-    void Disable()
-    {
 
     }
-
-    void OpenDoor()
-    {
-
-    }
-
 }

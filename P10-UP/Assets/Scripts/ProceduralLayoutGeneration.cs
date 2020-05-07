@@ -283,7 +283,7 @@ public class ProceduralLayoutGeneration : MonoBehaviour
 
         // Spawn objects
         //SpawnObjectType(genericRooms, TileGeneration.TileType.Event, eventObjects, null, 1, new Vector2(1, 1), false);
-        SpawnObjectType(genericRooms, TileGeneration.TileType.Enemy, enemyObjects, null, 5, new Vector2Int(1, 1), true);
+        SpawnObjectType(genericRooms, TileGeneration.TileType.Enemy, enemyObjects, null, Random.Range(2,6), new Vector2Int(1, 1), true);
         SpawnObjectType(genericRooms, TileGeneration.TileType.Scenery, largeSceneryObjects, null, 1, new Vector2Int(2, 2), true);
         SpawnObjectType(genericRooms, TileGeneration.TileType.Scenery, mediumSceneryObjects, null, 2, new Vector2Int(2, 1), true);
         SpawnObjectType(genericRooms, TileGeneration.TileType.Scenery, smallSceneryObjects, null, 2, new Vector2Int(1, 1), true);
@@ -659,7 +659,6 @@ public class ProceduralLayoutGeneration : MonoBehaviour
                     specificTypeTiles.Add(gridTiles[j]);
                 }
             }
-            specificTypeTiles.Randomize();
             if (specificTypeTiles.Count > 0)
             {
                 specificTypeZones.Clear();
@@ -670,6 +669,7 @@ public class ProceduralLayoutGeneration : MonoBehaviour
                 Rect objectRectFlipped = new Rect(Vector2.zero, objectSizeFlipped);
                 for (int j = 0; j < specificTypeZones.Count; j++)
                 {
+                    specificTypeZones[j].Randomize();   // Vary the placement of multiple objects of the same type in a room, so they don't spawn all together
                     for (int k = 0; k < specificTypeZones[j].Count - 1; k++)
                     {
                         if (objectsPerRoom == maxObjectsPerRoom)
@@ -791,6 +791,7 @@ public class ProceduralLayoutGeneration : MonoBehaviour
             case TileGeneration.TileType.Enemy:
                 Enemy enemyScript = objectOnTile.GetComponentInChildren<Enemy>();
                 enemyScript.AssignRoom(roomToSpawnIn, true);
+                objectOnTile.transform.LookAt(Vector3.zero);
                 break;
         }
         return objectOnTile;

@@ -1,4 +1,4 @@
-﻿Shader "Stencils/StencilGeometry"
+﻿Shader "Stencils/StencilEmission"
 {
     Properties
     {

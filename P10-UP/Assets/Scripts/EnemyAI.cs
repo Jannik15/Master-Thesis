@@ -13,9 +13,12 @@ public class EnemyAI : MonoBehaviour
     public Animator animator;
     private ProceduralLayoutGeneration layout;
     public bool _canShoot;
-
+    private float timeWhenPlayerEnteredRoom;
     private Enemy thisEnemy;
-    private float nextTimeToFire = 0f;
+    private float nextTimeToFire;
+    [HideInInspector] public GameObject lineInstanced;
+    private LineRenderer lineRend;
+    private Vector3 defaultLinePositions = new Vector3(0, -99.0f, 0);
 
     private bool looking;
     // Start is called before the first frame update
@@ -32,17 +35,59 @@ public class EnemyAI : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (thisEnemy.Health > 0 && _canShoot) // Only when in the same room and can see the player
+        // Only when in the same room and can see the player
+        if (thisEnemy.Health > 0 && _canShoot)
         {
-            EnemyShoot();
+            // Look at the player
+            gun.transform.LookAt(new Vector3(playerCam.position.x, playerCam.position.y, playerCam.position.z));
+
+            // Raycast to the player, hitting either the player or any object that should occlude the player
+            if (Physics.Raycast(barrelPoint.position, (playerCam.position - barrelPoint.position), out RaycastHit hit, 100f, layerMask))
+            {
+                if (hit.transform.CompareTag("Player"))
+                {
+                    if (lineInstanced == null)
+                    {
+                        lineInstanced = Instantiate(line);
+                        lineRend = lineInstanced.GetComponentInChildren<LineRenderer>();
+                        ResetTimeToFire();
+                    }
+                    lineRend.SetPositions(new Vector3[] { barrelPoint.position, hit.point });
+                    if (Time.time >= nextTimeToFire)
+                    {
+                        EnemyShoot();
+                        ResetTimeToFire();
+                    }
+                }
+                else if (lineInstanced != null)
+                {
+                    Destroy(lineInstanced);
+                }
+            }
+            else if (lineInstanced != null)
+            {
+                Destroy(lineInstanced);
+            }
         }
     }
 
     private void UpdatePlayerRoom(Room playerRoom, Portal p)
     {
-        _canShoot = playerRoom == thisEnemy.inRoom;
+        if (playerRoom == thisEnemy.inRoom)
+        {
+            _canShoot = true;
+            ResetTimeToFire();
+        }
+        else
+        {
+            _canShoot = false;
+        }
     }
 
+    private void ResetTimeToFire()
+    {
+        nextTimeToFire = Time.time + Random.Range(3.0f, 9.0f) / fireRate;
+    }
     void OnAnimatorIK(int layerIndex)
     {
         animator.SetIKPositionWeight(AvatarIKGoal.RightHand, 1f);
@@ -53,25 +98,6 @@ public class EnemyAI : MonoBehaviour
 
     void EnemyShoot()
     {
-        
-        gun.transform.LookAt(new Vector3(playerCam.position.x, playerCam.position.y -0.5f, playerCam.position.z));
-        
-
-        if (Time.time >= nextTimeToFire)
-        {
-            nextTimeToFire = Time.time + 1f / fireRate;
-            GameObject bullet = Instantiate(laserBullet, barrelPoint.position, Quaternion.LookRotation(barrelPoint.forward));
-
-            RaycastHit hit;
-            bool hasHit = Physics.Raycast(barrelPoint.position, barrelPoint.forward, out hit, 1000f, layerMask);
-            if (line != null)
-            {
-                GameObject liner = Instantiate(line);
-                liner.GetComponent<LineRenderer>().SetPositions(new Vector3[] { barrelPoint.position, hasHit ? hit.point : barrelPoint.position + barrelPoint.forward * 100 });
-                Destroy(liner, 0.3f);
-            }
-
-        }
-
+        Instantiate(laserBullet, barrelPoint.position, Quaternion.LookRotation(barrelPoint.forward));
     }
 }
