@@ -18,7 +18,7 @@ public class EnemyAI : MonoBehaviour
     private float nextTimeToFire;
     [HideInInspector] public GameObject lineInstanced;
     private LineRenderer lineRend;
-    private Vector3 defaultLinePositions = new Vector3(0, -99.0f, 0);
+    private Vector3 targetOffset = new Vector3(0, 0.15f, 0);
 
     private bool looking;
     // Start is called before the first frame update
@@ -39,12 +39,13 @@ public class EnemyAI : MonoBehaviour
         if (thisEnemy.Health > 0 && _canShoot)
         {
             // Look at the player
-            gun.transform.LookAt(new Vector3(playerCam.position.x, playerCam.position.y, playerCam.position.z));
+            Vector3 target = playerCam.position - targetOffset;
+            gun.transform.LookAt(target);
 
             // Raycast to the player, hitting either the player or any object that should occlude the player
-            if (Physics.Raycast(barrelPoint.position, (playerCam.position - barrelPoint.position), out RaycastHit hit, 100f, layerMask))
+            if (Physics.Raycast(barrelPoint.position, (target - barrelPoint.position), out RaycastHit hit, 100f, layerMask))
             {
-                if (hit.transform.CompareTag("Player"))
+                if (hit.transform.CompareTag("Player") || hit.transform.CompareTag("Weapon"))
                 {
                     if (lineInstanced == null)
                     {
@@ -52,7 +53,9 @@ public class EnemyAI : MonoBehaviour
                         lineRend = lineInstanced.GetComponentInChildren<LineRenderer>();
                         ResetTimeToFire();
                     }
-                    lineRend.SetPositions(new Vector3[] { barrelPoint.position, hit.point });
+
+                    Vector3 hitDirectionExtended = (target - barrelPoint.position) * 1.2f;
+                    lineRend.SetPositions(new Vector3[] { barrelPoint.position, hitDirectionExtended });
                     if (Time.time >= nextTimeToFire)
                     {
                         EnemyShoot();

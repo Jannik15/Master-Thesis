@@ -115,7 +115,7 @@ public class PlayerInteractions : MonoBehaviour
                     }
                     else
                     {
-                        Debug.Log("Picked up keyCard #" + (i+1) + " but this number is not present in the UI and cannot be enabled!");
+                        Debug.Log("Picked up keyCard #" + (i + 1) + " but this number is not present in the UI and cannot be enabled!");
                     }
                 }
             }
