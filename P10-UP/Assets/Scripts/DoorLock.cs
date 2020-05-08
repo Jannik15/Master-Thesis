@@ -58,25 +58,16 @@ public class DoorLock : MonoBehaviour
         */
     }
 
-    //public void SetOriginalLocalPosition()
-    //{
-    //    localPosition0 = button.transform.localPosition;
-    //}
-
 
     public void Pair(DoorEvent doorEvent, GameObject pairedObject)
     {
         lockEvent = doorEvent;
         isLocked = true;
+        pairedEvent = pairedObject.GetComponentInChildren<EventObjectBase>();
+        pairedEvent.connectedDoor = this;
         if (doorEvent == DoorEvent.KeyCard)
         {
             pairedKeyCard = pairedObject;
-
-        }
-        else
-        {
-            pairedEvent = pairedObject.GetComponentInChildren<EventObjectBase>();
-            pairedEvent.connectedDoor = this;
         }
     }
 
