@@ -12,6 +12,7 @@ public class EventObjectBase : MonoBehaviour
 
     void OnTriggerEnter(Collider collider)
     {
+        Debug.Log(collider.gameObject.name);
         switch (eventType.thisEventType)
         {
             case EventObjectType.ThisType.PressurePlate:
@@ -26,8 +27,8 @@ public class EventObjectBase : MonoBehaviour
             case EventObjectType.ThisType.WinCondition:
                 if (collider.CompareTag("Player"))
                 {
-                    Debug.Log("You Win!");
-                    collider.gameObject.GetComponentInChildren<Animator>().SetTrigger("FadeToWhite");
+                    Debug.Log(FindObjectOfType<PlayerInteractions>().fadeAnimator.gameObject.name);
+                    FindObjectOfType<PlayerInteractions>().fadeAnimator.SetTrigger("FadeToWhite");
                 }
                 break;
             case EventObjectType.ThisType.Keycard:

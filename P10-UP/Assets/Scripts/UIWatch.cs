@@ -10,13 +10,16 @@ using UnityEngine.UI;
 
 public class UIWatch : MonoBehaviour
 {
-    public PlayerInteractions playInt;
+
     public int currentHP;
     public TMP_Text hpAmount;
-    // Start is called before the first frame update
+
+    private PlayerInteractions playInt;
+
     void Start()
     {
-        playInt = GetComponentInParent<PlayerInteractions>();
+
+        playInt = FindObjectOfType<PlayerInteractions>();
         if (playInt != null)
         {
             currentHP = (int) playInt.health;
