@@ -78,6 +78,10 @@ public class EnemyAI : MonoBehaviour
         else
         {
             _canShoot = false;
+            if (lineInstanced != null)
+            {
+                Destroy(lineInstanced);
+            }
         }
     }
 

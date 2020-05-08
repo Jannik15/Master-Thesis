@@ -271,12 +271,12 @@ public class WeaponGrab : MonoBehaviour
         }
         handModelRend.material = handDefaultMaterial;
         weaponHeld.GetComponentInChildren<InteractableObject>().inRoom.RemoveObjectFromRoom(weaponHeld);
-        weaponHeld.transform.parent.parent = transform;
+        weaponHeld.parent = transform;
         weaponHeld.localPosition = cardInHandPosition;
         weaponHeld.localEulerAngles = cardInHandRotation;
         weaponAnim = weaponHeld.GetComponent<Animator>();
         weaponAnim.enabled = false;
-        weaponRb = weaponHeld.GetComponentInParent<Rigidbody>();
+        weaponRb = weaponHeld.GetComponent<Rigidbody>();
         weaponRb.constraints = RigidbodyConstraints.FreezeAll;
         oVRGrabber.enabled = false;
         currentGun = null;
@@ -308,16 +308,8 @@ public class WeaponGrab : MonoBehaviour
     public void DropWeapon()
     {
         oVRGrabber.enabled = true;
-        if (weaponHeld.CompareTag("Keycard"))
-        {
-            weaponRb.constraints = RigidbodyConstraints.FreezeRotation;
-            weaponHeld.GetComponent<InteractableObject>().AssignRoom(layout.currentRoom, false);
-        }
-        else
-        {
-            weaponRb.constraints = RigidbodyConstraints.None;
-            weaponHeld.GetComponentInChildren<InteractableObject>().AssignRoom(layout.currentRoom, false);
-        }
+        weaponRb.constraints = RigidbodyConstraints.None;
+        weaponHeld.GetComponentInChildren<InteractableObject>().AssignRoom(layout.currentRoom, false);
 
         if (handRight)
         {
