@@ -20,7 +20,7 @@ public class InteractableObject : MonoBehaviour
 
     private Portal inPortal;
     private Room portalRoom, portalConnectedRoom;
-    private Room inRoom;
+    public Room inRoom;
     private int storedLayer = -1, interactableLayer, differentRoomLayer, inPortalLayer;
     private Transform storedParent;
     private ProceduralLayoutGeneration layout;
@@ -162,8 +162,9 @@ public class InteractableObject : MonoBehaviour
         duplicatedMeshObject.transform.ResetLocal();
     }
 
-    public void AssignRoom(Room room)
+    public void AssignRoom(Room room, bool assignParent)
     {
+        Transform transformToAssign = assignParent && transform.parent != null ? transform.parent : transform;
         if (room != null)
         {
             inRoom = room;
@@ -173,17 +174,17 @@ public class InteractableObject : MonoBehaviour
                 duplicatedMeshObject = Instantiate(gameObject, transform.position, transform.rotation, transform);
             }
 
-            inRoom.AddObjectToRoom(transform, false);
+            inRoom.AddObjectToRoom(transformToAssign, false);
         }
         else if (inRoom != null)
         {
-            inRoom.RemoveObjectFromRoom(transform);
+            inRoom.RemoveObjectFromRoom(transformToAssign);
             inRoom = null;
-            transform.parent = null;
+            transformToAssign.parent = null;
         }
         else
         {
-            transform.parent = null;
+            transformToAssign.parent = null;
         }
     }
 
