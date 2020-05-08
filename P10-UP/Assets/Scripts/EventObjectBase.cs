@@ -33,12 +33,14 @@ public class EventObjectBase : MonoBehaviour
             case EventObjectType.ThisType.Keycard:
                 if (collider.CompareTag("DropZone"))
                 {
-                    gameObject.GetComponentInParent<WeaponGrab>().DropWeapon();
+                    gameObject.GetComponentInParent<WeaponGrab>().DepositKeycard();
                     gameObject.transform.parent = GameObject.FindGameObjectWithTag("KeyHolder").transform;
-                    gameObject.transform.localPosition = new Vector3(5.1f, -0.16f, 4.7f);
-                    gameObject.transform.localEulerAngles = new Vector3(0, -2.426f, 0);
-                    gameObject.SetActive(false);
+                    gameObject.transform.localPosition = new Vector3(5.75f, 0, 14);
+                    gameObject.transform.localEulerAngles = new Vector3(0, 180, 180);
                     gameObject.transform.parent.GetComponentInChildren<WristPlateUI>().ListAdder(gameObject);
+                    Debug.Log("Added " + gameObject + " to list in " + gameObject.transform.parent.GetComponentInChildren<WristPlateUI>().gameObject.name);
+                    gameObject.SetActive(false);
+
                     
 
                 }

@@ -305,6 +305,13 @@ public class WeaponGrab : MonoBehaviour
         gunGrabEvent?.Invoke(weaponHeld.gameObject, true, handRight ? OVRInput.Controller.RTouch : OVRInput.Controller.LTouch);
     }
 
+    public void DepositKeycard()
+    {
+        //This function is basically a DropWeapon function, which does not de-parent the object. It allows us to still pick up something new after depositing.
+        weaponHeld = null;
+
+    }
+
     public void DropWeapon()
     {
         oVRGrabber.enabled = true;
