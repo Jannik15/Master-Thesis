@@ -27,7 +27,7 @@ public class WeaponGrab : MonoBehaviour
     private Renderer handModelRend;
     private List<List<Color>> storedColors = new List<List<Color>>();
     private Gun currentGun;
-
+    private Transform newHit;
     #region Old
     /*
     [Header("Deprecated")]
@@ -262,7 +262,6 @@ public class WeaponGrab : MonoBehaviour
     private void PickUpKeycard(Transform cardToPickUp)
     {
         weaponHeld = cardToPickUp;
-        Debug.Log("Picking up keycard: " + weaponHeld.gameObject.name);
         for (int i = 0; i < weaponHitRends.Length; i++)
         {
             for (int j = 0; j < weaponHitRends[i].materials.Length; j++)
@@ -295,7 +294,7 @@ public class WeaponGrab : MonoBehaviour
             }
         }
         handModelRend.material = handDefaultMaterial;
-        weaponHeld.GetComponentInChildren<InteractableObject>().AssignRoom(null, true);
+        weaponHeld.GetComponentInChildren<InteractableObject>().AssignRoom(null, false);
         weaponHeld.parent = transform;
         weaponHeld.localPosition = weaponInHandPosition;
         weaponHeld.localEulerAngles = weaponInHandRotation;
@@ -315,12 +314,12 @@ public class WeaponGrab : MonoBehaviour
             //weaponRb.constraints = RigidbodyConstraints.None;
             weaponRb.constraints = RigidbodyConstraints.FreezeRotation;
             weaponAnim.enabled = true;
-            weaponHeld.GetComponent<InteractableObject>().AssignRoom(layout.currentRoom, true);
+            weaponHeld.GetComponent<InteractableObject>().AssignRoom(layout.currentRoom, false);
         }
         else
         {
             weaponRb.constraints = RigidbodyConstraints.None;
-            weaponHeld.GetComponentInChildren<InteractableObject>().AssignRoom(layout.currentRoom, true);
+            weaponHeld.GetComponentInChildren<InteractableObject>().AssignRoom(layout.currentRoom, false);
         }
 
         if (handRight)
