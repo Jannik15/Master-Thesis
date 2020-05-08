@@ -35,9 +35,11 @@ public class EventObjectBase : MonoBehaviour
                 {
                     gameObject.GetComponentInParent<WeaponGrab>().DropWeapon();
                     gameObject.transform.parent = GameObject.FindGameObjectWithTag("KeyHolder").transform;
-                    gameObject.transform.position = new Vector3(3.55f, 0, 1);
+                    gameObject.transform.localPosition = new Vector3(5.1f, -0.16f, 4.7f);
+                    gameObject.transform.localEulerAngles = new Vector3(0, -2.426f, 0);
                     gameObject.SetActive(false);
-                    keycardList.Add(gameObject);
+                    gameObject.transform.parent.GetComponentInChildren<WristPlateUI>().ListAdder(gameObject);
+                    
 
                 }
                 break;
