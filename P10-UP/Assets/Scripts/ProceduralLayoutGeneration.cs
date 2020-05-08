@@ -274,6 +274,7 @@ public class ProceduralLayoutGeneration : MonoBehaviour
                     int keyCardTileIndex = Random.Range(0, doorEventTiles.Count);
                     keyCardToSpawn = doorEventTiles[keyCardTileIndex].PlaceObject(keyCard, rooms[roomToSpawnKeyCardIn].gameObject.transform);
                     rooms[roomToSpawnKeyCardIn].AddObjectToRoom(keyCardToSpawn.transform, false);
+                    keyCardToSpawn.GetComponentInChildren<InteractableObject>().inRoom = rooms[roomToSpawnKeyCardIn];
                     keysList.Add(keyCardToSpawn);
                     portalDoors[i].Pair(DoorLock.DoorEvent.KeyCard, keyCardToSpawn);
                 }
@@ -741,7 +742,7 @@ public class ProceduralLayoutGeneration : MonoBehaviour
         }
         else
         {
-            interactableObject.AssignRoom(roomToSpawnIn);
+            interactableObject.AssignRoom(roomToSpawnIn, true);
         }
         Vector2 spawnObjectCenter = Vector2.zero;
         int tileCount = tilesToSpawnObjectOn.Count;

@@ -87,7 +87,7 @@ public class MenuManager : MonoBehaviour
 
             if (inRoom != null)
             {
-                spawnedGun.GetComponentInChildren<InteractableObject>().AssignRoom(inRoom);
+                spawnedGun.GetComponentInChildren<InteractableObject>().AssignRoom(inRoom, false);
             }
             else
             {

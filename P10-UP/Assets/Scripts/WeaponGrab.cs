@@ -262,6 +262,7 @@ public class WeaponGrab : MonoBehaviour
     private void PickUpKeycard(Transform cardToPickUp)
     {
         weaponHeld = cardToPickUp;
+        Debug.Log("Picking up keycard: " + weaponHeld.gameObject.name);
         for (int i = 0; i < weaponHitRends.Length; i++)
         {
             for (int j = 0; j < weaponHitRends[i].materials.Length; j++)
@@ -270,24 +271,17 @@ public class WeaponGrab : MonoBehaviour
             }
         }
         handModelRend.material = handDefaultMaterial;
-        weaponHeld.GetComponentInChildren<InteractableObject>().AssignRoom(null);
+        weaponHeld.GetComponentInChildren<InteractableObject>().inRoom.RemoveObjectFromRoom(weaponHeld);
         weaponHeld.parent = transform;
         weaponHeld.localPosition = cardInHandPosition;
         weaponHeld.localEulerAngles = cardInHandRotation;
-        weaponAnim = weaponHeld.GetComponent<Animator>();
+        weaponAnim = weaponHeld.GetComponentInChildren<Animator>();
         weaponAnim.enabled = false;
         weaponRb = weaponHeld.GetComponentInParent<Rigidbody>();
         weaponRb.constraints = RigidbodyConstraints.FreezeAll;
         oVRGrabber.enabled = false;
         currentGun = null;
-        if (handRight)
-        {
-            gunGrabEvent?.Invoke(weaponHeld.gameObject, true, OVRInput.Controller.RTouch);
-        }
-        else
-        {
-            gunGrabEvent?.Invoke(weaponHeld.gameObject, true, OVRInput.Controller.LTouch);
-        }
+        gunGrabEvent?.Invoke(weaponHeld.gameObject, true, handRight ? OVRInput.Controller.RTouch : OVRInput.Controller.LTouch);
     }
 
     private void PickUpWeapon(Transform weaponToPickUp)
@@ -301,7 +295,7 @@ public class WeaponGrab : MonoBehaviour
             }
         }
         handModelRend.material = handDefaultMaterial;
-        weaponHeld.GetComponentInChildren<InteractableObject>().AssignRoom(null);
+        weaponHeld.GetComponentInChildren<InteractableObject>().AssignRoom(null, true);
         weaponHeld.parent = transform;
         weaponHeld.localPosition = weaponInHandPosition;
         weaponHeld.localEulerAngles = weaponInHandRotation;
@@ -309,14 +303,7 @@ public class WeaponGrab : MonoBehaviour
         weaponRb.constraints = RigidbodyConstraints.FreezeAll;
         oVRGrabber.enabled = false;
         currentGun = weaponHeld.GetComponentInChildren<Gun>();
-        if (handRight)
-        {
-            gunGrabEvent?.Invoke(weaponHeld.gameObject, true, OVRInput.Controller.RTouch);
-        }
-        else
-        {
-            gunGrabEvent?.Invoke(weaponHeld.gameObject, true, OVRInput.Controller.LTouch);
-        }
+        gunGrabEvent?.Invoke(weaponHeld.gameObject, true, handRight ? OVRInput.Controller.RTouch : OVRInput.Controller.LTouch);
     }
 
     public void DropWeapon()
@@ -328,12 +315,12 @@ public class WeaponGrab : MonoBehaviour
             //weaponRb.constraints = RigidbodyConstraints.None;
             weaponRb.constraints = RigidbodyConstraints.FreezeRotation;
             weaponAnim.enabled = true;
-            weaponHeld.GetComponentInChildren<InteractableObject>().AssignRoom(layout.currentRoom);
+            weaponHeld.GetComponentInChildren<InteractableObject>().AssignRoom(layout.currentRoom, true);
         }
         else
         {
             weaponRb.constraints = RigidbodyConstraints.None;
-            weaponHeld.GetComponentInChildren<InteractableObject>().AssignRoom(layout.currentRoom);
+            weaponHeld.GetComponentInChildren<InteractableObject>().AssignRoom(layout.currentRoom, true);
         }
 
         if (handRight)
