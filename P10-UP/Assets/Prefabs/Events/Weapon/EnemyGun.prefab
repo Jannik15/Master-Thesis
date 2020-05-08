@@ -186,7 +186,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1.1578412, z: 1}
   m_Children: []
   m_Father: {fileID: 1234049835518378312}
-  m_RootOrder: 3
+  m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &4148659132351673909
 MeshFilter:
@@ -260,12 +260,12 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2203596676806057340}
-  m_LocalRotation: {x: -0, y: -0.7071068, z: -0, w: 0.7071068}
-  m_LocalPosition: {x: 0, y: -0.000400877, z: -0.013883986}
-  m_LocalScale: {x: 0.19999997, y: 0.2, z: 0.19999997}
+  m_LocalRotation: {x: 0.000000006914715, y: -0, z: 0.000000006914715, w: 1}
+  m_LocalPosition: {x: 0.63868034, y: 0.3310956, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
-  m_Father: {fileID: 2547954072815163034}
-  m_RootOrder: 0
+  m_Father: {fileID: 1234049835518378312}
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &2957158582167691868
 MeshFilter:
@@ -324,7 +324,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2547954072815163034}
   m_Layer: 0
-  m_Name: Gun_Barrel
+  m_Name: Gun_ShootPoint
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -338,10 +338,9 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2547954072815163013}
   m_LocalRotation: {x: -0, y: 0.7071068, z: -0, w: 0.7071068}
-  m_LocalPosition: {x: 0.7081, y: 0.3331, z: -0}
+  m_LocalPosition: {x: 0.904, y: 0.319, z: -0.011}
   m_LocalScale: {x: 5, y: 5, z: 5}
-  m_Children:
-  - {fileID: 3571760147296609884}
+  m_Children: []
   m_Father: {fileID: 1234049835518378312}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -577,6 +576,7 @@ Transform:
   m_Children:
   - {fileID: 6984871556474329876}
   - {fileID: 2547954072815163034}
+  - {fileID: 3571760147296609884}
   - {fileID: 6296047529957068201}
   - {fileID: 1474250679159486707}
   m_Father: {fileID: 1480587894389914466}
@@ -613,7 +613,7 @@ Transform:
   m_Children:
   - {fileID: 77350857051090524}
   m_Father: {fileID: 1234049835518378312}
-  m_RootOrder: 2
+  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &2498715012514010541
 MeshFilter:

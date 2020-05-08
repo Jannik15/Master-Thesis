@@ -12,7 +12,6 @@ public class EventObjectBase : MonoBehaviour
 
     void OnTriggerEnter(Collider collider)
     {
-        Debug.Log(collider.gameObject.name);
         switch (eventType.thisEventType)
         {
             case EventObjectType.ThisType.PressurePlate:

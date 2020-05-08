@@ -94,7 +94,6 @@ public class PlayerInteractions : MonoBehaviour
         Debug.Log("I've been hit by " + collission.gameObject);
         if (collission.gameObject.CompareTag("HostileProjectile"))
         {
-
             TakeDamage(10f);
         }
     }

@@ -27,7 +27,7 @@ public class WeaponGrab : MonoBehaviour
     private Renderer handModelRend;
     private List<List<Color>> storedColors = new List<List<Color>>();
     private Gun currentGun;
-
+    private Transform newHit;
     #region Old
     /*
     [Header("Deprecated")]
@@ -262,7 +262,6 @@ public class WeaponGrab : MonoBehaviour
     private void PickUpKeycard(Transform cardToPickUp)
     {
         weaponHeld = cardToPickUp;
-        Debug.Log("Picking up keycard: " + weaponHeld.gameObject.name);
         for (int i = 0; i < weaponHitRends.Length; i++)
         {
             for (int j = 0; j < weaponHitRends[i].materials.Length; j++)
@@ -272,12 +271,12 @@ public class WeaponGrab : MonoBehaviour
         }
         handModelRend.material = handDefaultMaterial;
         weaponHeld.GetComponentInChildren<InteractableObject>().inRoom.RemoveObjectFromRoom(weaponHeld);
-        weaponHeld.transform.parent.parent = transform;
+        weaponHeld.parent = transform;
         weaponHeld.localPosition = cardInHandPosition;
         weaponHeld.localEulerAngles = cardInHandRotation;
         weaponAnim = weaponHeld.GetComponent<Animator>();
         weaponAnim.enabled = false;
-        weaponRb = weaponHeld.GetComponentInParent<Rigidbody>();
+        weaponRb = weaponHeld.GetComponent<Rigidbody>();
         weaponRb.constraints = RigidbodyConstraints.FreezeAll;
         oVRGrabber.enabled = false;
         currentGun = null;
@@ -295,7 +294,7 @@ public class WeaponGrab : MonoBehaviour
             }
         }
         handModelRend.material = handDefaultMaterial;
-        weaponHeld.GetComponentInChildren<InteractableObject>().AssignRoom(null, true);
+        weaponHeld.GetComponentInChildren<InteractableObject>().AssignRoom(null, false);
         weaponHeld.parent = transform;
         weaponHeld.localPosition = weaponInHandPosition;
         weaponHeld.localEulerAngles = weaponInHandRotation;
@@ -309,17 +308,8 @@ public class WeaponGrab : MonoBehaviour
     public void DropWeapon()
     {
         oVRGrabber.enabled = true;
-        if (weaponHeld.CompareTag("Keycard"))
-        {
-            //weaponHeld.localEulerAngles = new Vector3(0,0,0);
-            weaponRb.constraints = RigidbodyConstraints.None;
-            weaponHeld.GetComponent<InteractableObject>().AssignRoom(layout.currentRoom, true);
-        }
-        else
-        {
-            weaponRb.constraints = RigidbodyConstraints.None;
-            weaponHeld.GetComponentInChildren<InteractableObject>().AssignRoom(layout.currentRoom, true);
-        }
+        weaponRb.constraints = RigidbodyConstraints.None;
+        weaponHeld.GetComponentInChildren<InteractableObject>().AssignRoom(layout.currentRoom, false);
 
         if (handRight)
         {
