@@ -46,6 +46,7 @@ public class EventObjectBase : MonoBehaviour
                 else if (collider.CompareTag("KeycardScanner") && collider.gameObject.GetComponentInParent<DoorLock>() == connectedDoor)
                 {
                     connectedDoor.OpenDoor();
+                    gameObject.GetComponentInParent<WeaponGrab>().DropWeapon();
                     Destroy(gameObject);
                 }
                 break;
