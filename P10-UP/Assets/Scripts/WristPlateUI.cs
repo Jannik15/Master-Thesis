@@ -1,11 +1,14 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 
 public class WristPlateUI : MonoBehaviour
 {
     public GameObject DropZone;
+    public TMP_Text cardAmount;
 
+    private int heldAmount;
     private int currentCard = 0;
     private List<GameObject> keysList = new List<GameObject>();
 
@@ -63,7 +66,8 @@ public class WristPlateUI : MonoBehaviour
 
     void Update()
     {
-
+        heldAmount = keysList.Count;
+        cardAmount.text = heldAmount.ToString();
     }
 
     void OnTriggerEnter(Collider collider)

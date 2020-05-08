@@ -43,6 +43,10 @@ public class EventObjectBase : MonoBehaviour
                     
 
                 }
+                else if (collider.CompareTag("KeycardScanner"))
+                {
+
+                }
                 break;
         }
     }

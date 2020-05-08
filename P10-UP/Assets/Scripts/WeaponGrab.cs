@@ -272,10 +272,10 @@ public class WeaponGrab : MonoBehaviour
         }
         handModelRend.material = handDefaultMaterial;
         weaponHeld.GetComponentInChildren<InteractableObject>().inRoom.RemoveObjectFromRoom(weaponHeld);
-        weaponHeld.parent = transform;
+        weaponHeld.transform.parent.parent = transform;
         weaponHeld.localPosition = cardInHandPosition;
         weaponHeld.localEulerAngles = cardInHandRotation;
-        weaponAnim = weaponHeld.GetComponentInChildren<Animator>();
+        weaponAnim = weaponHeld.GetComponent<Animator>();
         weaponAnim.enabled = false;
         weaponRb = weaponHeld.GetComponentInParent<Rigidbody>();
         weaponRb.constraints = RigidbodyConstraints.FreezeAll;
@@ -315,7 +315,7 @@ public class WeaponGrab : MonoBehaviour
             //weaponRb.constraints = RigidbodyConstraints.None;
             weaponRb.constraints = RigidbodyConstraints.FreezeRotation;
             weaponAnim.enabled = true;
-            weaponHeld.GetComponentInChildren<InteractableObject>().AssignRoom(layout.currentRoom, true);
+            weaponHeld.GetComponent<InteractableObject>().AssignRoom(layout.currentRoom, true);
         }
         else
         {
