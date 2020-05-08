@@ -310,7 +310,6 @@ public class WeaponGrab : MonoBehaviour
         oVRGrabber.enabled = true;
         if (weaponHeld.CompareTag("Keycard"))
         {
-            weaponHeld.localEulerAngles = new Vector3(0,0,0);
             weaponRb.constraints = RigidbodyConstraints.FreezeRotation;
             weaponHeld.GetComponent<InteractableObject>().AssignRoom(layout.currentRoom, false);
         }
