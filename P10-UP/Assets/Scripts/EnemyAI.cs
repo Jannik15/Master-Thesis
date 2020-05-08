@@ -13,26 +13,21 @@ public class EnemyAI : MonoBehaviour
     public Animator animator;
     private ProceduralLayoutGeneration layout;
     public bool _canShoot;
-    private float timeWhenPlayerEnteredRoom;
     private Enemy thisEnemy;
     private float nextTimeToFire;
     [HideInInspector] public GameObject lineInstanced;
     private LineRenderer lineRend;
-    private Vector3 targetOffset = new Vector3(0, 0.15f, 0);
+    private Vector3 targetOffset = new Vector3(0, 0.2f, 0);
 
-    private bool looking;
-    // Start is called before the first frame update
     void Start()
     {
         thisEnemy = GetComponentInParent<Enemy>();
         playerCam = Camera.main.transform;
-        looking = true;
 
         layout = FindObjectOfType<ProceduralLayoutGeneration>();
         layout.roomSwitched += UpdatePlayerRoom;
     }
 
-    // Update is called once per frame
     void Update()
     {
         // Only when in the same room and can see the player
@@ -41,9 +36,9 @@ public class EnemyAI : MonoBehaviour
             // Look at the player
             Vector3 target = playerCam.position - targetOffset;
             gun.transform.LookAt(target);
-
+            Vector3 targetDirection = (target - barrelPoint.position) * 1.1f;
             // Raycast to the player, hitting either the player or any object that should occlude the player
-            if (Physics.Raycast(barrelPoint.position, (target - barrelPoint.position), out RaycastHit hit, 100f, layerMask))
+            if (Physics.Raycast(barrelPoint.position, targetDirection, out RaycastHit hit, 100f, layerMask))
             {
                 if (hit.transform.CompareTag("Player") || hit.transform.CompareTag("Weapon"))
                 {
@@ -54,8 +49,7 @@ public class EnemyAI : MonoBehaviour
                         ResetTimeToFire();
                     }
 
-                    Vector3 hitDirectionExtended = (target - barrelPoint.position) * 1.2f;
-                    lineRend.SetPositions(new Vector3[] { barrelPoint.position, hitDirectionExtended });
+                    lineRend.SetPositions(new Vector3[] { barrelPoint.position, barrelPoint.position + targetDirection });
                     if (Time.time >= nextTimeToFire)
                     {
                         EnemyShoot();
