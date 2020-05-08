@@ -8,6 +8,7 @@ public class EventObjectBase : MonoBehaviour
     public EventObjectType eventType;
     public Room room;
     public DoorLock connectedDoor;
+    public List<GameObject> keycardList = new List<GameObject>();
 
     void OnTriggerEnter(Collider collider)
     {
@@ -27,6 +28,17 @@ public class EventObjectBase : MonoBehaviour
                 {
                     Debug.Log("You Win!");
                     collider.gameObject.GetComponentInChildren<Animator>().SetTrigger("FadeToWhite");
+                }
+                break;
+            case EventObjectType.ThisType.Keycard:
+                if (collider.CompareTag("DropZone"))
+                {
+                    gameObject.GetComponentInParent<WeaponGrab>().DropWeapon();
+                    gameObject.transform.parent = GameObject.FindGameObjectWithTag("KeyHolder").transform;
+                    gameObject.transform.position = new Vector3(3.55f, 0, 1);
+                    gameObject.SetActive(false);
+                    keycardList.Add(gameObject);
+
                 }
                 break;
         }
