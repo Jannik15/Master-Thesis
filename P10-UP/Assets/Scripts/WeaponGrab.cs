@@ -261,6 +261,11 @@ public class WeaponGrab : MonoBehaviour
 
     private void PickUpKeycard(Transform cardToPickUp)
     {
+        if (cardToPickUp.parent.gameObject.tag == "Keyholder")
+        {
+            //The keycard is in the inventory
+            cardToPickUp.gameObject.GetComponentInParent<UIWatch>().gameObject.GetComponentInChildren<WristPlateUI>().TakeOutCard();
+        }
         weaponHeld = cardToPickUp;
         for (int i = 0; i < weaponHitRends.Length; i++)
         {

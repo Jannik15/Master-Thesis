@@ -7,6 +7,7 @@ public class WristPlateUI : MonoBehaviour
 {
     public GameObject DropZone;
     public TMP_Text cardAmount;
+    public TMP_Text currentAmount;
 
     private int heldAmount;
     private int currentCard = 0;
@@ -64,10 +65,18 @@ public class WristPlateUI : MonoBehaviour
         }
     }
 
+    public void TakeOutCard()
+    {
+        keysList.RemoveAt(currentCard);
+    }
+
+
     void Update()
     {
         heldAmount = keysList.Count;
         cardAmount.text = heldAmount.ToString();
+
+        currentAmount.text = currentCard.ToString();
     }
 
     void OnTriggerEnter(Collider collider)
