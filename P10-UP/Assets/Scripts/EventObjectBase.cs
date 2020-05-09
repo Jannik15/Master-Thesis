@@ -41,9 +41,14 @@ public class EventObjectBase : MonoBehaviour
 
                     InteractableObject interact = gameObject.GetComponent<InteractableObject>();
 
-                    if (interact != null && interact.inRoom != null)
+                    if (interact != null)
                     {
-                        interact.inRoom.RemoveObjectFromRoom(gameObject.transform);
+                        if (interact.inRoom != null)
+                        {
+                            interact.inRoom.RemoveObjectFromRoom(gameObject.transform);
+                        }
+
+                        interact.isHeld = true;
                     }
                     Debug.Log("Trying to find Keyholder: " + GameObject.FindGameObjectWithTag("KeyHolder").name);
                     gameObject.transform.parent = GameObject.FindGameObjectWithTag("KeyHolder").transform;
@@ -57,8 +62,18 @@ public class EventObjectBase : MonoBehaviour
                 else if (collider.CompareTag("KeycardScanner") && collider.gameObject.GetComponentInParent<DoorLock>() == connectedDoor)
                 {
                     connectedDoor.OpenDoor();
-                    gameObject.GetComponentInParent<WeaponGrab>().DropWeapon();
+
+                    if (gameObject.GetComponentInParent<UIWatch>() != null)
+                    {
+                        gameObject.GetComponentInParent<UIWatch>().gameObject.GetComponentInChildren<WristPlateUI>().TakeOutCard(gameObject);
+                    }
+
+                    if (gameObject.GetComponentInParent<WeaponGrab>().gameObject.GetComponentInParent<WeaponGrab>().weaponHeld == transform)
+                    {
+                        gameObject.GetComponentInParent<WeaponGrab>().DropWeapon();
+                    }
                     Destroy(gameObject);
+                    GameObject.FindGameObjectWithTag("DropZone").SetActive(false);
                 }
                 break;
         }

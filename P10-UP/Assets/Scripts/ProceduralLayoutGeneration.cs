@@ -183,12 +183,12 @@ public class ProceduralLayoutGeneration : MonoBehaviour
         {
             if (!portalDoors[i].isLocked)
             {
-                int randomEvent = Random.Range(0, 9);
+                int randomEvent = Random.Range(0, 100); // old int randomEvent = Random.Range(0, 9);
                 Room portalDoorRoom = portalDoors[i].inRoom;
                 bool caseSelected = false;
                 int doorRoomID = portalDoorRoom.GetRoomID();
 
-                if (randomEvent < 3)
+                if (randomEvent < 2)   // old if (randomEvent < 3)
                 {
                     // Case 1 - Unlock with pressure plate
                     int checkLastXRooms = doorRoomID > 2 ? 3 : doorRoomID;
@@ -234,8 +234,8 @@ public class ProceduralLayoutGeneration : MonoBehaviour
                         continue;
                 }
 
-                // Case 2 - Unlock by shooting a target
-                if (randomEvent >= 6)
+                // Case 2 - Unlock by shooting a target    OLD: if (randomEvent >= 6)
+                if (randomEvent >= 6 && randomEvent <= 8)
                 {
                     // Remove button since target should control the door lock
                     portalDoors[i].RemoveButton();
