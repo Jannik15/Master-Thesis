@@ -38,6 +38,14 @@ public class EventObjectBase : MonoBehaviour
                     {
                         gameObject.GetComponentInParent<WeaponGrab>().DropWeapon();
                     }
+
+                    InteractableObject interact = gameObject.GetComponent<InteractableObject>();
+
+                    if (interact != null && interact.inRoom != null)
+                    {
+                        interact.inRoom.RemoveObjectFromRoom(gameObject.transform);
+                    }
+                    Debug.Log("Trying to find Keyholder: " + GameObject.FindGameObjectWithTag("KeyHolder").name);
                     gameObject.transform.parent = GameObject.FindGameObjectWithTag("KeyHolder").transform;
                     gameObject.transform.localPosition = new Vector3(5.75f, 0, 14);
                     gameObject.transform.localEulerAngles = new Vector3(0, 180, 180);
