@@ -65,9 +65,11 @@ public class WristPlateUI : MonoBehaviour
         }
     }
 
-    public void TakeOutCard()
+    public void TakeOutCard(GameObject card)
     {
-        keysList.RemoveAt(currentCard);
+        Debug.Log("Took out card of inventory");
+        keysList.Remove(card);
+        currentCard = 0;
     }
 
 
@@ -76,7 +78,7 @@ public class WristPlateUI : MonoBehaviour
         heldAmount = keysList.Count;
         cardAmount.text = heldAmount.ToString();
 
-        currentAmount.text = currentCard.ToString();
+        currentAmount.text = (currentCard + 1).ToString();
     }
 
     void OnTriggerEnter(Collider collider)
