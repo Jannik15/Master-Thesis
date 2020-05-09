@@ -98,7 +98,7 @@ LightmapSettings:
     m_TrainingDataDestination: TrainingData
     m_LightProbeSampleCountMultiplier: 4
   m_LightingDataAsset: {fileID: 0}
-  m_UseShadowmask: 0
+  m_UseShadowmask: 1
 --- !u!196 &4
 NavMeshSettings:
   serializedVersion: 2
@@ -149,6 +149,11 @@ PrefabInstance:
       propertyPath: m_fontStyle
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 1709707512156636306, guid: 48b9e7e01a6d2b84189c2c67c34ad36a,
+        type: 3}
+      propertyPath: pointer
+      value: 
+      objectReference: {fileID: 2037750681}
     - target: {fileID: 1822902423498128285, guid: 48b9e7e01a6d2b84189c2c67c34ad36a,
         type: 3}
       propertyPath: m_Enabled
@@ -228,6 +233,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3025425962818144686, guid: 48b9e7e01a6d2b84189c2c67c34ad36a,
+        type: 3}
+      propertyPath: m_TagString
+      value: FadeAnimator
       objectReference: {fileID: 0}
     - target: {fileID: 3390184051205681105, guid: 48b9e7e01a6d2b84189c2c67c34ad36a,
         type: 3}
@@ -789,6 +799,21 @@ PrefabInstance:
       propertyPath: m_LocalScale.x
       value: 0.5
       objectReference: {fileID: 0}
+    - target: {fileID: 6450690931545222074, guid: 48b9e7e01a6d2b84189c2c67c34ad36a,
+        type: 3}
+      propertyPath: m_AnchorMin.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6450690931545222074, guid: 48b9e7e01a6d2b84189c2c67c34ad36a,
+        type: 3}
+      propertyPath: m_AnchorMax.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6450690931545222074, guid: 48b9e7e01a6d2b84189c2c67c34ad36a,
+        type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 122.5
+      objectReference: {fileID: 0}
     - target: {fileID: 6999786857684541230, guid: 48b9e7e01a6d2b84189c2c67c34ad36a,
         type: 3}
       propertyPath: m_AnchorMin.x
@@ -1014,7 +1039,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 749615b78f067c442b8275980b7ed7c8, type: 3}
+  m_Sprite: {fileID: 21300000, guid: eec623c29607b1447ac4dc6de3cdda6a, type: 3}
   m_Type: 1
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -1048,7 +1073,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 749615b78f067c442b8275980b7ed7c8, type: 3}
+  m_Sprite: {fileID: 21300000, guid: eec623c29607b1447ac4dc6de3cdda6a, type: 3}
   m_Type: 1
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -2078,7 +2103,7 @@ Mesh:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: pb_Mesh-591732
+  m_Name: pb_Mesh-1700
   serializedVersion: 10
   m_SubMeshes:
   - serializedVersion: 2

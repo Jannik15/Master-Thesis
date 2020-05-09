@@ -26,23 +26,22 @@ public class EventObjectBase : MonoBehaviour
             case EventObjectType.ThisType.WinCondition:
                 if (collider.CompareTag("Player"))
                 {
-                    Debug.Log(FindObjectOfType<PlayerInteractions>().fadeAnimator.gameObject.name);
-                    FindObjectOfType<PlayerInteractions>().fadeAnimator.SetTrigger("FadeToWhite");
+                    //Debug.Log(FindObjectOfType<PlayerInteractions>().fadeAnimator.gameObject.name);
+                    //FindObjectOfType<PlayerInteractions>().fadeAnimator.SetTrigger("FadeToWhite");
+                    GameObject.FindGameObjectWithTag("FadeAnimator").gameObject.GetComponent<Animator>().SetTrigger("FadeToWhite");
                 }
                 break;
             case EventObjectType.ThisType.Keycard:
                 if (collider.CompareTag("DropZone"))
                 {
-                    gameObject.GetComponentInParent<WeaponGrab>().DepositKeycard();
+                    gameObject.GetComponentInParent<WeaponGrab>().DropWeapon();
                     gameObject.transform.parent = GameObject.FindGameObjectWithTag("KeyHolder").transform;
                     gameObject.transform.localPosition = new Vector3(5.75f, 0, 14);
                     gameObject.transform.localEulerAngles = new Vector3(0, 180, 180);
-                    gameObject.transform.parent.GetComponentInChildren<WristPlateUI>().ListAdder(gameObject);
-                    Debug.Log("Added " + gameObject + " to list in " + gameObject.transform.parent.GetComponentInChildren<WristPlateUI>().gameObject.name);
+                    gameObject.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeAll;
+                    GetComponentInParent<UIWatch>().gameObject.GetComponentInChildren<WristPlateUI>().ListAdder(gameObject);
                     gameObject.SetActive(false);
-
-                    
-
+                    collider.gameObject.SetActive(false);
                 }
                 else if (collider.CompareTag("KeycardScanner") && collider.gameObject.GetComponentInParent<DoorLock>() == connectedDoor)
                 {
