@@ -2,9 +2,10 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using UnityEngine.Networking;
 using UnityEngine;
-
+using UnityEngine.UI;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -14,6 +15,55 @@ public class DataHandler : MonoBehaviour
     public bool OnlyOneLogPerDevice = false;
     public string baseURL = ""; // fill out this and entry IDs in inspector
     public string[] entryIds;
+    public string[] internalData;
+    public int indexToModify;
+    public bool toggleState;
+
+    private void Start()
+    {
+        internalData = new string[entryIds.Length];
+    }
+
+    // Unity UI events only allow 1 argument in the inspector, so adding helper methods for defining data index and toggle states
+    public void ChangeDataIndex(int newIndex)
+    {
+        indexToModify = newIndex;
+    }
+
+    public void ChangeToggleState(bool newToggleState)
+    {
+        toggleState = newToggleState;
+    }
+
+    public void AssignData(string data)
+    {
+        internalData[indexToModify] = data;
+    }
+
+    public void AssignMultipleChoiceData(string data)
+    {
+        if (toggleState && !internalData[indexToModify].Contains(data))
+        {
+            internalData[indexToModify] += data + " ";
+        }
+        else if (!toggleState && internalData[indexToModify].Contains(data))
+        {
+            internalData[indexToModify].Remove(internalData[indexToModify].IndexOf(data), data.Length + 1); // + 1 to include space
+        }
+    }
+
+    public void SendInternalData()
+    {
+        Debug.Log("Sending internal data:");
+        string s = "";
+        for (int i = 0; i < internalData.Length; i++)
+        {
+            Debug.Log("      Question " + (i + 1) + ": " + internalData[i] + ",");
+            s += "      Question " + (i + 1) + ": " + internalData[i] + ",\n";
+        }
+        //Debug.Log("Sending internal data: \n" + s);
+        //StartCoroutine(Post(internalData.ToList()));
+    }
 
     public void SendData(List<float> data) // Call if sending float data only. Otherwise sending a string list is preferred.
     {
