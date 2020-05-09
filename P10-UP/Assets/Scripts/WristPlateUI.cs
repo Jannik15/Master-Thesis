@@ -78,7 +78,16 @@ public class WristPlateUI : MonoBehaviour
         heldAmount = keysList.Count;
         cardAmount.text = heldAmount.ToString();
 
-        currentAmount.text = (currentCard + 1).ToString();
+        if (keysList.Count == 0)
+        {
+            currentAmount.gameObject.SetActive(false);
+        }
+        else if (keysList.Count > 0)
+        {
+            currentAmount.gameObject.SetActive(true);
+            currentAmount.text = (currentCard + 1).ToString();
+
+        }
     }
 
     void OnTriggerEnter(Collider collider)
