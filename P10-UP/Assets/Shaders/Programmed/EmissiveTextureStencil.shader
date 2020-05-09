@@ -1,4 +1,4 @@
-﻿Shader "Stencils/UnlitTexture"
+﻿Shader "Stencils/EmissiveTexture"
 {
     Properties
     {
@@ -60,7 +60,7 @@
                 // sample the texture
                 fixed4 col = tex2D(_MainTex, IN.uv);
 
-                col.rgb *= _MainColor.rgb;
+                col.rgb += _MainColor.rgb;
                 half4 emission = tex2D(_EmissionMap, IN.uv) * _EmissionColor;
                 col.rgb += emission.rgb;
 

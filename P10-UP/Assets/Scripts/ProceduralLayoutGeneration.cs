@@ -277,6 +277,24 @@ public class ProceduralLayoutGeneration : MonoBehaviour
                     keyCardToSpawn.GetComponentInChildren<InteractableObject>().inRoom = rooms[roomToSpawnKeyCardIn];
                     keysList.Add(keyCardToSpawn);
                     portalDoors[i].Pair(DoorLock.DoorEvent.KeyCard, keyCardToSpawn);
+                    Color randomKeycardColor = Random.ColorHSV(0f, 0.9f, 0.5f, 1f, 0.8f, 1f, 1f, 1f);
+                    Renderer[] keyCardRenders = keyCardToSpawn.GetComponentsInChildren<Renderer>(true);
+                    for (int j = 0; j < keyCardRenders.Length; j++)
+                    {
+                        for (int k = 0; k < keyCardRenders[j].materials.Length; k++)
+                        {
+                            keyCardRenders[j].materials[k].SetColor("_MainColor", randomKeycardColor);
+                        }
+                    }
+                    // Do the same for the door
+                    Renderer[] keyCardScannerRenders = portalDoors[i].keycardScanner.GetComponentsInChildren<Renderer>(true);
+                    for (int j = 0; j < keyCardScannerRenders.Length; j++)
+                    {
+                        for (int k = 0; k < keyCardScannerRenders[j].materials.Length; k++)
+                        {
+                            keyCardScannerRenders[j].materials[k].SetColor("_Emission", randomKeycardColor);
+                        }
+                    }
                 }
                 // Case 4 - Already unlocked (Do nothing)
             }
