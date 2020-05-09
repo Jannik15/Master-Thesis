@@ -34,7 +34,10 @@ public class EventObjectBase : MonoBehaviour
             case EventObjectType.ThisType.Keycard:
                 if (collider.CompareTag("DropZone"))
                 {
-                    gameObject.GetComponentInParent<WeaponGrab>().DropWeapon();
+                    if (gameObject.GetComponentInParent<WeaponGrab>() != null)
+                    {
+                        gameObject.GetComponentInParent<WeaponGrab>().DropWeapon();
+                    }
                     gameObject.transform.parent = GameObject.FindGameObjectWithTag("KeyHolder").transform;
                     gameObject.transform.localPosition = new Vector3(5.75f, 0, 14);
                     gameObject.transform.localEulerAngles = new Vector3(0, 180, 180);
