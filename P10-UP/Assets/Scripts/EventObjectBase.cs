@@ -8,7 +8,6 @@ public class EventObjectBase : MonoBehaviour
     public EventObjectType eventType;
     public Room room;
     public DoorLock connectedDoor;
-    public List<GameObject> keycardList = new List<GameObject>();
 
     void OnTriggerEnter(Collider collider)
     {
@@ -26,20 +25,18 @@ public class EventObjectBase : MonoBehaviour
             case EventObjectType.ThisType.WinCondition:
                 if (collider.CompareTag("Player"))
                 {
-                    //Debug.Log(FindObjectOfType<PlayerInteractions>().fadeAnimator.gameObject.name);
-                    //FindObjectOfType<PlayerInteractions>().fadeAnimator.SetTrigger("FadeToWhite");
                     GameObject.FindGameObjectWithTag("FadeAnimator").gameObject.GetComponent<Animator>().SetTrigger("FadeToWhite");
                 }
                 break;
             case EventObjectType.ThisType.Keycard:
                 if (collider.CompareTag("DropZone"))
                 {
-                    if (gameObject.GetComponentInParent<WeaponGrab>() != null)
+                    if (GetComponentInParent<WeaponGrab>() != null)
                     {
-                        gameObject.GetComponentInParent<WeaponGrab>().DropWeapon();
+                        GetComponentInParent<WeaponGrab>().DropWeapon();
                     }
 
-                    InteractableObject interact = gameObject.GetComponent<InteractableObject>();
+                    InteractableObject interact = GetComponentInChildren<InteractableObject>();
 
                     if (interact != null)
                     {
@@ -50,30 +47,39 @@ public class EventObjectBase : MonoBehaviour
 
                         interact.isHeld = true;
                     }
-                    Debug.Log("Trying to find Keyholder: " + GameObject.FindGameObjectWithTag("KeyHolder").name);
+                    Debug.Log("Trying to find Keyholder: " + GameObject.FindGameObjectWithTag("KeyHolder"));
                     gameObject.transform.parent = GameObject.FindGameObjectWithTag("KeyHolder").transform;
                     gameObject.transform.localPosition = new Vector3(5.75f, 0, 14);
                     gameObject.transform.localEulerAngles = new Vector3(0, 180, 180);
-                    gameObject.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeAll;
+                    GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeAll;
                     GetComponentInParent<UIWatch>().gameObject.GetComponentInChildren<WristPlateUI>().ListAdder(gameObject);
                     gameObject.SetActive(false);
                     collider.gameObject.SetActive(false);
                 }
                 else if (collider.CompareTag("KeycardScanner") && collider.gameObject.GetComponentInParent<DoorLock>() == connectedDoor)
                 {
+                    Debug.Log("KeyScanned: opening door: " + connectedDoor.name);
                     connectedDoor.OpenDoor();
 
                     if (gameObject.GetComponentInParent<UIWatch>() != null)
                     {
-                        gameObject.GetComponentInParent<UIWatch>().gameObject.GetComponentInChildren<WristPlateUI>().TakeOutCard(gameObject);
+                        Debug.Log("KeyScanned: UIWatch parent is not null, checking wristplateUI in child: " + GetComponentInParent<UIWatch>().GetComponentInChildren<WristPlateUI>().name);
+                        GetComponentInParent<UIWatch>().GetComponentInChildren<WristPlateUI>().TakeOutCard(gameObject);
                     }
-
-                    if (gameObject.GetComponentInParent<WeaponGrab>().gameObject.GetComponentInParent<WeaponGrab>().weaponHeld == transform)
+                    if (gameObject.GetComponentInParent<WeaponGrab>() != null && gameObject.GetComponentInParent<WeaponGrab>().weaponHeld == transform)
                     {
                         gameObject.GetComponentInParent<WeaponGrab>().DropWeapon();
                     }
+
+                    GameObject dropZone = GameObject.FindGameObjectWithTag("DropZone");
+
+                    if (dropZone != null && dropZone.activeSelf)
+                    {
+                        Debug.Log("Disabling dropZone: " + dropZone.name);
+                        dropZone.SetActive(false);
+                    }
+                    Debug.Log("Destroying keycard...");
                     Destroy(gameObject);
-                    GameObject.FindGameObjectWithTag("DropZone").SetActive(false);
                 }
                 break;
         }
@@ -100,7 +106,7 @@ public class EventObjectBase : MonoBehaviour
         room.AddObjectToRoom(transform, playerCanCollide);
     }
 
-    public void TargetShot() // TODO: Add logic for calling when target is shot 
+    public void TargetShot()
     {
         connectedDoor.isLocked = false;
         connectedDoor.OpenDoor();
