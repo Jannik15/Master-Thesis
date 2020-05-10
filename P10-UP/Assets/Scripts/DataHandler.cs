@@ -1,4 +1,6 @@
 ﻿// Updated script - Google Forms data handler - Based on YT tutorial: https://www.youtube.com/watch?v=z9b5aRfrz7M
+
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
@@ -18,6 +20,8 @@ public class DataHandler : MonoBehaviour
     public string[] internalData;
     public int indexToModify;
     public bool toggleState;
+    private string spec = "G";
+    private CultureInfo ci = CultureInfo.CreateSpecificCulture("en-US");
 
     private void Start()
     {
@@ -38,6 +42,11 @@ public class DataHandler : MonoBehaviour
     public void AssignData(string data)
     {
         internalData[indexToModify] = data;
+    }
+
+    public void AssignSliderData(float data)
+    {
+        internalData[indexToModify] = data.ToString(spec, ci);
     }
 
     public void AssignMultipleChoiceData(string data)
@@ -70,8 +79,6 @@ public class DataHandler : MonoBehaviour
         List<string> tempConvertedData = new List<string>();
 
         // Culture specification to get . instead of , when converting to strings:
-        string spec = "G";
-        CultureInfo ci = CultureInfo.CreateSpecificCulture("en-US");
 
         foreach (float floatData in data)
         {
