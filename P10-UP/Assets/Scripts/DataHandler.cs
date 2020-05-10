@@ -57,6 +57,7 @@ public class DataHandler : MonoBehaviour
         }
         else if (!toggleState && internalData[indexToModify].Contains(data))
         {
+            Debug.Log("Below might cause null ref");
             internalData[indexToModify].Remove(internalData[indexToModify].IndexOf(data), data.Length + 1); // + 1 to include space
         }
     }
