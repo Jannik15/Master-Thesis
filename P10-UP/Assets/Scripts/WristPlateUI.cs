@@ -13,11 +13,6 @@ public class WristPlateUI : MonoBehaviour
     private int currentCard = 0;
     private List<GameObject> keysList = new List<GameObject>();
 
-    void Start()
-    {
-
-    }
-
     public void ListAdder(GameObject card)
     {
         keysList.Add(card);

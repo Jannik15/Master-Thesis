@@ -107,6 +107,15 @@ public class ProceduralLayoutGeneration : MonoBehaviour
         //*/ Portal culling based on view cone and portal to portal direction
         for (int i = 0; i < activeThroughPortals.Count; i++)
         {
+            if (currentRoom.GetPortalsInRoom()[i].doorLock != null && !currentRoom.GetPortalsInRoom()[i].doorLock.isOpen)
+            {
+                if (currentRoom.GetPortalsInRoom()[i].gameObject.activeSelf)
+                {
+                    currentRoom.GetPortalsInRoom()[i].SetActive(false);
+                }
+                continue;
+            }
+
             bool isPortalVisible = math.dot((currentRoom.GetPortalsInRoom()[i].transform.position - playerCam.position).normalized, 
                                        currentRoom.GetPortalsInRoom()[i].transform.forward) >= 0;
             if (!playerCollisionHandler.inPortal)
@@ -837,29 +846,29 @@ public class ProceduralLayoutGeneration : MonoBehaviour
         previousRoom.SetLayer(differentRoomLayer, differentRoomLayer);
         currentRoom.SetLayer(defaultLayer, interactionLayer);
 
-        #region Disable rooms connected to rooms that are connected to the previous room
+        //// Deprecated - we now parent rooms to portals, and since the portals get disabled, so do the rooms
+        //#region Disable rooms connected to rooms that are connected to the previous room
+        //if (currentPortal != null)
+        //{
+        //    for (int i = 0; i < previousRoom.GetPortalsInRoom().Count; i++)
+        //    {
+        //        if (previousRoom.GetPortalsInRoom()[i] != currentPortal)
+        //        {
+        //            Room previousRoomConnection = previousRoom.GetPortalsInRoom()[i].GetConnectedRoom();
 
-        if (currentPortal != null)
-        {
-            for (int i = 0; i < previousRoom.GetPortalsInRoom().Count; i++)
-            {
-                if (previousRoom.GetPortalsInRoom()[i] != currentPortal)
-                {
-                    Room previousRoomConnection = previousRoom.GetPortalsInRoom()[i].GetConnectedRoom();
-
-                    for (int j = 0; j < previousRoomConnection.GetPortalsInRoom().Count; j++)
-                    {
-                        if (previousRoomConnection.GetPortalsInRoom()[j].GetConnectedRoom() != previousRoom)
-                        {
-                            previousRoomConnection.GetPortalsInRoom()[j].GetConnectedRoom().gameObject.SetActive(false);
-                        }
-                        previousRoomConnection.GetPortalsInRoom()[j].SetActive(false);
-                        disabledPortal?.Invoke(previousRoomConnection.GetPortalsInRoom()[j]);
-                    }
-                }
-            }
-        }
-        #endregion
+        //            for (int j = 0; j < previousRoomConnection.GetPortalsInRoom().Count; j++)
+        //            {
+        //                if (previousRoomConnection.GetPortalsInRoom()[j].GetConnectedRoom() != previousRoom)
+        //                {
+        //                    previousRoomConnection.GetPortalsInRoom()[j].GetConnectedRoom().gameObject.SetActive(false);
+        //                }
+        //                previousRoomConnection.GetPortalsInRoom()[j].SetActive(false);
+        //                disabledPortal?.Invoke(previousRoomConnection.GetPortalsInRoom()[j]);
+        //            }
+        //        }
+        //    }
+        //}
+        //#endregion
 
         List<Portal> portalsInConnectedRoom = new List<Portal>();
         #region Enable | Update stencils, render queue, shaders, Shader matrix, and layers for anything except the current room.

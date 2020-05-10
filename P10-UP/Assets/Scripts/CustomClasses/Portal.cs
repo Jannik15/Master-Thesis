@@ -9,6 +9,7 @@ public class Portal : MonoBehaviour
     private GameObject forwardPortal, backwardPortal;
     [SerializeField] private int portalId;
     private List<Renderer> renderers = new List<Renderer>();
+    public DoorLock doorLock;
 
     public void AssignValues(Room inRoom, Room connectedRoom, Portal connectedPortal, int portalId)
     {
