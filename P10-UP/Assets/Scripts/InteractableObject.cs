@@ -193,6 +193,22 @@ public class InteractableObject : MonoBehaviour
         return inRoom;
     }
 
+    private void OnDestroy()
+    {
+        // Unregister grab events
+        OVRGrabber[] grabbers = Resources.FindObjectsOfTypeAll<OVRGrabber>();
+        for (int i = 0; i < grabbers.Length; i++)
+        {
+            grabbers[i].objectGrabEvent -= GrabEventListener;
+        }
+
+        WeaponGrab[] weaponGrabbers = Resources.FindObjectsOfTypeAll<WeaponGrab>();
+        for (int i = 0; i < weaponGrabbers.Length; i++)
+        {
+            weaponGrabbers[i].gunGrabEvent -= GrabEventListener;
+        }
+    }
+
     private void GrabEventListener(GameObject grabbedObject, bool isBeingGrabbed, OVRInput.Controller controller)
     {
         // The object being grabbed is this object
@@ -318,10 +334,10 @@ public class InteractableObject : MonoBehaviour
         }
         if (isHeld)
         {
-            activePortalInteractionCollisions--;
-            if (activePortalInteractionCollisions == 0)
+            if (collider.CompareTag("InteractionHandler"))
             {
-                if (collider.CompareTag("InteractionHandler"))
+                activePortalInteractionCollisions--;
+                if (activePortalInteractionCollisions == 0)
                 {
                     _inInteractionCollider = false;
                 }
@@ -336,7 +352,6 @@ public class InteractableObject : MonoBehaviour
         {
             if (isHeld)
             {
-                activePortalCollisions = 0;
                 _inPortalCollider = false;
                 if (_roomChanged)
                 {
@@ -344,7 +359,7 @@ public class InteractableObject : MonoBehaviour
                     _inInteractionCollider = false;
                 }
             }
-            else if (_roomChanged)
+            else
             {
                 activePortalCollisions = 0; // If this was called from event, set activePortalCollisions to 0
                 inRoom?.RemoveObjectFromRoom(transform);

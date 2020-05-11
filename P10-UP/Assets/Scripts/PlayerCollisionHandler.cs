@@ -42,7 +42,6 @@ public class PlayerCollisionHandler : MonoBehaviour
             {
                 proceduralLayout.SwitchCurrentRoom(proceduralLayout.previousRoom, null);
             }
-
             inPortal = false;
         }
     }

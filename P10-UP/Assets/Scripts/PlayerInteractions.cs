@@ -91,36 +91,9 @@ public class PlayerInteractions : MonoBehaviour
 
     private void OnCollisionEnter(Collision collission)
     {
-        Debug.Log("I've been hit by " + collission.gameObject);
         if (collission.gameObject.CompareTag("HostileProjectile"))
         {
             TakeDamage(10f);
-        }
-    }
-
-    private void OnTriggerEnter(Collider collider)
-    {
-        if (collider.CompareTag("Keycard"))
-        {
-            Debug.Log("Collided with keycard");
-            // Loop through the list of keyCards to enable the correct one in the UI.
-            for (int i = 0; i < proLG.keysList.Count; i++)
-            {
-                if (proLG.keysList[i] == collider.transform.parent.gameObject)
-                {
-                    if (keyUI.Count > i)
-                    {
-                        keyUI[i].SetActive(true);
-                    }
-                    else
-                    {
-                        Debug.Log("Picked up keyCard #" + (i + 1) + " but this number is not present in the UI and cannot be enabled!");
-                    }
-                }
-            }
-            // Be aware that this destroys THE PARENT of the collider (supposed to destroy keyCardHolder)
-            proLG.currentRoom.RemoveObjectFromRoom(collider.transform.parent);
-            Destroy(collider.transform.parent.gameObject);
         }
     }
 }

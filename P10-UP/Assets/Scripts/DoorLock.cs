@@ -38,24 +38,14 @@ public class DoorLock : MonoBehaviour
     private ProceduralLayoutGeneration layoutGeneration;
     private PlayerInteractions playerInteractions;
     public Transform keycardScanner;
+    public GameObject portal;
+    private Portal doorPortal;
 
     void Awake()
     {
         doorAnimator = GetComponentInParent<Animator>();
         layoutGeneration = FindObjectOfType<ProceduralLayoutGeneration>();
         playerInteractions = FindObjectOfType<PlayerInteractions>();
-
-        /*
-        if (buttonTrigger != null)
-        {
-            SetOriginalLocalPosition();
-            minDistance = Vector3.Distance(buttonTrigger.position, button.position);
-            maxDistance = buttonTrigger.position.x;
-            originalPosition = button.position;
-
-            rb = button.GetComponent<Rigidbody>();
-        }
-        */
     }
 
 
@@ -69,6 +59,10 @@ public class DoorLock : MonoBehaviour
         {
             pairedKeyCard = pairedObject;
         }
+
+        doorPortal = portal.GetComponentInParent<Portal>();
+        doorPortal.SetActive(false);
+        doorPortal.doorLock = this;
     }
 
     public void TryToUnlock()
@@ -106,14 +100,22 @@ public class DoorLock : MonoBehaviour
     public void OpenDoor()
     {
         doorAnimator.CrossFadeInFixedTime("DoorOpen", 0.9f, 0, 0);
-        isOpen = true;
-        // TODO: Enable portal here
     }
 
     public void CloseDoor()
     {
         doorAnimator.CrossFadeInFixedTime("DoorClose", 0.9f, 0, 0);
+    }
+
+    public void EnablePortal()
+    {
+        isOpen = true;
+        doorPortal.SetActive(true);
+    }
+
+    public void DisablePortal()
+    {
         isOpen = false;
-        // TODO: Disable portal here
+        doorPortal.SetActive(false);
     }
 }

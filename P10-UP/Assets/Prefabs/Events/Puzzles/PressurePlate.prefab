@@ -61,6 +61,7 @@ GameObject:
   - component: {fileID: 4044364776609762657}
   - component: {fileID: 4044364776609762656}
   - component: {fileID: 4153808236381900593}
+  - component: {fileID: 6752605359593626894}
   m_Layer: 0
   m_Name: Plate
   m_TagString: Button
@@ -181,6 +182,21 @@ SpringJoint:
   m_EnablePreprocessing: 1
   m_MassScale: 1
   m_ConnectedMassScale: 1
+--- !u!114 &6752605359593626894
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4153808236381900594}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6c9b0973913580a44853270e03006b6e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  x: 0
+  y: 0.025
+  z: 0
 --- !u!1 &5404765130596978019
 GameObject:
   m_ObjectHideFlags: 0
@@ -243,6 +259,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   eventType: {fileID: 11400000, guid: 590b843b6554c714ea5fdc27f23ab745, type: 2}
   connectedDoor: {fileID: 0}
+  keycardList: []
 --- !u!1 &8519134144587376488
 GameObject:
   m_ObjectHideFlags: 0
