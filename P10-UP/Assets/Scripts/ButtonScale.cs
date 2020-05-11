@@ -21,7 +21,7 @@ public class ButtonScale : ListenerResponse
     {
         if (!DicButtons.ContainsKey(obj))
         {
-            Animator animator = obj.GetComponent<Animator>();
+            Animator animator = obj.GetComponentInChildren<Animator>();
             DicButtons.Add(obj, animator);
             return animator;
         }

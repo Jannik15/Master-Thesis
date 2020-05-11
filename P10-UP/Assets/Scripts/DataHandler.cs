@@ -51,8 +51,10 @@ public class DataHandler : MonoBehaviour
 
     public void AssignMultipleChoiceData(string data)
     {
+        Debug.Log("Assigning multiple choice data:");
         if (toggleState && !internalData[indexToModify].Contains(data))
         {
+            Debug.Log("If was true, adding data to array at index " + indexToModify);
             internalData[indexToModify] += data + " ";
         }
         else if (!toggleState && internalData[indexToModify].Contains(data))

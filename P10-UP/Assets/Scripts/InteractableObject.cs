@@ -63,7 +63,6 @@ public class InteractableObject : MonoBehaviour
                 for (int j = 0; j < duplicatedRenderers[i].materials.Length; j++)
                 {
                     duplicatedRenderers[i].materials[j] = Instantiate(duplicatedRenderers[i].materials[j]);
-                    duplicatedRenderers[i].materials[j].SetColor("_MainColor", Color.red);
                 }
             }
             //*/
@@ -75,7 +74,6 @@ public class InteractableObject : MonoBehaviour
             for (int i = 0; i < duplicatedTexts.Length; i++)
             {
                 duplicatedTexts[i].material = Instantiate(duplicatedTexts[i].material);
-                duplicatedTexts[i].material.SetColor("_Color", Color.red);
             }
             //*/
             //* TextMeshPro instantiation
@@ -91,7 +89,6 @@ public class InteractableObject : MonoBehaviour
                 for (int j = 0; j < duplicatedTMPTexts[i].fontMaterials.Length; j++)
                 {
                     duplicatedTMPTexts[i].fontMaterials[j] = Instantiate(duplicatedTMPTexts[i].fontMaterials[j]);
-                    duplicatedTMPTexts[i].fontMaterials[j].SetColor("_Color", Color.red);
                 }
             }
             //*/
@@ -103,7 +100,6 @@ public class InteractableObject : MonoBehaviour
             for (int i = 0; i < duplicatedImages.Length; i++)
             {
                 duplicatedImages[i].material = Instantiate(duplicatedImages[i].material);
-                duplicatedImages[i].material.SetColor("_Color", Color.red);
             }
             //*/
             #endregion
