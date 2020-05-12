@@ -18,8 +18,8 @@ public class DataHandler : MonoBehaviour
     public string baseURL = ""; // fill out this and entry IDs in inspector
     public string[] entryIds;
     public string[] internalData;
-    public int indexToModify;
-    public bool toggleState;
+    [HideInInspector] public int indexToModify;
+    [HideInInspector] public bool toggleState;
     private string spec = "G";
     private CultureInfo ci = CultureInfo.CreateSpecificCulture("en-US");
 
@@ -51,16 +51,13 @@ public class DataHandler : MonoBehaviour
 
     public void AssignMultipleChoiceData(string data)
     {
-        Debug.Log("Assigning multiple choice data:");
-        if (toggleState && !internalData[indexToModify].Contains(data))
+        if (toggleState && (string.IsNullOrEmpty(internalData[indexToModify]) || !internalData[indexToModify].Contains(data)))
         {
-            Debug.Log("If was true, adding data to array at index " + indexToModify);
-            internalData[indexToModify] += data + " ";
+            internalData[indexToModify] += data + ", ";
         }
         else if (!toggleState && internalData[indexToModify].Contains(data))
         {
-            Debug.Log("Below might cause null ref");
-            internalData[indexToModify].Remove(internalData[indexToModify].IndexOf(data), data.Length + 1); // + 1 to include space
+            internalData[indexToModify] = internalData[indexToModify].Remove(internalData[indexToModify].IndexOf(data), data.Length + 2); // + 2 to include comma and space
         }
     }
 
