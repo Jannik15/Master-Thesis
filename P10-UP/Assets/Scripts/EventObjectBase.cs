@@ -9,6 +9,18 @@ public class EventObjectBase : MonoBehaviour
     public Room room;
     public DoorLock connectedDoor;
 
+    public AudioClip winSFX;
+    public AudioClip wrongCardSFX;
+    public AudioClip correctCardSFX;
+
+    private AudioSource audioSourceKeycard;
+    private AudioSource audioSourceDoor;
+
+    void Start()
+    {
+
+    }
+
     void OnTriggerEnter(Collider collider)
     {
         switch (eventType.thisEventType)
@@ -25,12 +37,21 @@ public class EventObjectBase : MonoBehaviour
             case EventObjectType.ThisType.WinCondition:
                 if (collider.CompareTag("Player"))
                 {
+                    if (winSFX != null && GetComponent<AudioSource>())
+                    {
+                        GetComponent<AudioSource>().PlayOneShot(winSFX);
+                    }
                     GameObject.FindGameObjectWithTag("FadeAnimator").gameObject.GetComponent<Animator>().SetTrigger("FadeToWhite");
                 }
                 break;
             case EventObjectType.ThisType.Keycard:
                 if (collider.CompareTag("DropZone"))
                 {
+                    if (GameObject.FindGameObjectWithTag("WatchInterface").GetComponent<AudioSource>() != null)
+                    {
+                        audioSourceKeycard = GameObject.FindGameObjectWithTag("WatchInterface").GetComponent<AudioSource>();
+                    }
+
                     if (GetComponentInParent<WeaponGrab>() != null)
                     {
                         GetComponentInParent<WeaponGrab>().DropWeapon();
@@ -48,6 +69,7 @@ public class EventObjectBase : MonoBehaviour
                         interact.isHeld = true;
                     }
                     Debug.Log("Trying to find Keyholder: " + GameObject.FindGameObjectWithTag("KeyHolder"));
+                    audioSourceKeycard.Play();
                     gameObject.transform.parent = GameObject.FindGameObjectWithTag("KeyHolder").transform;
                     gameObject.transform.localPosition = new Vector3(5.75f, 0, 14);
                     gameObject.transform.localEulerAngles = new Vector3(0, 180, 180);
@@ -58,6 +80,14 @@ public class EventObjectBase : MonoBehaviour
                 }
                 else if (collider.CompareTag("KeycardScanner") && collider.gameObject.GetComponentInParent<DoorLock>() == connectedDoor)
                 {
+
+                    if (collider.gameObject.GetComponent<AudioSource>() != null && correctCardSFX != null)
+                    {
+                        audioSourceDoor = collider.gameObject.GetComponent<AudioSource>();
+                    }
+
+                    audioSourceDoor.PlayOneShot(correctCardSFX);
+
                     Debug.Log("KeyScanned: opening door: " + connectedDoor.name);
                     connectedDoor.OpenDoor();
 
@@ -80,6 +110,15 @@ public class EventObjectBase : MonoBehaviour
                     }
                     Debug.Log("Destroying keycard...");
                     Destroy(gameObject);
+                } 
+                else if (collider.CompareTag("KeycardScanner"))
+                {
+                    if (collider.gameObject.GetComponent<AudioSource>() != null && wrongCardSFX != null)
+                    {
+                        audioSourceDoor = collider.gameObject.GetComponent<AudioSource>();
+                        audioSourceDoor.PlayOneShot(wrongCardSFX);
+                    }
+
                 }
                 break;
         }

@@ -11,6 +11,10 @@ public class PlayerInteractions : MonoBehaviour
     public LayerMask layerMaskRay;
     public float health = 100;
     public Animator fadeAnimator;
+    public AudioClip deathSFX;
+    public AudioClip hitSFX;
+
+    private AudioSource auS;
     private Ray ray;
     private Camera playerCamera;
     private ProceduralLayoutGeneration proLG;
@@ -23,6 +27,11 @@ public class PlayerInteractions : MonoBehaviour
         uiWatch = transform.parent.parent.GetComponentInChildren<UIWatch>();
         proLG = FindObjectOfType<ProceduralLayoutGeneration>();
         playerCamera = Camera.main;
+
+        if (GetComponent<AudioSource>() != null)
+        {
+            auS = GetComponent<AudioSource>();
+        }
     }
     // Update is called once per frame
     void Update()
@@ -43,10 +52,20 @@ public class PlayerInteractions : MonoBehaviour
 
     public void TakeDamage(float amount)
     {
+
+        if (hitSFX != null && auS != null)
+        {
+            auS.PlayOneShot(hitSFX);
+        } 
+
         uiWatch.healthUpdate((int)amount);
         health -= amount;
         if (health <= 0f)
         {
+            if (deathSFX != null && auS != null)
+            {
+                auS.PlayOneShot(deathSFX);
+            }
             Die();
         }
     }

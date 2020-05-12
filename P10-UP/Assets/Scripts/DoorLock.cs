@@ -29,6 +29,9 @@ public class DoorLock : MonoBehaviour
         ShootTarget,
         KeyCard
     }
+
+    public AudioClip door;
+    private AudioSource auS;
     public bool isLocked, isOpen;
     public Room inRoom;
     private Animator doorAnimator;
@@ -43,6 +46,7 @@ public class DoorLock : MonoBehaviour
 
     void Awake()
     {
+        auS = GetComponent<AudioSource>();
         doorAnimator = GetComponentInParent<Animator>();
         layoutGeneration = FindObjectOfType<ProceduralLayoutGeneration>();
         playerInteractions = FindObjectOfType<PlayerInteractions>();
@@ -99,11 +103,19 @@ public class DoorLock : MonoBehaviour
 
     public void OpenDoor()
     {
+        if (auS != null && door != null)
+        {
+            auS.PlayOneShot(door);
+        }
         doorAnimator.CrossFadeInFixedTime("DoorOpen", 0.9f, 0, 0);
     }
 
     public void CloseDoor()
     {
+        if (auS != null && door != null)
+        {
+            auS.PlayOneShot(door);
+        }
         doorAnimator.CrossFadeInFixedTime("DoorClose", 0.9f, 0, 0);
     }
 
