@@ -56,7 +56,7 @@ public class ProjectileMoveScript : MonoBehaviour {
 		}
 
 		if (shotSFX != null && GetComponent<AudioSource>()) {
-			GetComponent<AudioSource> ().PlayOneShot (shotSFX);
+			GetComponent<AudioSource>().Play();
 		}
 	}
 
@@ -68,12 +68,8 @@ public class ProjectileMoveScript : MonoBehaviour {
 	void OnCollisionEnter (Collision co) {
 		if (co.gameObject.tag != "Bullet" && !collided) {
 			collided = true;
-			
-			if (shotSFX != null && GetComponent<AudioSource>()) {
-				GetComponent<AudioSource> ().PlayOneShot (hitSFX);
-			}
 
-			if (trails.Count > 0) {
+            if (trails.Count > 0) {
 				for (int i = 0; i < trails.Count; i++) {
 					trails [i].transform.parent = null;
 					var ps = trails [i].GetComponent<ParticleSystem> ();
@@ -125,6 +121,6 @@ public class ProjectileMoveScript : MonoBehaviour {
 		}
 		
 		yield return new WaitForSeconds (waitTime);
-		Destroy (gameObject);
+		Destroy (gameObject, 1f);
 	}
 }

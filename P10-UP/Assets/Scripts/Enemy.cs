@@ -6,9 +6,18 @@ public class Enemy : MonoBehaviour
 
     public float Health = 1f;
 
+    public AudioClip deathSFX;
+
+    private AudioSource auS;
+
     void Awake()
     {
         SetKinematic(true);
+
+        if (GetComponent<AudioSource>() != null)
+        {
+            auS = GetComponent<AudioSource>();
+        }
     }
 
     public void AssignRoom(Room room, bool playerCanCollide)
@@ -45,6 +54,11 @@ public class Enemy : MonoBehaviour
 
     void Die(Vector3 hitpoint2)
     {
+        if (auS != null && deathSFX != null)
+        {
+            auS.PlayOneShot(deathSFX);
+        }
+
         GetComponent<Animator>().enabled = false;
         Rigidbody rbMain = GetComponent<Rigidbody>();
         rbMain.isKinematic = false;

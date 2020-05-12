@@ -11,6 +11,9 @@ public class EnemyAI : MonoBehaviour
     public Transform barrelPoint;
     public LayerMask layerMask;
     public Animator animator;
+    public AudioClip shotSFX;
+
+    private AudioSource auS;
     private ProceduralLayoutGeneration layout;
     public bool _canShoot;
     private Enemy thisEnemy;
@@ -26,6 +29,12 @@ public class EnemyAI : MonoBehaviour
 
         layout = FindObjectOfType<ProceduralLayoutGeneration>();
         layout.roomSwitched += UpdatePlayerRoom;
+
+        if (GetComponent<AudioSource>() != null)
+        {
+            auS = GetComponent<AudioSource>();
+        }
+
     }
 
     void Update()
@@ -99,6 +108,10 @@ public class EnemyAI : MonoBehaviour
 
     void EnemyShoot()
     {
+        if (auS != null && shotSFX != null)
+        {
+            auS.PlayOneShot(shotSFX);
+        }
         Instantiate(laserBullet, barrelPoint.position, Quaternion.LookRotation(barrelPoint.forward));
     }
 }
