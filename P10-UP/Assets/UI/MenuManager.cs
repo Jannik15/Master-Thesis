@@ -9,6 +9,8 @@ using UnityEngine.SceneManagement;
 
 public class MenuManager : MonoBehaviour
 {
+    public bool tutorialMode = false;
+
     public Animator animatorDoor;
     public GameObject optionsMenu;
     public ProceduralLayoutGeneration handler;
@@ -17,6 +19,9 @@ public class MenuManager : MonoBehaviour
     private GameObject spawnedGun;
     private Room inRoom;
     private List<Transform> spawnedGuns = new List<Transform>();
+    
+    private List<string> charlieList = new List<string>();
+
     public int currentStock = 5;
     public TMP_Text stockAmount;
     public bool dispenser;
@@ -26,12 +31,16 @@ public class MenuManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        if (handler == null)
+
+        charlieList.Add(spawnedGuns[1].position.ToString());
+        Debug.Log(spawnedGuns[1].transform.GetType());
+
+        if (handler == null && !tutorialMode)
         {
             handler = FindObjectOfType<ProceduralLayoutGeneration>();
         }
 
-        if (dispenser)
+        if (dispenser && !tutorialMode)
         {
             handler.proceduralGenerationFinished += OnProceduralGeneration;
         }
@@ -78,7 +87,8 @@ public class MenuManager : MonoBehaviour
 
     public void Dispense()
     {
-        if (currentStock > 0)
+
+        if (currentStock > 0 && !tutorialMode)
         {
             float randomRange = Random.Range(40f, 100f);
             spawnedGun = Instantiate(gun, dispensePoint.position, Quaternion.identity);
@@ -95,6 +105,14 @@ public class MenuManager : MonoBehaviour
                 spawnedGun.transform.parent = handler.rooms[0].gameObject.transform;
             }
         }
+        else if (currentStock > 0 && tutorialMode)
+        {
+            float randomRange = Random.Range(40f, 100f);
+            spawnedGun = Instantiate(gun, dispensePoint.position, Quaternion.identity);
+            spawnedGun.GetComponent<Rigidbody>().AddForce(dispensePoint.forward * randomRange);
+            currentStock--;
+        }
+        
     }
 
     public void TestStart(){

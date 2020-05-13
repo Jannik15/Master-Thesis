@@ -7,6 +7,7 @@ public class FadeAnimator : MonoBehaviour
 {
     public PlayerInteractions playInt;
 
+
     public void WhiteFading()
     {
         playInt.OnGameComplete();
