@@ -130,4 +130,9 @@ public class DoorLock : MonoBehaviour
         isOpen = false;
         doorPortal.SetActive(false);
     }
+
+    public void DestroyDoor()
+    {
+
+    }
 }

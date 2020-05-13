@@ -22,7 +22,7 @@ public class WristPlateUI : MonoBehaviour
     {
         if (keysList.Count > 0)
         {
-            keysList[currentCard].SetActive(true);
+            keysList[currentCard].SetActive(!keysList[currentCard].activeSelf);
         }
     }
 

@@ -7,6 +7,7 @@ public class WeaponGrab : MonoBehaviour
 {
     public LayerMask layerMask;
     public Transform trackingSpace;
+    [SerializeField] private FingerPress finger;
     [SerializeField] private float fireRate = 3f, fireDelay;
     [SerializeField] private WeaponGrab otherHand;
     [SerializeField] private Vector3 weaponInHandPosition, weaponInHandRotation, cardInHandPosition, cardInHandRotation;
@@ -91,9 +92,9 @@ public class WeaponGrab : MonoBehaviour
     {
         if (holdingNonWeaponObject) return;
 
-        // RayCast pickup
         if (weaponHeld == null) // Can't pick up new weapon if another weapon is already held
         {
+            // RayCast pickup
             if (Physics.SphereCast(transform.position, 0.15f, transform.forward, out RaycastHit hit, 5, layerMask)) //right Hand cast
             {
                 if (hit.transform.CompareTag("Weapon") && hit.transform != weaponHit && hit.transform != otherHand.weaponHit || hit.transform.CompareTag("Keycard") && hit.transform != weaponHit && hit.transform != otherHand.weaponHit)
@@ -285,6 +286,7 @@ public class WeaponGrab : MonoBehaviour
         oVRGrabber.enabled = false;
         currentGun = null;
         gunGrabEvent?.Invoke(weaponHeld.gameObject, true, handRight ? OVRInput.Controller.RTouch : OVRInput.Controller.LTouch);
+        finger?.gameObject.SetActive(false);
     }
 
     private void PickUpWeapon(Transform weaponToPickUp)
@@ -306,9 +308,9 @@ public class WeaponGrab : MonoBehaviour
         weaponRb.constraints = RigidbodyConstraints.FreezeAll;
         oVRGrabber.enabled = false;
         currentGun = weaponHeld.GetComponentInChildren<Gun>();
+        finger?.gameObject.SetActive(false);
         gunGrabEvent?.Invoke(weaponHeld.gameObject, true, handRight ? OVRInput.Controller.RTouch : OVRInput.Controller.LTouch);
     }
-
 
     public void DropWeapon()
     {
@@ -321,6 +323,7 @@ public class WeaponGrab : MonoBehaviour
             weaponRb.velocity = trackingSpace.rotation * OVRInput.GetLocalControllerVelocity(OVRInput.Controller.RTouch);
             weaponRb.angularVelocity = OVRInput.GetLocalControllerAngularVelocity(OVRInput.Controller.RTouch);
             gunGrabEvent?.Invoke(weaponHeld.gameObject, false, OVRInput.Controller.RTouch);
+            finger?.gameObject.SetActive(true);
         }
         else
         {
@@ -330,82 +333,4 @@ public class WeaponGrab : MonoBehaviour
         }
         weaponHeld = null;
     }
-
-    #region Old 
-    /*/
-    private void RegisterOtherWeaponGrabber(Transform objectHitByOtherWeaponGrabber)
-    {
-        if (handRight)
-        {
-            objectHitL = objectHitByOtherWeaponGrabber;
-        }
-        else
-        {
-            objectHitR = objectHitByOtherWeaponGrabber;
-        }
-    }
-
-    void PickUpRight(Transform hitRight)
-    {
-        currentGunRight = hitRight.gameObject;
-        currentGunRight.transform.parent = transform;
-        currentGunRight.transform.localPosition = gunPositionRight;
-        currentGunRight.transform.localEulerAngles = gunRotationRight;
-        currentGunRight.GetComponentInChildren<InteractableObject>().AssignRoom(null);
-        //simpleShoot = currentGunRight.GetComponent<SimpleShoot>();
-        rbR = currentGunRight.GetComponent<Rigidbody>();
-        rbR.isKinematic = true;
-
-        holdingGun = true;
-        //simpleShoot.enabled = true; //on
-        oVRGrabber.enabled = false; //off
-        gunGrabEvent?.Invoke(currentGunRight, true);
-    }
-
-    void DropRight()
-    {
-        holdingGun = false;
-        //simpleShoot.enabled = false; //off
-        oVRGrabber.enabled = true; //on
-        rbR.isKinematic = false;
-        currentGunRight.GetComponentInChildren<InteractableObject>().AssignRoom(layout.currentRoom);
-        rbR.velocity = trackingSpace.rotation * OVRInput.GetLocalControllerVelocity(OVRInput.Controller.RTouch);
-        rbR.angularVelocity = OVRInput.GetLocalControllerAngularVelocity(OVRInput.Controller.RTouch);
-        gunGrabEvent?.Invoke(currentGunRight, false);
-        gun = null;
-        currentGunRight = null;
-    }
-
-    void PickUpLeft(Transform hitLeft)
-    {
-        currentGunLeft = hitLeft.gameObject;
-        currentGunLeft.transform.parent = transform;
-        currentGunLeft.transform.localPosition = gunPositionLeft;
-        currentGunLeft.transform.localEulerAngles = gunRotationLeft;
-        currentGunLeft.GetComponent<InteractableObject>().AssignRoom(null);
-        //simpleShoot = currentGunLeft.GetComponent<SimpleShoot>();
-        rbL = currentGunLeft.GetComponent<Rigidbody>();
-        rbL.isKinematic = true;
-
-        holdingGun = true;
-        //simpleShoot.enabled = true; //on
-        oVRGrabber.enabled = false; //off
-        gunGrabEvent?.Invoke(currentGunLeft, true);
-    }
-
-    void DropLeft()
-    {
-        holdingGun = false;
-        //simpleShoot.enabled = false; //off
-        oVRGrabber.enabled = true; //on
-        rbL.isKinematic = false;
-        currentGunLeft.GetComponent<InteractableObject>().AssignRoom(layout.currentRoom);
-        rbL.velocity = trackingSpace.rotation * OVRInput.GetLocalControllerVelocity(OVRInput.Controller.LTouch);
-        rbL.angularVelocity = OVRInput.GetLocalControllerAngularVelocity(OVRInput.Controller.LTouch);
-        gunGrabEvent?.Invoke(currentGunLeft, false);
-        gun = null;
-        currentGunLeft = null;
-    }
-    //*/
-    #endregion
 }
