@@ -974,7 +974,6 @@ public class ProceduralLayoutGeneration : MonoBehaviour
         // Step 2: Update shader matrix for previous room with the connected portals transform
         previousRoom.gameObject.transform.parent = connectedPortal.transform;
         CustomUtilities.UpdateShaderMatrix(previousRoom.gameObject, connectedPortal.transform);
-        roomSwitched?.Invoke(currentRoom, null);
     }
     #endregion
 }

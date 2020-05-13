@@ -16,7 +16,8 @@ public class InteractableObject : MonoBehaviour
     private Text[] texts, duplicatedTexts;
     private TextMeshProUGUI[] TMPTexts, duplicatedTMPTexts;
     private Image[] images, duplicatedImages;
-
+    private OVRGrabber[] grabbers;
+    private WeaponGrab[] weaponGrabbers;
     private Portal inPortal;
     private Room portalRoom, portalConnectedRoom;
     public Room inRoom;
@@ -104,13 +105,13 @@ public class InteractableObject : MonoBehaviour
             #endregion
 
             // Register grab events
-            OVRGrabber[] grabbers = Resources.FindObjectsOfTypeAll<OVRGrabber>();
+            grabbers = Resources.FindObjectsOfTypeAll<OVRGrabber>();
             for (int i = 0; i < grabbers.Length; i++)
             {
                 grabbers[i].objectGrabEvent += GrabEventListener;
             }
 
-            WeaponGrab[] weaponGrabbers = Resources.FindObjectsOfTypeAll<WeaponGrab>();
+            weaponGrabbers = Resources.FindObjectsOfTypeAll<WeaponGrab>();
             for (int i = 0; i < weaponGrabbers.Length; i++)
             {
                 weaponGrabbers[i].gunGrabEvent += GrabEventListener;
@@ -187,17 +188,26 @@ public class InteractableObject : MonoBehaviour
 
     private void OnDestroy()
     {
-        // Unregister grab events
-        OVRGrabber[] grabbers = Resources.FindObjectsOfTypeAll<OVRGrabber>();
-        for (int i = 0; i < grabbers.Length; i++)
+        // Unregister events
+        if (grabbers != null)
         {
-            grabbers[i].objectGrabEvent -= GrabEventListener;
+            for (int i = 0; i < grabbers.Length; i++)
+            {
+                grabbers[i].objectGrabEvent -= GrabEventListener;
+            }
+        }
+        if (weaponGrabbers != null)
+        {
+            for (int i = 0; i < weaponGrabbers.Length; i++)
+            {
+                weaponGrabbers[i].gunGrabEvent -= GrabEventListener;
+            }
         }
 
-        WeaponGrab[] weaponGrabbers = Resources.FindObjectsOfTypeAll<WeaponGrab>();
-        for (int i = 0; i < weaponGrabbers.Length; i++)
+        if (layout != null)
         {
-            weaponGrabbers[i].gunGrabEvent -= GrabEventListener;
+            layout.roomSwitched -= OnRoomSwitch;
+            layout.disabledPortal -= PortalExit;
         }
     }
 
@@ -219,6 +229,7 @@ public class InteractableObject : MonoBehaviour
                     inRoom?.RemoveObjectFromRoom(transform);
                     inRoom = layout.currentRoom;
                     inRoom.AddObjectToRoom(transform, false);
+                    Debug.Log(gameObject.name + " was dropped while it was in a portal collider - assigned to room " + inRoom.gameObject.name);
                 }
                 else if (_inInteractionCollider)
                 {
@@ -227,6 +238,7 @@ public class InteractableObject : MonoBehaviour
                         gameObject.layer = interactableLayer;
                         inRoom = layout.currentRoom;
                         inRoom.AddObjectToRoom(transform, false);
+                        Debug.Log(gameObject.name + " was dropped while it was in an interaction collider and the player was in a portal - assigned to room " + inRoom.gameObject.name);
                     }
                     else
                     {
@@ -234,6 +246,7 @@ public class InteractableObject : MonoBehaviour
                         inRoom = portalConnectedRoom;
                         portalConnectedRoom.AddObjectToRoom(transform, false);
                         UpdateStencils(portalConnectedRoom.GetStencilValue(), 0, true, inPortal.transform);
+                        Debug.Log(gameObject.name + " was dropped while it was in an interaction collider and the player was NOT in a portal - assigned to room " + inRoom.gameObject.name);
                     }
                 }
                 else
@@ -244,18 +257,21 @@ public class InteractableObject : MonoBehaviour
                         inRoom = layout.previousRoom;
                         inRoom.AddObjectToRoom(transform, false);
                         UpdateStencils(inRoom.GetStencilValue(), 2300, true, player.thisPortal.transform);
+                        Debug.Log(gameObject.name + " was dropped while it was not in any type of portal colliders, but the player is in a portal - assigned to room " + inRoom.gameObject.name);
                     }
-                    else // If the player is not in a portal - dropped in current room
+                    else // If neither the player nor the object is in a portal - dropped in current room
                     {
                         gameObject.layer = interactableLayer;
                         inRoom = layout.currentRoom;
                         if (inRoom != null)
                         {
                             inRoom.AddObjectToRoom(transform, false);
+                            Debug.Log(gameObject.name + " was dropped while it was not in any type of portal colliders, and the player was NOT in a portal - assigned to room " + inRoom.gameObject.name);
                         }
                         else // Only happens before procedural generation
                         {
                             transform.parent = layout.rooms[0].gameObject.transform;
+                            Debug.Log(gameObject.name + " was dropped before any portals have been created.");
                         }
                     }
                 }
@@ -375,35 +391,28 @@ public class InteractableObject : MonoBehaviour
         {
             if (portal != null)
             {
-                activePortalCollisions = 0;
-                _inPortalCollider = false;
-                activePortalInteractionCollisions = 0;
-                _inInteractionCollider = false;
-            } // Else do nothing
+                if (!_inInteractionCollider)
+                {
+                    UpdateStencils(portal.GetRoom().GetStencilValue(), portal.GetRenderer().material.renderQueue + 200, false, portal.transform);
+                }
+            }
         }
         else if (_inPortalCollider)
         {
             if (inPortal != null)
             {
                 gameObject.layer = inPortalLayer;
-                if (portal == inPortal)
+                if (portal == inPortal || newRoom == inRoom)
                 {
                     UpdateStencils(portalConnectedRoom.GetStencilValue(), inPortal.GetRenderer().material.renderQueue + 200, false, inPortal.transform);
                 }
                 else if (portal == null)
                 {
-                    if (newRoom == inRoom)
-                    {
-                        UpdateStencils(portalConnectedRoom.GetStencilValue(), inPortal.GetRenderer().material.renderQueue + 200, false, inPortal.transform);
-                    }
-                    else
-                    {
-                        inRoom.RemoveObjectFromRoom(transform);
-                        inRoom = portalConnectedRoom;
-                        inRoom.AddObjectToRoom(transform, false);
-                        UpdateStencils(portalRoom.GetStencilValue(), inPortal.GetRenderer().material.renderQueue + 200, false, inPortal.transform);
-                        UpdateStencils(portalConnectedRoom.GetStencilValue(), inPortal.GetRenderer().material.renderQueue - 100, true, inPortal.transform);
-                    }
+                    inRoom.RemoveObjectFromRoom(transform);
+                    inRoom = portalConnectedRoom;
+                    inRoom.AddObjectToRoom(transform, false);
+                    UpdateStencils(portalRoom.GetStencilValue(), inPortal.GetRenderer().material.renderQueue + 200, false, inPortal.transform);
+                    UpdateStencils(portalConnectedRoom.GetStencilValue(), inPortal.GetRenderer().material.renderQueue - 100, true, inPortal.transform);
                 }
             }
         }

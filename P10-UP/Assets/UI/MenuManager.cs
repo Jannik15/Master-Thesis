@@ -85,14 +85,17 @@ public class MenuManager : MonoBehaviour
             spawnedGun.GetComponent<Rigidbody>().AddForce(dispensePoint.forward * randomRange);
             currentStock--;
 
+
+
             if (inRoom != null)
             {
                 spawnedGun.GetComponentInChildren<InteractableObject>().AssignRoom(inRoom, false);
             }
             else
             {
-                //spawnedGuns.Add(spawnedGun.transform);
-                spawnedGun.transform.parent = handler.rooms[0].gameObject.transform;
+                GameObject roomObject = GetComponentInParent<Grid>().gameObject;
+                spawnedGun.transform.parent = roomObject.transform;
+                inRoom = CustomUtilities.FindParentRoom(roomObject, handler.rooms);
             }
         }
     }

@@ -18,7 +18,18 @@ public class Room
         portalsInRoom = new List<Portal>();
         portalsToRoom = new List<Portal>();
 
-        playerCollisionObjectsInRoom.AddRange(gameObject.GetComponentsInChildren<Transform>(true));
+        Transform[] allChildrenInRoom = gameObject.GetComponentsInChildren<Transform>(true);
+        for (int i = 0; i < allChildrenInRoom.Length; i++)
+        {
+            if (LayerMask.LayerToName(allChildrenInRoom[i].gameObject.layer) == "Interactable")
+            {
+                noPlayerCollisionObjectsInRoom.Add(allChildrenInRoom[i]);
+            }
+            else
+            {
+                playerCollisionObjectsInRoom.Add(allChildrenInRoom[i]);
+            }
+        }
     }
 
     public void UpdateRoomStencil(Transform portal, int newStencilValue, int renderQueue)
@@ -155,8 +166,14 @@ public class Room
             if (!playerCollisionObjectsInRoom.Contains(allChildren[i]) &&
                 !noPlayerCollisionObjectsInRoom.Contains(allChildren[i]))
             {
-                allChildren[i].gameObject.layer = layerForNoPlayerCollisionObjects;
-                //Debug.Log("allChildren[" + i + "] " + allChildren[i].gameObject.name + " was not assigned to room " + gameObject.name + " but is a child of it!");
+                if (LayerMask.LayerToName(allChildren[i].gameObject.layer) == "Interactable")
+                {
+                    allChildren[i].gameObject.layer = layerForNoPlayerCollisionObjects;
+                }
+                else
+                {
+                    allChildren[i].gameObject.layer = layerForPlayerCollisionObjects;
+                }
             }
         }
     } 

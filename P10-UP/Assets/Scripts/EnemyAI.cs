@@ -81,8 +81,11 @@ public class EnemyAI : MonoBehaviour
     {
         if (thisEnemy.inRoom == null)
         {
-            GameObject parentRoom = GetComponentInParent<Grid>().gameObject;
-            thisEnemy.AssignRoom(CustomUtilities.FindParentRoom(parentRoom, FindObjectOfType<ProceduralLayoutGeneration>().rooms), true);
+            GameObject parentRoom = GetComponentInParent<Grid>()?.gameObject;
+            if (parentRoom != null)
+            {
+                thisEnemy.AssignRoom(CustomUtilities.FindParentRoom(parentRoom, FindObjectOfType<ProceduralLayoutGeneration>().rooms), true);
+            }
         }
 
         if (playerRoom == thisEnemy.inRoom)
