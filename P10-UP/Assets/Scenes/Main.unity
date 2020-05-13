@@ -98,7 +98,7 @@ LightmapSettings:
     m_TrainingDataDestination: TrainingData
     m_LightProbeSampleCountMultiplier: 4
   m_LightingDataAsset: {fileID: 0}
-  m_UseShadowmask: 0
+  m_UseShadowmask: 1
 --- !u!196 &4
 NavMeshSettings:
   serializedVersion: 2
@@ -128,6 +128,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 0}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 438851713988501285, guid: 48b9e7e01a6d2b84189c2c67c34ad36a,
         type: 3}
       propertyPath: m_Controller
@@ -232,6 +236,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_margin.w
       value: 10.469017
+      objectReference: {fileID: 0}
+    - target: {fileID: 2768663872374417339, guid: 48b9e7e01a6d2b84189c2c67c34ad36a,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 3034753432386889479, guid: 48b9e7e01a6d2b84189c2c67c34ad36a,
         type: 3}
@@ -442,6 +451,21 @@ PrefabInstance:
         type: 3}
       propertyPath: m_AnchoredPosition.y
       value: -3.0999947
+      objectReference: {fileID: 0}
+    - target: {fileID: 8847710371910701610, guid: 48b9e7e01a6d2b84189c2c67c34ad36a,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8847710371910701610, guid: 48b9e7e01a6d2b84189c2c67c34ad36a,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_Mode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8847710371910701610, guid: 48b9e7e01a6d2b84189c2c67c34ad36a,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_CallState
+      value: 2
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 48b9e7e01a6d2b84189c2c67c34ad36a, type: 3}
@@ -1545,7 +1569,7 @@ Mesh:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: pb_Mesh-721934
+  m_Name: pb_Mesh-32054
   serializedVersion: 10
   m_SubMeshes:
   - serializedVersion: 2
@@ -2686,46 +2710,12 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 9028967233697168038, guid: 62ac2dedd4921ce4ea0ea96f5f51a8c7,
         type: 3}
-      propertyPath: enemyObjects.Array.size
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 9028967233697168038, guid: 62ac2dedd4921ce4ea0ea96f5f51a8c7,
-        type: 3}
       propertyPath: mainMenuCanvas
       value: 
       objectReference: {fileID: 5001838487416720226}
-    - target: {fileID: 9028967233697168038, guid: 62ac2dedd4921ce4ea0ea96f5f51a8c7,
-        type: 3}
-      propertyPath: depthClearer
-      value: 
-      objectReference: {fileID: 1326562014}
-    - target: {fileID: 9028967233697168038, guid: 62ac2dedd4921ce4ea0ea96f5f51a8c7,
-        type: 3}
-      propertyPath: portalDoorPrefab
-      value: 
-      objectReference: {fileID: 2314185141330299960, guid: 70de2c0734f148744a7a819f65a7b14b,
-        type: 3}
-    - target: {fileID: 9028967233697168038, guid: 62ac2dedd4921ce4ea0ea96f5f51a8c7,
-        type: 3}
-      propertyPath: enemyObjects.Array.data[0]
-      value: 
-      objectReference: {fileID: 8819289936102306485, guid: 9d92b27568a11f245a6cb98eeffbb8f1,
-        type: 3}
-    - target: {fileID: 9028967233697168038, guid: 62ac2dedd4921ce4ea0ea96f5f51a8c7,
-        type: 3}
-      propertyPath: keyCard
-      value: 
-      objectReference: {fileID: 4971457377819544913, guid: 4928137ab7c7fe14694a3ad26eb9349b,
-        type: 3}
     m_RemovedComponents:
     - {fileID: 7363107968417053452, guid: 62ac2dedd4921ce4ea0ea96f5f51a8c7, type: 3}
   m_SourcePrefab: {fileID: 100100000, guid: 62ac2dedd4921ce4ea0ea96f5f51a8c7, type: 3}
---- !u!1 &1326562014 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 3856553792759583226, guid: 62ac2dedd4921ce4ea0ea96f5f51a8c7,
-    type: 3}
-  m_PrefabInstance: {fileID: 1326562013}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1383447360
 GameObject:
   m_ObjectHideFlags: 0

@@ -9,6 +9,7 @@ public class ProceduralLayoutGeneration : MonoBehaviour
     // Inspector variables
     public GameObject mainMenuCanvas;
     public int roomAmount = 10;
+    [Range(0, 100)] public int pressurePlateWeighting = 33, shootTargetWeighting = 66, keyCardWeighting = 99, doorSpawnChance = 50;
     [SerializeField] private GameObject[] startGrids, genericGrids, endGrids;
     [SerializeField] private GameObject[] smallSceneryObjects, mediumSceneryObjects, largeSceneryObjects, eventObjects, enemyObjects, endGameEventObjects;
     [SerializeField] private GameObject[] interactableObjects;
@@ -180,7 +181,7 @@ public class ProceduralLayoutGeneration : MonoBehaviour
 
     public void ProcedurallyGenerateRooms()
     {
-        // TODO: If 3+ Zones, try creating another path, try diverging in the generation
+        // TODO: If 3+ PortalZones, try creating another path, and diverging the layout in the generation
 
         portalParent = new GameObject("Portals").transform;
 
@@ -188,18 +189,20 @@ public class ProceduralLayoutGeneration : MonoBehaviour
         CreateRooms(1, endGrids, CustomRoomType.End);
 
         // Handle portal doors events
-        for (int i = 0; i < portalDoors.Count; i++)
+        List<int> doorsToDestroy = new List<int>();
+        int portalDoorsCount = portalDoors.Count;
+        for (int i = 0; i < portalDoorsCount; i++)
         {
             if (!portalDoors[i].isLocked)
             {
-                int randomEvent = Random.Range(0, 100); // old int randomEvent = Random.Range(0, 9);
+                int randomEvent = Random.Range(0, 100);
                 Room portalDoorRoom = portalDoors[i].inRoom;
                 bool caseSelected = false;
                 int doorRoomID = portalDoorRoom.GetRoomID();
 
-                if (randomEvent < 2)   // old if (randomEvent < 3)
+                // Case 1 - Unlock with pressure plate
+                if (randomEvent < pressurePlateWeighting)
                 {
-                    // Case 1 - Unlock with pressure plate
                     int checkLastXRooms = doorRoomID > 2 ? 3 : doorRoomID;
 
                     // Randomize input
@@ -243,8 +246,8 @@ public class ProceduralLayoutGeneration : MonoBehaviour
                         continue;
                 }
 
-                // Case 2 - Unlock by shooting a target    OLD: if (randomEvent >= 6)
-                if (randomEvent >= 6 && randomEvent <= 8)
+                // Case 2 - Unlock by shooting a target
+                if (randomEvent < shootTargetWeighting)
                 {
                     // Remove button since target should control the door lock
                     portalDoors[i].RemoveButton();
@@ -261,13 +264,11 @@ public class ProceduralLayoutGeneration : MonoBehaviour
                     portalDoors[i].Pair(DoorLock.DoorEvent.ShootTarget, shootTarget);
                     EventObjectBase shootTargetEvent = shootTarget.GetComponentInChildren<EventObjectBase>(true);
                     shootTargetEvent.AssignRoom(portalDoors[i].inRoom, false);
-                    caseSelected = true;
-                }
-                if (caseSelected)
                     continue;
+                }
 
-                // Case 3 - Unlock with keycard
-                if (keysList.Count < rooms.Count)
+                // Case 3 - Unlock with keyCard
+                if (randomEvent < keyCardWeighting)
                 {
                     int roomToSpawnKeyCardIn = Random.Range(math.clamp(doorRoomID - 5, 1, doorRoomID), doorRoomID);
                     doorEventTiles.Clear();
@@ -304,10 +305,23 @@ public class ProceduralLayoutGeneration : MonoBehaviour
                             keyCardScannerRenders[j].materials[k].SetColor("_Emission", randomKeycardColor);
                         }
                     }
+                    continue;
                 }
-                // Case 4 - Already unlocked (Do nothing)
+
+                Debug.Log("No event was paired to door " + portalDoors[i].portal.gameObject.name + " - caching door for destruction");
+                doorsToDestroy.Add(i);
             }
         }
+
+        // Handle doors that should be destroyed
+        int doorsToDestroyCount = doorsToDestroy.Count;
+        for (int i = doorsToDestroyCount - 1; i >= 0; i--)
+        {
+            GameObject objToDestroy = portalDoors[doorsToDestroy[i]].gameObject;
+            portalDoors.RemoveAt(doorsToDestroy[i]);
+            Destroy(objToDestroy);
+        }
+
 
         // Spawn objects
         //SpawnObjectType(genericRooms, TileGeneration.TileType.Event, eventObjects, null, 1, new Vector2(1, 1), false);
@@ -574,9 +588,9 @@ public class ProceduralLayoutGeneration : MonoBehaviour
             //*/
             #endregion
             
-            //*// Choose what type of portal should spawn - Old door code
-            int spawnDoor = Random.Range(0, 10);
-            if (spawnDoor < 8 && roomID > 1)
+            //*// Choose whether to spawn a door or not
+            int spawnDoor = Random.Range(0, 100);
+            if (spawnDoor < doorSpawnChance && roomID > 1)
             {
                 portal = Instantiate(portalDoorPrefab, portalPosition.ToVector3XZ(), Quaternion.Euler(0, randomRotation, 0), portalParent);
                 DoorLock portalDoor = portal.GetComponentInChildren<DoorLock>(true);
