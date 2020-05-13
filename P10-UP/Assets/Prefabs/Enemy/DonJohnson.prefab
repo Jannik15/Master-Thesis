@@ -765,13 +765,22 @@ MonoBehaviour:
   laserBullet: {fileID: 1262846755526404, guid: 246abbe77b657aa45808a0d3c34e62d8,
     type: 3}
   gun: {fileID: 7249017239151163045}
-  fireRate: 1
+  fireRate: {x: 2, y: 4}
   barrelPoint: {fileID: 948234822069999798}
   layerMask:
     serializedVersion: 2
     m_Bits: 143873
   animator: {fileID: 183960902820266613}
   shotSFX: {fileID: 8300000, guid: f48c0a34259a322498964c051a00e2d4, type: 3}
+  shootableTags:
+  - Player
+  - Weapon
+  - DropZone
+  - Portal
+  - PressableUIZone
+  - PressableUI
+  - HostileProjectile
+  - Hand
   _canShoot: 0
   lineInstanced: {fileID: 0}
 --- !u!82 &4424152241738175895

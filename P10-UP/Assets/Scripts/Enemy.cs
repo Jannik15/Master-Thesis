@@ -72,11 +72,8 @@ public class Enemy : MonoBehaviour
                 rb.AddExplosionForce(450, hitpoint2, 0.5f);
             }
         }
-        
-        if (inRoom != null)
-        {
-            inRoom.RemoveObjectFromRoom(gameObject.transform);
-        }
+
+        inRoom?.RemoveObjectFromRoom(gameObject.transform);
         Destroy(gameObject, 20f);
 
     }
