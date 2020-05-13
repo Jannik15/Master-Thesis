@@ -79,10 +79,7 @@ public class Enemy : MonoBehaviour
             }
         }
         
-        if (inRoom != null)
-        {
-            inRoom.RemoveObjectFromRoom(gameObject.transform);
-        }
+        inRoom?.RemoveObjectFromRoom(gameObject.transform);
 
         if (!tutorialMode)
         {

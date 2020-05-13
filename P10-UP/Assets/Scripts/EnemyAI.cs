@@ -7,12 +7,13 @@ public class EnemyAI : MonoBehaviour
 
     public Transform playerCam;
     public GameObject line, laserBullet, gun;
-    public float fireRate = 3f;
+    [Tooltip("X is the minimum fire rate, Y is the maximum fire rate. The fire rate is measured in seconds.")]
+    public Vector2 fireRate;
     public Transform barrelPoint;
     public LayerMask layerMask;
     public Animator animator;
     public AudioClip shotSFX;
-
+    [TagSelector] public List<string> shootableTags;
     private AudioSource auS;
     private ProceduralLayoutGeneration layout;
     public bool _canShoot;
@@ -34,10 +35,9 @@ public class EnemyAI : MonoBehaviour
         {
             auS = GetComponent<AudioSource>();
         }
-
     }
 
-    void Update()
+    void FixedUpdate()
     {
         // Only when in the same room and can see the player
         if (thisEnemy.Health > 0 && _canShoot)
@@ -49,7 +49,7 @@ public class EnemyAI : MonoBehaviour
             // Raycast to the player, hitting either the player or any object that should occlude the player
             if (Physics.Raycast(barrelPoint.position, targetDirection, out RaycastHit hit, 100f, layerMask))
             {
-                if (hit.transform.CompareTag("Player") || hit.transform.CompareTag("Weapon"))
+                if (shootableTags.Contains(hit.transform.tag))
                 {
                     if (lineInstanced == null)
                     {
@@ -79,6 +79,15 @@ public class EnemyAI : MonoBehaviour
 
     private void UpdatePlayerRoom(Room playerRoom, Portal p)
     {
+        if (thisEnemy.inRoom == null)
+        {
+            GameObject parentRoom = GetComponentInParent<Grid>()?.gameObject;
+            if (parentRoom != null)
+            {
+                thisEnemy.AssignRoom(CustomUtilities.FindParentRoom(parentRoom, FindObjectOfType<ProceduralLayoutGeneration>().rooms), true);
+            }
+        }
+
         if (playerRoom == thisEnemy.inRoom)
         {
             _canShoot = true;
@@ -96,7 +105,7 @@ public class EnemyAI : MonoBehaviour
 
     private void ResetTimeToFire()
     {
-        nextTimeToFire = Time.time + Random.Range(3.0f, 9.0f) / fireRate;
+        nextTimeToFire = Time.time + Random.Range(fireRate.x, fireRate.y);
     }
     void OnAnimatorIK(int layerIndex)
     {
