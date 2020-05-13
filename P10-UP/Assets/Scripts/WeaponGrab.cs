@@ -16,7 +16,7 @@ public class WeaponGrab : MonoBehaviour
     [SerializeField] private GameObject handModel;
     [SerializeField] private bool handRight;
     [HideInInspector] public Transform weaponHit, weaponHeld;
-    public event Action<GameObject, bool, OVRInput.Controller> gunGrabEvent;
+    public event Action<GameObject, bool, OVRInput.Controller, bool> gunGrabEvent;
 
     private bool holdingNonWeaponObject;
     private Animator weaponAnim;
@@ -78,7 +78,7 @@ public class WeaponGrab : MonoBehaviour
         handDefaultMaterial = handModelRend.material;
     }
 
-    private void GrabEventListener(GameObject grabbedObject, bool isBeingGrabbed, OVRInput.Controller controller)
+    private void GrabEventListener(GameObject grabbedObject, bool isBeingGrabbed, OVRInput.Controller controller, bool empty)
     {
         // The object being grabbed is this object
         if (handRight && controller == OVRInput.Controller.RTouch ||
@@ -285,7 +285,7 @@ public class WeaponGrab : MonoBehaviour
         weaponRb.constraints = RigidbodyConstraints.FreezeAll;
         oVRGrabber.enabled = false;
         currentGun = null;
-        gunGrabEvent?.Invoke(weaponHeld.gameObject, true, handRight ? OVRInput.Controller.RTouch : OVRInput.Controller.LTouch);
+        gunGrabEvent?.Invoke(weaponHeld.gameObject, true, handRight ? OVRInput.Controller.RTouch : OVRInput.Controller.LTouch, false);
         finger?.gameObject.SetActive(false);
     }
 
@@ -300,6 +300,7 @@ public class WeaponGrab : MonoBehaviour
             }
         }
         handModelRend.material = handDefaultMaterial;
+        gunGrabEvent?.Invoke(weaponHeld.gameObject, true, handRight ? OVRInput.Controller.RTouch : OVRInput.Controller.LTouch, false);
         weaponHeld.GetComponentInChildren<InteractableObject>().AssignRoom(null, false);
         weaponHeld.parent = transform;
         weaponHeld.localPosition = weaponInHandPosition;
@@ -309,7 +310,6 @@ public class WeaponGrab : MonoBehaviour
         oVRGrabber.enabled = false;
         currentGun = weaponHeld.GetComponentInChildren<Gun>();
         finger?.gameObject.SetActive(false);
-        gunGrabEvent?.Invoke(weaponHeld.gameObject, true, handRight ? OVRInput.Controller.RTouch : OVRInput.Controller.LTouch);
     }
 
     public void DropWeapon()
@@ -322,14 +322,14 @@ public class WeaponGrab : MonoBehaviour
         {
             weaponRb.velocity = trackingSpace.rotation * OVRInput.GetLocalControllerVelocity(OVRInput.Controller.RTouch);
             weaponRb.angularVelocity = OVRInput.GetLocalControllerAngularVelocity(OVRInput.Controller.RTouch);
-            gunGrabEvent?.Invoke(weaponHeld.gameObject, false, OVRInput.Controller.RTouch);
+            gunGrabEvent?.Invoke(weaponHeld.gameObject, false, OVRInput.Controller.RTouch, false);
             finger?.gameObject.SetActive(true);
         }
         else
         {
             weaponRb.velocity = trackingSpace.rotation * OVRInput.GetLocalControllerVelocity(OVRInput.Controller.LTouch);
             weaponRb.angularVelocity = OVRInput.GetLocalControllerAngularVelocity(OVRInput.Controller.LTouch);
-            gunGrabEvent?.Invoke(weaponHeld.gameObject, false, OVRInput.Controller.LTouch);
+            gunGrabEvent?.Invoke(weaponHeld.gameObject, false, OVRInput.Controller.LTouch, false);
         }
         weaponHeld = null;
     }

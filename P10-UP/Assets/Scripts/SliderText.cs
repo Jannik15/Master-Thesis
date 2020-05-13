@@ -36,6 +36,7 @@ public class SliderText : MonoBehaviour
     public void UpdateDoorEventWeightings()
     {
         int totalWeight = (int)(pressurePlateSlider.value + shootTargetSlider.value + keyCardSlider.value);
+        float remainder = pressurePlateSlider.value / totalWeight % 1;
         int pressurePlateWeighting = (int)(pressurePlateSlider.value / totalWeight * 100);
         int shootTargetWeighting = (int)(shootTargetSlider.value / totalWeight * 100);
         int keyCardWeighting = (int)(keyCardSlider.value / totalWeight * 100);

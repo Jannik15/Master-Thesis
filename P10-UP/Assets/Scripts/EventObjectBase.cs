@@ -16,11 +16,6 @@ public class EventObjectBase : MonoBehaviour
     private AudioSource audioSourceKeycard;
     private AudioSource audioSourceDoor;
 
-    void Start()
-    {
-
-    }
-
     void OnTriggerEnter(Collider collider)
     {
         switch (eventType.thisEventType)
@@ -68,7 +63,6 @@ public class EventObjectBase : MonoBehaviour
 
                         interact.isHeld = true;
                     }
-                    Debug.Log("Trying to find Keyholder: " + GameObject.FindGameObjectWithTag("KeyHolder"));
                     audioSourceKeycard.Play();
                     gameObject.transform.parent = GameObject.FindGameObjectWithTag("KeyHolder").transform;
                     gameObject.transform.localPosition = new Vector3(5.75f, 0, 14);
@@ -88,12 +82,10 @@ public class EventObjectBase : MonoBehaviour
 
                     audioSourceDoor.PlayOneShot(correctCardSFX);
 
-                    Debug.Log("KeyScanned: opening door: " + connectedDoor.name);
                     connectedDoor.OpenDoor();
 
                     if (gameObject.GetComponentInParent<UIWatch>() != null)
                     {
-                        Debug.Log("KeyScanned: UIWatch parent is not null, checking wristplateUI in child: " + GetComponentInParent<UIWatch>().GetComponentInChildren<WristPlateUI>().name);
                         GetComponentInParent<UIWatch>().GetComponentInChildren<WristPlateUI>().TakeOutCard(gameObject);
                     }
                     if (gameObject.GetComponentInParent<WeaponGrab>() != null && gameObject.GetComponentInParent<WeaponGrab>().weaponHeld == transform)
@@ -105,10 +97,8 @@ public class EventObjectBase : MonoBehaviour
 
                     if (dropZone != null && dropZone.activeSelf)
                     {
-                        Debug.Log("Disabling dropZone: " + dropZone.name);
                         dropZone.SetActive(false);
                     }
-                    Debug.Log("Destroying keycard...");
                     Destroy(gameObject);
                 } 
                 else if (collider.CompareTag("KeycardScanner"))

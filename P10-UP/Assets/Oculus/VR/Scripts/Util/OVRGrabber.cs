@@ -74,7 +74,7 @@ public class OVRGrabber : MonoBehaviour
     protected Quaternion m_grabbedObjectRotOff;
 	protected Dictionary<OVRGrabbable, int> m_grabCandidates = new Dictionary<OVRGrabbable, int>();
 	protected bool m_operatingWithoutOVRCameraRig = true;
-    public event Action<GameObject, bool, OVRInput.Controller> objectGrabEvent;
+    public event Action<GameObject, bool, OVRInput.Controller, bool> objectGrabEvent;
 
     /// <summary>
     /// The currently grabbed object.
@@ -319,13 +319,14 @@ public class OVRGrabber : MonoBehaviour
             // is beyond the scope of this demo.
             MoveGrabbedObject(m_lastPos, m_lastRot, true);
             SetPlayerIgnoreCollision(m_grabbedObj.gameObject, true);
+
+            // Jannik addition: Interactable objects need to know they have been grabbed
+            objectGrabEvent?.Invoke(m_grabbedObj.gameObject, true, m_controller, true);
+
             if (m_parentHeldObject)
             {
                 m_grabbedObj.transform.parent = transform;
             }
-
-            // Jannik addition: Interactable objects need to know they have been grabbed
-            objectGrabEvent?.Invoke(m_grabbedObj.gameObject, true, m_controller);
         }
     }
 
@@ -379,8 +380,7 @@ public class OVRGrabber : MonoBehaviour
         if(m_parentHeldObject) m_grabbedObj.transform.parent = null;
         SetPlayerIgnoreCollision(m_grabbedObj.gameObject, false);
         // Jannik Addition: Send an event that a currently grabbed obj has been released
-        objectGrabEvent?.Invoke(m_grabbedObj.gameObject, false, m_controller);
-
+        objectGrabEvent?.Invoke(m_grabbedObj.gameObject, false, m_controller, false);
 
         m_grabbedObj = null;
     }

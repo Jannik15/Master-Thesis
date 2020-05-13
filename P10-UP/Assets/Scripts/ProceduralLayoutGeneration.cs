@@ -307,8 +307,6 @@ public class ProceduralLayoutGeneration : MonoBehaviour
                     }
                     continue;
                 }
-
-                Debug.Log("No event was paired to door " + portalDoors[i].portal.gameObject.name + " - caching door for destruction");
                 doorsToDestroy.Add(i);
             }
         }
@@ -613,14 +611,14 @@ public class ProceduralLayoutGeneration : MonoBehaviour
             previousGridTiles.AddRange(rooms[roomID - 1].roomGrid.GetTilesAsList());
             for (int i = 0; i < previousGridTiles.Count; i++)
             {
-                if (math.distance(previousGridTiles[i].GetPosition(), portalPosition) <= gridTiles[0].transform.localScale.x / 1.5f)
+                if (math.distance(previousGridTiles[i].GetPosition(), portalPosition) <= gridTiles[0].transform.localScale.x + 0.1)
                 {
                     previousGridTiles[i].PlaceExistingObject(portal);
                 }
             }
             for (int i = 0; i < gridTiles.Count; i++) // Occupying oppositePortalTiles with the opposite portal
             {
-                if (math.distance(gridTiles[i].GetPosition(), portalPosition) <= gridTiles[0].transform.localScale.x / 1.5f)
+                if (math.distance(gridTiles[i].GetPosition(), portalPosition) <= gridTiles[0].transform.localScale.x + 0.1)
                 {
                     gridTiles[i].PlaceExistingObject(oppositePortal);
                 }
