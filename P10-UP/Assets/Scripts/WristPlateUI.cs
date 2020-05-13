@@ -5,13 +5,19 @@ using UnityEngine;
 
 public class WristPlateUI : MonoBehaviour
 {
+    public bool tutorialMode = false;
+    public GameObject prevSlide;
+    public GameObject nextSlide;
+    public GameObject part10;
+
     public GameObject DropZone;
     public TMP_Text cardAmount;
     public TMP_Text currentAmount;
 
-    private int heldAmount;
+    public int heldAmount;
     private int currentCard = 0;
-    private List<GameObject> keysList = new List<GameObject>();
+    [HideInInspector]
+    public List<GameObject> keysList = new List<GameObject>();
 
     public void ListAdder(GameObject card)
     {
@@ -40,6 +46,17 @@ public class WristPlateUI : MonoBehaviour
                 currentCard++;
             }
             keysList[currentCard].gameObject.SetActive(true);
+
+            if (tutorialMode)
+            {
+                if (prevSlide.activeSelf)
+                {
+                    prevSlide.SetActive(false);
+                    nextSlide.SetActive(true);
+                    part10.SetActive(true);
+                }
+            }
+
         }
     }
 
@@ -56,9 +73,21 @@ public class WristPlateUI : MonoBehaviour
             {
                 currentCard--;
             }
+
             keysList[currentCard].gameObject.SetActive(true);
+
+            if (tutorialMode)
+            {
+                if (prevSlide.activeSelf)
+                {
+                    prevSlide.SetActive(false);
+                    nextSlide.SetActive(true);
+                    part10.SetActive(true);
+                }
+            }
         }
     }
+
 
     public void TakeOutCard(GameObject card)
     {

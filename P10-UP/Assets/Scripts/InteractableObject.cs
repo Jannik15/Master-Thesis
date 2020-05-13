@@ -120,8 +120,11 @@ public class InteractableObject : MonoBehaviour
                 }
 
                 layout = FindObjectOfType<ProceduralLayoutGeneration>();
-                layout.roomSwitched += OnRoomSwitch;
-                layout.disabledPortal += PortalExit;
+                if (layout != null)
+                {
+                    layout.roomSwitched += OnRoomSwitch;
+                    layout.disabledPortal += PortalExit;
+                }
                 player = FindObjectOfType<PlayerCollisionHandler>();
 
                 differentRoomLayer = LayerMask.NameToLayer("DifferentRoom");
@@ -250,17 +253,26 @@ public class InteractableObject : MonoBehaviour
                         UpdateStencils(inRoom.GetStencilValue(), 2300, true, player.thisPortal.transform);
                     }
                     else // If the player is not in a portal - dropped in current room
-                    {
-                        gameObject.layer = interactableLayer;
-                        inRoom = layout.currentRoom;
-                        if (inRoom != null)
+                    { 
                         {
-                            inRoom.AddObjectToRoom(transform, false);
+                            gameObject.layer = interactableLayer;
+                            if (layout != null)
+                            {
+                                inRoom = layout.currentRoom;
+                            }
+                            if (inRoom != null)
+                            {
+                                inRoom.AddObjectToRoom(transform, false);
+                            }
+                            else // Only happens before procedural generation
+                            {
+                                if (layout != null)
+                                {
+                                    transform.parent = layout.rooms[0].gameObject.transform;
+                                }
+                            }
                         }
-                        else // Only happens before procedural generation
-                        {
-                            transform.parent = layout.rooms[0].gameObject.transform;
-                        }
+                        
                     }
                 }
             }

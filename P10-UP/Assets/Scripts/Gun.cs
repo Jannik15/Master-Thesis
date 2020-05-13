@@ -6,6 +6,8 @@ using UnityEngine.UI;
 
 public class Gun : MonoBehaviour
 {
+    public bool tutorialMode = false;
+
     public float damage = 1f;
     public float range = 1000f;
     public float fireRate = 5f;

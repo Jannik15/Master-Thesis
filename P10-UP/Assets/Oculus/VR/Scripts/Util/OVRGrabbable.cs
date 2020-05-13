@@ -22,6 +22,14 @@ using UnityEngine;
 /// </summary>
 public class OVRGrabbable : MonoBehaviour
 {
+
+    public bool tutorialMode;
+    public GameObject prevSlide;
+    public GameObject nextSlide;
+    public GameObject part6;
+    public GameObject part7;
+
+
     [SerializeField]
     protected bool m_allowOffhandGrab = true;
     [SerializeField]
@@ -130,6 +138,14 @@ public class OVRGrabbable : MonoBehaviour
         rb.angularVelocity = angularVelocity;
         m_grabbedBy = null;
         m_grabbedCollider = null;
+
+        if (prevSlide.activeSelf && tutorialMode)
+        {
+            prevSlide.SetActive(false);
+            nextSlide.SetActive(true);
+            part7.SetActive(true);
+            Destroy(part6, 5f);
+        }
     }
 
     void Awake()
