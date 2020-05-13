@@ -5,6 +5,18 @@ using UnityEngine;
 
 public class WeaponGrab : MonoBehaviour
 {
+    public bool tutorialMode;
+    public GameObject prevSlide;
+    public GameObject nextSlide;
+    public GameObject part4;
+
+    public GameObject prevSlide2;
+    public GameObject nextSlide2;
+    public GameObject part6;
+
+    public GameObject prevSlide3;
+    public GameObject nextSlide3;
+
     public LayerMask layerMask;
     public Transform trackingSpace;
     [SerializeField] private FingerPress finger;
@@ -29,7 +41,9 @@ public class WeaponGrab : MonoBehaviour
     private List<List<Color>> storedColors = new List<List<Color>>();
     private Gun currentGun;
     private Transform newHit;
+
     #region Old
+
     /*
     [Header("Deprecated")]
     public Gun gunScript;
@@ -56,6 +70,7 @@ public class WeaponGrab : MonoBehaviour
     private Renderer[] objHitRendsR, objHitRendsL;
     public event Action<Transform> weaponGrabDetection;
     //*/
+
     #endregion
 
     void Start()
@@ -72,8 +87,10 @@ public class WeaponGrab : MonoBehaviour
         if (handModel == null)
         {
             handModel = GetComponentInChildren<SkinnedMeshRenderer>().gameObject;
-            Debug.LogError(gameObject.name + " does not have a Hand Model assigned - searching for skinned mesh renderers in children.");
+            Debug.LogError(gameObject.name +
+                           " does not have a Hand Model assigned - searching for skinned mesh renderers in children.");
         }
+
         handModelRend = handModel.GetComponentInChildren<Renderer>();
         handDefaultMaterial = handModelRend.material;
     }
@@ -95,11 +112,15 @@ public class WeaponGrab : MonoBehaviour
         if (weaponHeld == null) // Can't pick up new weapon if another weapon is already held
         {
             // RayCast pickup
-            if (Physics.SphereCast(transform.position, 0.15f, transform.forward, out RaycastHit hit, 5, layerMask)) //right Hand cast
+            if (Physics.SphereCast(transform.position, 0.15f, transform.forward, out RaycastHit hit, 5, layerMask)
+            ) //right Hand cast
             {
-                if (hit.transform.CompareTag("Weapon") && hit.transform != weaponHit && hit.transform != otherHand.weaponHit || hit.transform.CompareTag("Keycard") && hit.transform != weaponHit && hit.transform != otherHand.weaponHit)
+                if (hit.transform.CompareTag("Weapon") && hit.transform != weaponHit &&
+                    hit.transform != otherHand.weaponHit || hit.transform.CompareTag("Keycard") &&
+                    hit.transform != weaponHit && hit.transform != otherHand.weaponHit)
                 {
-                    if (weaponHit != null) // When raycast hit's a new weapon, before the previous hit has had its materials reset
+                    if (weaponHit != null
+                    ) // When raycast hit's a new weapon, before the previous hit has had its materials reset
                     {
                         for (int i = 0; i < weaponHitRends.Length; i++)
                         {
@@ -109,6 +130,7 @@ public class WeaponGrab : MonoBehaviour
                             }
                         }
                     }
+
                     weaponHit = hit.transform;
                     weaponHitRends = weaponHit.GetComponentsInChildren<Renderer>();
                     storedColors.Clear();
@@ -123,6 +145,7 @@ public class WeaponGrab : MonoBehaviour
                                 weaponHitRends[i].materials[j].SetColor("_MainColor", weaponHighlight);
                             }
                         }
+
                         handModelRend.material = handHighlightMaterial;
                     }
                 }
@@ -136,6 +159,7 @@ public class WeaponGrab : MonoBehaviour
                         weaponHitRends[i].materials[j].SetColor("_MainColor", storedColors[i][j]);
                     }
                 }
+
                 handModelRend.material = handDefaultMaterial;
                 weaponHit = null;
             }
@@ -152,12 +176,14 @@ public class WeaponGrab : MonoBehaviour
                 {
                     inputRegistered = true;
                 }
+
                 if (inputRegistered && weaponHit.CompareTag("Weapon"))
                 {
                     if (weaponHit == otherHand.weaponHeld)
                     {
                         otherHand.DropWeapon();
                     }
+
                     PickUpWeapon(weaponHit);
                 }
                 else if (inputRegistered && weaponHit.CompareTag("Keycard"))
@@ -166,28 +192,30 @@ public class WeaponGrab : MonoBehaviour
                     {
                         otherHand.DropWeapon();
                     }
+
                     PickUpKeycard(weaponHit);
                 }
             }
         }
         else // Weapon is held
         {
-            if (Time.time >= fireDelay && 
+            if (Time.time >= fireDelay &&
                 (handRight && OVRInput.GetDown(OVRInput.RawButton.RIndexTrigger) ||
-                !handRight && OVRInput.GetDown(OVRInput.RawButton.LIndexTrigger)))
+                 !handRight && OVRInput.GetDown(OVRInput.RawButton.LIndexTrigger)))
             {
                 fireDelay = Time.time + 1f / fireRate;
                 currentGun.Shoot();
             }
 
             if (handRight && (OVRInput.GetDown(OVRInput.Button.Two) || Input.GetKeyDown(KeyCode.H)) ||
-                !handRight && (OVRInput.GetDown(OVRInput.Button.Four)|| Input.GetKeyDown(KeyCode.J)))
+                !handRight && (OVRInput.GetDown(OVRInput.Button.Four) || Input.GetKeyDown(KeyCode.J)))
             {
                 DropWeapon();
             }
         }
 
         #region Old for left hand
+
         /*
         if (!handRight && !holdingGun)
         {
@@ -257,6 +285,7 @@ public class WeaponGrab : MonoBehaviour
             }
         }
         //*/
+
         #endregion
     }
 
@@ -264,8 +293,10 @@ public class WeaponGrab : MonoBehaviour
     {
         if (cardToPickUp.gameObject.GetComponentInParent<UIWatch>() != null)
         {
-            cardToPickUp.gameObject.GetComponentInParent<UIWatch>().gameObject.GetComponentInChildren<WristPlateUI>().TakeOutCard(cardToPickUp.gameObject);
+            cardToPickUp.gameObject.GetComponentInParent<UIWatch>().gameObject.GetComponentInChildren<WristPlateUI>()
+                .TakeOutCard(cardToPickUp.gameObject);
         }
+
         weaponHeld = cardToPickUp;
         for (int i = 0; i < weaponHitRends.Length; i++)
         {
@@ -274,8 +305,14 @@ public class WeaponGrab : MonoBehaviour
                 weaponHitRends[i].materials[j].SetColor("_MainColor", storedColors[i][j]);
             }
         }
+
         handModelRend.material = handDefaultMaterial;
-        weaponHeld.GetComponentInChildren<InteractableObject>().inRoom.RemoveObjectFromRoom(weaponHeld);
+
+        if (!tutorialMode)
+        {
+            weaponHeld.GetComponentInChildren<InteractableObject>().inRoom.RemoveObjectFromRoom(weaponHeld);
+        }
+
         weaponHeld.parent = transform;
         weaponHeld.localPosition = cardInHandPosition;
         weaponHeld.localEulerAngles = cardInHandRotation;
@@ -287,39 +324,93 @@ public class WeaponGrab : MonoBehaviour
         currentGun = null;
         gunGrabEvent?.Invoke(weaponHeld.gameObject, true, handRight ? OVRInput.Controller.RTouch : OVRInput.Controller.LTouch, false);
         finger?.gameObject.SetActive(false);
+
+        if (tutorialMode)
+        {
+            if (prevSlide3.activeSelf)
+            {
+                prevSlide3.SetActive(false);
+                nextSlide3.SetActive(true);
+            }
+        }
+
     }
 
     private void PickUpWeapon(Transform weaponToPickUp)
     {
-        weaponHeld = weaponToPickUp; 
-        for (int i = 0; i < weaponHitRends.Length; i++)
+        if (!tutorialMode)
         {
-            for (int j = 0; j < weaponHitRends[i].materials.Length; j++)
+            weaponHeld = weaponToPickUp;
+            for (int i = 0; i < weaponHitRends.Length; i++)
             {
-                weaponHitRends[i].materials[j].SetColor("_MainColor", storedColors[i][j]);
+                for (int j = 0; j < weaponHitRends[i].materials.Length; j++)
+                {
+                    weaponHitRends[i].materials[j].SetColor("_MainColor", storedColors[i][j]);
+                }
             }
+
+            handModelRend.material = handDefaultMaterial;
+            weaponHeld.GetComponentInChildren<InteractableObject>().AssignRoom(null, false);
+            weaponHeld.parent = transform;
+            weaponHeld.localPosition = weaponInHandPosition;
+            weaponHeld.localEulerAngles = weaponInHandRotation;
+            weaponRb = weaponHeld.GetComponentInChildren<Rigidbody>();
+            weaponRb.constraints = RigidbodyConstraints.FreezeAll;
+            oVRGrabber.enabled = false;
+            currentGun = weaponHeld.GetComponentInChildren<Gun>();
+            finger?.gameObject.SetActive(false);
+            gunGrabEvent?.Invoke(weaponHeld.gameObject, true,
+                handRight ? OVRInput.Controller.RTouch : OVRInput.Controller.LTouch);
         }
-        handModelRend.material = handDefaultMaterial;
-        gunGrabEvent?.Invoke(weaponHeld.gameObject, true, handRight ? OVRInput.Controller.RTouch : OVRInput.Controller.LTouch, false);
-        weaponHeld.GetComponentInChildren<InteractableObject>().AssignRoom(null, false);
-        weaponHeld.parent = transform;
-        weaponHeld.localPosition = weaponInHandPosition;
-        weaponHeld.localEulerAngles = weaponInHandRotation;
-        weaponRb = weaponHeld.GetComponentInChildren<Rigidbody>();
-        weaponRb.constraints = RigidbodyConstraints.FreezeAll;
-        oVRGrabber.enabled = false;
-        currentGun = weaponHeld.GetComponentInChildren<Gun>();
-        finger?.gameObject.SetActive(false);
+        else
+        {
+            weaponHeld = weaponToPickUp;
+            for (int i = 0; i < weaponHitRends.Length; i++)
+            {
+                for (int j = 0; j < weaponHitRends[i].materials.Length; j++)
+                {
+                    weaponHitRends[i].materials[j].SetColor("_MainColor", storedColors[i][j]);
+                }
+            }
+
+            handModelRend.material = handDefaultMaterial;
+            weaponHeld.parent = transform;
+            weaponHeld.localPosition = weaponInHandPosition;
+            weaponHeld.localEulerAngles = weaponInHandRotation;
+            weaponRb = weaponHeld.GetComponentInChildren<Rigidbody>();
+            weaponRb.constraints = RigidbodyConstraints.FreezeAll;
+            oVRGrabber.enabled = false;
+            currentGun = weaponHeld.GetComponentInChildren<Gun>();
+            finger?.gameObject.SetActive(false);
+            gunGrabEvent?.Invoke(weaponHeld.gameObject, true,
+                handRight ? OVRInput.Controller.RTouch : OVRInput.Controller.LTouch);
+            
+            if (tutorialMode)
+            {
+                if (prevSlide.activeSelf)
+                {
+                    prevSlide.SetActive(false);
+                    nextSlide.SetActive(true);
+                    part4.SetActive(true);
+                }
+            }
+
+        }
     }
 
     public void DropWeapon()
     {
         oVRGrabber.enabled = true;
         weaponRb.constraints = RigidbodyConstraints.None;
-        weaponHeld.GetComponentInChildren<InteractableObject>().AssignRoom(layout.currentRoom, false);
+
+        if (!tutorialMode)
+        {
+            weaponHeld.GetComponentInChildren<InteractableObject>().AssignRoom(layout.currentRoom, false);
+        }
 
         if (handRight)
         {
+            weaponHeld.parent = null;
             weaponRb.velocity = trackingSpace.rotation * OVRInput.GetLocalControllerVelocity(OVRInput.Controller.RTouch);
             weaponRb.angularVelocity = OVRInput.GetLocalControllerAngularVelocity(OVRInput.Controller.RTouch);
             gunGrabEvent?.Invoke(weaponHeld.gameObject, false, OVRInput.Controller.RTouch, false);
@@ -327,10 +418,22 @@ public class WeaponGrab : MonoBehaviour
         }
         else
         {
+            weaponHeld.parent = null;
             weaponRb.velocity = trackingSpace.rotation * OVRInput.GetLocalControllerVelocity(OVRInput.Controller.LTouch);
             weaponRb.angularVelocity = OVRInput.GetLocalControllerAngularVelocity(OVRInput.Controller.LTouch);
             gunGrabEvent?.Invoke(weaponHeld.gameObject, false, OVRInput.Controller.LTouch, false);
         }
         weaponHeld = null;
+
+        if (tutorialMode)
+        {
+            if (prevSlide2.activeSelf)
+            {
+                prevSlide2.SetActive(false);
+                nextSlide2.SetActive(true);
+                part6.SetActive(true);
+            }
+        }
+
     }
 }

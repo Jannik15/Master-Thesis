@@ -2,6 +2,12 @@
 
 public class Enemy : MonoBehaviour
 {
+    public bool tutorialMode;
+    public GameObject prevSlide;
+    public GameObject nextSlide;
+    public GameObject part4;
+
+
     public Room inRoom;
 
     public float Health = 1f;
@@ -72,9 +78,24 @@ public class Enemy : MonoBehaviour
                 rb.AddExplosionForce(450, hitpoint2, 0.5f);
             }
         }
-
+        
         inRoom?.RemoveObjectFromRoom(gameObject.transform);
-        Destroy(gameObject, 20f);
+
+        if (!tutorialMode)
+        {
+            Destroy(gameObject, 20f);
+        }
+        else
+        {
+            if (prevSlide.activeSelf)
+            {
+                prevSlide.SetActive(false);
+                nextSlide.SetActive(true);
+            }
+            Destroy(gameObject, 5f);
+            part4.SetActive(false);
+        }
+
 
     }
 }

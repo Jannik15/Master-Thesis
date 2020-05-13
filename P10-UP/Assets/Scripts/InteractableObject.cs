@@ -124,10 +124,13 @@ public class InteractableObject : MonoBehaviour
                 weaponGrabbers[i].gunGrabEvent += GrabEventListener;
             }
 
-            layout = FindObjectOfType<ProceduralLayoutGeneration>();
-            layout.roomSwitched += OnRoomSwitch;
-            layout.disabledPortal += PortalExit;
-            player = FindObjectOfType<PlayerCollisionHandler>();
+                layout = FindObjectOfType<ProceduralLayoutGeneration>();
+                if (layout != null)
+                {
+                    layout.roomSwitched += OnRoomSwitch;
+                    layout.disabledPortal += PortalExit;
+                }
+                player = FindObjectOfType<PlayerCollisionHandler>();
 
             differentRoomLayer = LayerMask.NameToLayer("DifferentRoom");
             interactableLayer = LayerMask.NameToLayer("Interactable");
@@ -269,15 +272,24 @@ public class InteractableObject : MonoBehaviour
                     else // If neither the player nor the object is in a portal - dropped in current room
                     {
                         gameObject.layer = interactableLayer;
-                        inRoom = layout.currentRoom;
+
+                        if(layout != null)
+                        {
+                          inRoom = layout.currentRoom;
+                        }
+
                         if (inRoom != null)
                         {
                             inRoom.AddObjectToRoom(transform, false);
                         }
                         else // Only happens before procedural generation
                         {
-                            transform.parent = layout.rooms[0].gameObject.transform;
+                            if (layout != null)
+                            {
+                                transform.parent = layout.rooms[0].gameObject.transform;
+                            }
                         }
+                        
                     }
                 }
             }

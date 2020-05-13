@@ -5,6 +5,17 @@ using UnityEngine.SceneManagement;
 
 public class EventObjectBase : MonoBehaviour
 {
+    public bool tutorialMode = false;
+    public GameObject prevSlide;
+    public GameObject nextSlide;
+    public GameObject prevSlide2;
+    public GameObject nextSlide2;
+    public GameObject part10;
+    public GameObject part11;
+    public GameObject prevSlide3;
+    public GameObject nextSlide3;
+
+
     public EventObjectType eventType;
     public Room room;
     public DoorLock connectedDoor;
@@ -71,6 +82,16 @@ public class EventObjectBase : MonoBehaviour
                     GetComponentInParent<UIWatch>().gameObject.GetComponentInChildren<WristPlateUI>().ListAdder(gameObject);
                     gameObject.SetActive(false);
                     collider.gameObject.SetActive(false);
+
+                    if (tutorialMode && GetComponentInParent<UIWatch>().gameObject
+                        .GetComponentInChildren<WristPlateUI>().keysList.Count >= 2)
+                    {
+                        if (prevSlide.activeSelf)
+                        {
+                            prevSlide.SetActive(false);
+                            nextSlide.SetActive(true);
+                        }
+                    }
                 }
                 else if (collider.CompareTag("KeycardScanner") && collider.gameObject.GetComponentInParent<DoorLock>() == connectedDoor)
                 {
@@ -81,6 +102,14 @@ public class EventObjectBase : MonoBehaviour
                     }
 
                     audioSourceDoor.PlayOneShot(correctCardSFX);
+
+                    if (tutorialMode && prevSlide2.activeSelf == true)
+                    {
+                        prevSlide2.SetActive(false);
+                        nextSlide2.SetActive(true);
+                        part11.SetActive(true);
+                        Destroy(part10, 5f);
+                    }
 
                     connectedDoor.OpenDoor();
 
@@ -137,7 +166,19 @@ public class EventObjectBase : MonoBehaviour
 
     public void TargetShot()
     {
-        connectedDoor.isLocked = false;
-        connectedDoor.OpenDoor();
+        if (tutorialMode)
+        {
+            if (prevSlide3.activeSelf)
+            {
+                prevSlide3.SetActive(false);
+                nextSlide3.SetActive(true);
+            }
+        }
+        else
+        {
+            connectedDoor.isLocked = false;
+            connectedDoor.OpenDoor();
+        }
+
     }
 }
