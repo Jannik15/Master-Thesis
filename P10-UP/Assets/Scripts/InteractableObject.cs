@@ -8,7 +8,6 @@ using UnityEngine.UI;
 
 public class InteractableObject : MonoBehaviour
 {
-    public bool isInteractable; // TODO: Remove this, its a temporary way to reuse this script for things like VR hands.
     [HideInInspector] public bool isHeld;
 
     // Rendering
@@ -104,30 +103,27 @@ public class InteractableObject : MonoBehaviour
             //*/
             #endregion
 
-            if (isInteractable)
+            // Register grab events
+            OVRGrabber[] grabbers = Resources.FindObjectsOfTypeAll<OVRGrabber>();
+            for (int i = 0; i < grabbers.Length; i++)
             {
-                // Register grab events
-                OVRGrabber[] grabbers = Resources.FindObjectsOfTypeAll<OVRGrabber>();
-                for (int i = 0; i < grabbers.Length; i++)
-                {
-                    grabbers[i].objectGrabEvent += GrabEventListener;
-                }
-
-                WeaponGrab[] weaponGrabbers = Resources.FindObjectsOfTypeAll<WeaponGrab>();
-                for (int i = 0; i < weaponGrabbers.Length; i++)
-                {
-                    weaponGrabbers[i].gunGrabEvent += GrabEventListener;
-                }
-
-                layout = FindObjectOfType<ProceduralLayoutGeneration>();
-                layout.roomSwitched += OnRoomSwitch;
-                layout.disabledPortal += PortalExit;
-                player = FindObjectOfType<PlayerCollisionHandler>();
-
-                differentRoomLayer = LayerMask.NameToLayer("DifferentRoom");
-                interactableLayer = LayerMask.NameToLayer("Interactable");
-                inPortalLayer = LayerMask.NameToLayer("ObjectInPortal");
+                grabbers[i].objectGrabEvent += GrabEventListener;
             }
+
+            WeaponGrab[] weaponGrabbers = Resources.FindObjectsOfTypeAll<WeaponGrab>();
+            for (int i = 0; i < weaponGrabbers.Length; i++)
+            {
+                weaponGrabbers[i].gunGrabEvent += GrabEventListener;
+            }
+
+            layout = FindObjectOfType<ProceduralLayoutGeneration>();
+            layout.roomSwitched += OnRoomSwitch;
+            layout.disabledPortal += PortalExit;
+            player = FindObjectOfType<PlayerCollisionHandler>();
+
+            differentRoomLayer = LayerMask.NameToLayer("DifferentRoom");
+            interactableLayer = LayerMask.NameToLayer("Interactable");
+            inPortalLayer = LayerMask.NameToLayer("ObjectInPortal");
         }
         else
         {

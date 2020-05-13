@@ -11,7 +11,7 @@ public class ProceduralLayoutGeneration : MonoBehaviour
     public int roomAmount = 10;
     [Range(0, 100)] public int pressurePlateWeighting = 33, shootTargetWeighting = 66, keyCardWeighting = 99, doorSpawnChance = 50;
     [SerializeField] private GameObject[] startGrids, genericGrids, endGrids;
-    [SerializeField] private GameObject[] smallSceneryObjects, mediumSceneryObjects, largeSceneryObjects, eventObjects, enemyObjects, endGameEventObjects;
+    [SerializeField] private GameObject[] smallSceneryObjects, mediumSceneryObjects, largeSceneryObjects, doorEventObjects, genericEventObjects, enemyObjects, endGameEventObjects;
     [SerializeField] private GameObject[] interactableObjects;
     [SerializeField] private GameObject portalPrefab, portalDoorPrefab, depthClearer, keyCard;
     [SerializeField] private Shader currentRoomMask, otherRoomMask;
@@ -232,7 +232,7 @@ public class ProceduralLayoutGeneration : MonoBehaviour
                                 caseSelected = true;
                                 List<Tile> spawner = new List<Tile>(1); // Very inefficient, should change later (SpawnObjectOnTile should be able to take just a single gameObject)
                                 spawner.Add(doorEventTiles[k]);
-                                GameObject pressurePlate = SpawnObjectOnTile(spawner, false, eventObjects[0], TileGeneration.TileType.Event, roomSlice[j], false);
+                                GameObject pressurePlate = SpawnObjectOnTile(spawner, false, doorEventObjects[0], TileGeneration.TileType.Event, roomSlice[j], false);
                                 // Pair door and pressure plate
                                 portalDoors[i].RemoveButton();
                                 portalDoors[i].Pair(DoorLock.DoorEvent.PressurePlate, pressurePlate);
@@ -253,7 +253,7 @@ public class ProceduralLayoutGeneration : MonoBehaviour
                     portalDoors[i].RemoveButton();
 
                     // Instantiate target and place it at the top front of the door
-                    GameObject shootTarget = Instantiate(eventObjects[1], Vector3.zero, Quaternion.identity);
+                    GameObject shootTarget = Instantiate(doorEventObjects[1], Vector3.zero, Quaternion.identity);
                     shootTarget.transform.parent = portalDoors[i].transform.parent;
                     shootTarget.transform.position = portalDoors[i].transform.position;
                     shootTarget.transform.localPosition = new Vector3(shootTarget.transform.localPosition.x, 1, -0.13f);
@@ -324,7 +324,7 @@ public class ProceduralLayoutGeneration : MonoBehaviour
 
 
         // Spawn objects
-        //SpawnObjectType(genericRooms, TileGeneration.TileType.Event, eventObjects, null, 1, new Vector2(1, 1), false);
+        SpawnObjectType(genericRooms, TileGeneration.TileType.Event, genericEventObjects, null, 1, new Vector2Int(1, 1), true);
         SpawnObjectType(genericRooms, TileGeneration.TileType.Enemy, enemyObjects, null, Random.Range(2,6), new Vector2Int(1, 1), true);
         SpawnObjectType(genericRooms, TileGeneration.TileType.Scenery, largeSceneryObjects, null, 1, new Vector2Int(2, 2), true);
         SpawnObjectType(genericRooms, TileGeneration.TileType.Scenery, mediumSceneryObjects, null, 2, new Vector2Int(2, 1), true);
@@ -777,7 +777,7 @@ public class ProceduralLayoutGeneration : MonoBehaviour
     {
         GameObject objectOnTile = Instantiate(objectToSpawn, Vector3.zero, objectToSpawn.transform.rotation, roomToSpawnIn.gameObject.transform);
         InteractableObject interactableObject = objectOnTile.GetComponentInChildren<InteractableObject>();
-        if (interactableObject == null || !interactableObject.isInteractable)
+        if (interactableObject == null)
         {
             roomToSpawnIn.AddObjectToRoom(objectOnTile.transform, playerCollision);
         }
@@ -827,7 +827,7 @@ public class ProceduralLayoutGeneration : MonoBehaviour
                 }
                 else
                 {
-                    Debug.LogError("Tried spawning an event in room " + roomToSpawnIn.gameObject.name + " but it did not contain an EventObjectBase");
+                    // Objects without EventObjectBase script
                 }
                 break;
             case TileGeneration.TileType.Enemy:

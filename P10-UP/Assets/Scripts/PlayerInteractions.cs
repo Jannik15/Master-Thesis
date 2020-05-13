@@ -7,7 +7,6 @@ using UnityEngine.SceneManagement;
 
 public class PlayerInteractions : MonoBehaviour
 {
-    public List<GameObject> keyUI;
     public LayerMask layerMaskRay;
     public float health = 100;
     public Animator fadeAnimator;
@@ -40,14 +39,6 @@ public class PlayerInteractions : MonoBehaviour
         {
             transform.position = virtualParent.position;
         }
-
-        RaycastHit hit;
-        ray = playerCamera.ScreenPointToRay(Input.mousePosition);
-        if (Input.GetKeyDown(KeyCode.F) && Physics.Raycast(ray, out hit, 1.5f, layerMaskRay) && hit.collider.gameObject.tag == "Button")
-        {
-            DoorAction(hit.collider);
-        }
-
     }
 
     public void TakeDamage(float amount)
@@ -87,25 +78,6 @@ public class PlayerInteractions : MonoBehaviour
         //Plays when FadeToBlack animation is finished
         SceneManager.LoadScene("Main");
         fadeAnimator.SetTrigger("FadeIn");
-    }
-
-    public void DoorAction(Collider other)
-    {
-        DoorLock thisLock = other.gameObject.GetComponentInParent<DoorLock>();
-        if (thisLock.isLocked)
-        {
-            thisLock.TryToUnlock();
-            if (thisLock.isLocked)
-                return;
-        }
-        if (thisLock.isOpen)
-        {
-            thisLock.CloseDoor();
-        }
-        else
-        {
-            thisLock.OpenDoor();
-        }
     }
 
     private void OnCollisionEnter(Collision collission)

@@ -5,23 +5,6 @@ using UnityEngine;
 
 public class DoorLock : MonoBehaviour
 {
-    #region Button (deprecated)
-    /*
-    [Header("Freeze Local Position")]
-    [SerializeField]
-    bool x;
-    [SerializeField]
-    bool y;
-    [SerializeField]
-    bool z;
-    public Transform button;
-    public Transform buttonTrigger;
-    [SerializeField] private Transform buttonGroup;
-    private float minDistance, maxDistance;
-    private Vector3 originalPosition;
-    private Rigidbody rb;
-    */
-    #endregion
     public enum DoorEvent
     {
         Unlocked,
@@ -38,8 +21,6 @@ public class DoorLock : MonoBehaviour
     public DoorEvent lockEvent;
     public GameObject pairedKeyCard;
     public EventObjectBase pairedEvent;
-    private ProceduralLayoutGeneration layoutGeneration;
-    private PlayerInteractions playerInteractions;
     public Transform keycardScanner;
     public GameObject portal;
     private Portal doorPortal;
@@ -48,8 +29,6 @@ public class DoorLock : MonoBehaviour
     {
         auS = GetComponent<AudioSource>();
         doorAnimator = GetComponentInParent<Animator>();
-        layoutGeneration = FindObjectOfType<ProceduralLayoutGeneration>();
-        playerInteractions = FindObjectOfType<PlayerInteractions>();
     }
 
 
@@ -67,32 +46,6 @@ public class DoorLock : MonoBehaviour
         doorPortal = portal.GetComponentInParent<Portal>();
         doorPortal.SetActive(false);
         doorPortal.doorLock = this;
-    }
-
-    public void TryToUnlock()
-    {
-        switch (lockEvent)
-        {
-            case DoorEvent.PressurePlate:
-                break;
-            case DoorEvent.ShootTarget:
-                break;
-            case DoorEvent.KeyCard:
-                isLocked = pairedKeyCard != null;
-                if (!isLocked)
-                {
-                    // Only works for linear layouts
-                    for (int i = 0; i < playerInteractions.keyUI.Count; i++)
-                    {
-                        if (playerInteractions.keyUI[i].activeSelf)
-                        {
-                            playerInteractions.keyUI[i].SetActive(false);
-                            break;
-                        }
-                    }
-                }
-                break;
-        }
     }
 
     public void RemoveButton()
@@ -129,10 +82,5 @@ public class DoorLock : MonoBehaviour
     {
         isOpen = false;
         doorPortal.SetActive(false);
-    }
-
-    public void DestroyDoor()
-    {
-
     }
 }
