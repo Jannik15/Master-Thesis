@@ -6,10 +6,20 @@ public class CenterButton : MonoBehaviour
 {
     public GameObject nextButton, greyButton, nextButton2Walking, nextButton2Steering, greyButton2, slide, slide2;
     private int MovementType;
+    public CharacterController steeringController;
+    public OVRPlayerController ovrSteeringController;
 
     void Start()
     {
+        if (steeringController == null)
+        {
+            Debug.Log("Steering controller was null, attempting to find...");
+            steeringController = FindObjectOfType<CharacterController>();
+            ovrSteeringController = steeringController.GetComponent<OVRPlayerController>();
+        }
+
         MovementType = PlayerPrefs.GetInt("MovementType");
+        StartCoroutine(DisableSteering());
     }
 
     void OnTriggerEnter(Collider collider)
@@ -35,6 +45,20 @@ public class CenterButton : MonoBehaviour
             }
 
         }
+    }
+
+    public void ToggleSteering(bool b)
+    {
+        steeringController.enabled = b;
+        ovrSteeringController.enabled = b;
+    }
+
+    IEnumerator DisableSteering()
+    {
+        yield return new WaitForSeconds(1);
+
+        steeringController.enabled = false;
+        ovrSteeringController.enabled = false;
     }
 
     void OnTriggerExit(Collider collider)

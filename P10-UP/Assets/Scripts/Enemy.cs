@@ -5,7 +5,6 @@ public class Enemy : MonoBehaviour
     public bool tutorialMode;
     public GameObject prevSlide;
     public GameObject nextSlide;
-    public GameObject part4;
 
     public Room inRoom;
 
