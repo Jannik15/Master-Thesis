@@ -26,8 +26,8 @@ public class ProceduralLayoutGeneration : MonoBehaviour
     private List<Vector2> possiblePortalPositions = new List<Vector2>();
     private List<Portal> portals = new List<Portal>();
     private List<DoorLock> portalDoors = new List<DoorLock>();
-    private GameObject roomObject, keyCardToSpawn; // Functions as the index in rooms, tracking which room the player is in
-    private int roomID, portalIterator, keycardIterator;
+    private GameObject keyCardToSpawn; // Functions as the index in rooms, tracking which room the player is in
+    private int roomID, portalIterator;
     private Transform portalParent;
     private List<Tile> gridTiles = new List<Tile>(), previousGridTiles = new List<Tile>(), walkableTiles = new List<Tile>(), doorEventTiles = new List<Tile>();
     private List<Tile> specificTypeTiles = new List<Tile>(), tilesToSpawnObjectOn = new List<Tile>(), tilesToSpawnObjectOnFlipped = new List<Tile>();
@@ -36,7 +36,6 @@ public class ProceduralLayoutGeneration : MonoBehaviour
     private List<List<Vector2>> previousPortalZones = new List<List<Vector2>>();
     private List<List<List<Vector2>>> portalZones = new List<List<List<Vector2>>>();
     public event Action proceduralGenerationFinished; 
-    private int keyCardID;
     private int differentRoomLayer, defaultLayer, interactionLayer, currentPortalLayer, differentPortalLayer;
     public event Action<Room, Portal> roomSwitched;
     public event Action<Portal> disabledPortal;
@@ -249,7 +248,12 @@ public class ProceduralLayoutGeneration : MonoBehaviour
                 // Case 2 - Unlock with keyCard
                 if (randomEvent < keyCardWeighting)
                 {
-                    int roomToSpawnKeyCardIn = Random.Range(math.clamp(doorRoomID - 5, 1, doorRoomID), doorRoomID);
+                    int roomToSpawnKeyCardIn = doorRoomID - Random.Range(0, 2);
+                    if (roomToSpawnKeyCardIn < 1)
+                    {
+                        roomToSpawnKeyCardIn = 1;
+                    }
+
                     doorEventTiles.Clear();
                     doorEventTiles.AddRange(rooms[roomToSpawnKeyCardIn].gameObject.GetComponent<Grid>().GetTilesAsList());
                     int doorEventTilesCount = doorEventTiles.Count;
@@ -324,7 +328,7 @@ public class ProceduralLayoutGeneration : MonoBehaviour
 
         // Spawn objects
         SpawnObjectType(genericRooms, TileGeneration.TileType.Event, genericEventObjects, null, 1, new Vector2Int(1, 1), true);
-        SpawnObjectType(genericRooms, TileGeneration.TileType.Enemy, enemyObjects, null, Random.Range(2,6), new Vector2Int(1, 1), true);
+        SpawnObjectType(genericRooms, TileGeneration.TileType.Enemy, enemyObjects, null, Random.Range(3,6), new Vector2Int(1, 1), true);
         SpawnObjectType(genericRooms, TileGeneration.TileType.Scenery, largeSceneryObjects, null, 1, new Vector2Int(2, 2), true);
         SpawnObjectType(genericRooms, TileGeneration.TileType.Scenery, mediumSceneryObjects, null, 2, new Vector2Int(2, 1), true);
         SpawnObjectType(genericRooms, TileGeneration.TileType.Scenery, smallSceneryObjects, null, 2, new Vector2Int(1, 1), true);
@@ -847,18 +851,30 @@ public class ProceduralLayoutGeneration : MonoBehaviour
     /// <param name="currentPortal"></param>
     public void SwitchCurrentRoom(Room newCurrentRoom, Portal currentPortal)
     {
-        // Set current room and previous room | get the portals from the current room
+        // Update the previous room and the current room
         previousRoom = currentRoom;
         currentRoom = newCurrentRoom;
-        currentRoom.gameObject.transform.parent = null;
-        currentRoom.UpdateRoomStencil(null, 0, 2000);
+
+        // Parent the previous room to the portal you entered, and de-parent the current room since it shouldn't be under any portal
+        // - This is overwritten on correct portal transition, but when the player does an incorrect transition this solves the parenting issue.
         if (currentPortal != null)
         {
             previousRoom.gameObject.transform.parent = currentPortal.transform;
         }
+        else if (currentRoom.gameObject.transform.parent != null)
+        {
+            previousRoom.gameObject.transform.parent = currentRoom.gameObject.transform.parent;
+        }
+        currentRoom.gameObject.transform.parent = null;
+
+        // Set the stencils for geometry in the current room to be visible without a portal
+        currentRoom.UpdateRoomStencil(null, 0, 2000);
+
+        // Update the layers in the rooms
         previousRoom.SetLayer(differentRoomLayer, differentRoomLayer);
         currentRoom.SetLayer(defaultLayer, interactionLayer);
 
+        // TODO: Validate and remove
         //// Deprecated - we now parent rooms to portals, and since the portals get disabled, so do the rooms
         //#region Disable rooms connected to rooms that are connected to the previous room
         //if (currentPortal != null)
@@ -885,25 +901,30 @@ public class ProceduralLayoutGeneration : MonoBehaviour
 
         List<Portal> portalsInConnectedRoom = new List<Portal>();
         #region Enable | Update stencils, render queue, shaders, Shader matrix, and layers for anything except the current room.
-
-        int stencilValue = 8; // BitMask 00001000
-        int otherRoomStencilValue = 1;
+        int stencilValue = 8; // BitMask 00001000 - this will be shifted 1 to the left later
+        int otherRoomStencilValue = 1; // Any value less than 8 here is fine, at 1 this gives a maximum of 7 possible rooms (1-7) connected to this portal
         activeThroughPortals.Clear();
+
+        // Iterate over all the portals in the current room
         for (int i = 0; i < currentRoom.GetPortalsInRoom().Count; i++)
         {
             Portal p = currentRoom.GetPortalsInRoom()[i];
-            if (p.GetConnectedPortal() != currentPortal)
+
+            // If the connected portal of the current iteration is the portal the player is currently in
+            // Update the stencils for that portal, its connected portal previous room, which that portal is looking at.
+            if (p.GetConnectedPortal() == currentPortal)
             {
-                CustomUtilities.UpdatePortalAndItsConnectedRoom(p, stencilValue, 0, 2000, currentRoomMask, true);
-            }
-            else
-            {
-                // Previous room
+                // p.GetConnectedPortal cannot be null, so no NullReferences possible
                 CustomUtilities.UpdateStencils(currentPortal.gameObject, null, stencilValue, 2100);
                 CustomUtilities.UpdateStencils(currentPortal.GetConnectedPortal().gameObject, null, stencilValue, 2100);
                 previousRoom.UpdateRoomStencil(currentPortal.transform, stencilValue, 2300);
             }
+            else // If it is any other portal, simply update that portal and its connected room.
+            {
+                CustomUtilities.UpdatePortalAndItsConnectedRoom(p, stencilValue, 0, 2000, currentRoomMask, true);
+            }
             
+            // Reference list for performance - contains all the portals in the room connected to the portal iteration
             portalsInConnectedRoom.AddRange(p.GetConnectedRoom().GetPortalsInRoom());
             for (int j = 0; j < portalsInConnectedRoom.Count; j++)
             {
