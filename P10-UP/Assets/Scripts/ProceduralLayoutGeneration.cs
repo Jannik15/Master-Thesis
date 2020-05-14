@@ -120,9 +120,9 @@ public class ProceduralLayoutGeneration : MonoBehaviour
                                        currentRoom.GetPortalsInRoom()[i].transform.forward) >= 0;
 
             // Enable visible portals in the current room unless the portal is the connected portal of the portal the player is inside
-            // 
-            if (playerCollisionHandler.inPortal && playerCollisionHandler.thisPortal != currentRoom.GetPortalsInRoom()[i].GetConnectedPortal()
-                && isPortalVisible && !currentRoom.GetPortalsInRoom()[i].gameObject.activeSelf)
+
+            if (isPortalVisible && !currentRoom.GetPortalsInRoom()[i].gameObject.activeSelf &&
+                (!playerCollisionHandler.inPortal || playerCollisionHandler.thisPortal != currentRoom.GetPortalsInRoom()[i].GetConnectedPortal()))
             {
                 currentRoom.GetPortalsInRoom()[i].SetActive(true);
             }
