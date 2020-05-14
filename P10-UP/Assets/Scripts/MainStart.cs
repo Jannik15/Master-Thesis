@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections;
+using UnityEngine;
 using UnityEngine.UI;
 
 public class MainStart : MonoBehaviour
@@ -9,7 +10,7 @@ public class MainStart : MonoBehaviour
     {
         if (PlayerPrefs.GetInt("MovementType", 0) == 0) // 0 = Natural Walking, 1 = Steering
         {
-            naturalWalkingBtn.onClick.Invoke();
+            StartCoroutine(DisableSteering());
         }
         else
         {
@@ -27,5 +28,11 @@ public class MainStart : MonoBehaviour
             steeringTextDisabled.SetActive(true);
             Debug.Log("Started Main when Testing set to 1, disabling movement buttons...");
         }
+    }
+
+    IEnumerator DisableSteering()
+    {
+        yield return new WaitForSeconds(1);
+        naturalWalkingBtn.onClick.Invoke();
     }
 }
