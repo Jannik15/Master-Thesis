@@ -9,12 +9,22 @@ public class ChooseGameVersion : MonoBehaviour
     {
         if (PlayerPrefs.GetInt("TestComplete", 0) == 1)
         {
+            PlayerPrefs.SetInt("MovementType", 0); // 0 = Natural Walking, 1 = Steering
             SceneManager.LoadScene("Main");
         }
     }
 
-    public void LoadScene(string sceneName)
+    public void AcceptedTest()
     {
-        SceneManager.LoadScene(sceneName);
+        PlayerPrefs.SetInt("Testing", 1);
+        PlayerPrefs.SetInt("MovementType", Random.Range(0, 2)); // 0 = Natural Walking, 1 = Steering
+        SceneManager.LoadScene("TestStart");
+    }
+
+    public void DeclinedTest()
+    {
+        PlayerPrefs.SetInt("Testing", 0);
+        PlayerPrefs.SetInt("MovementType", 0); // 0 = Natural Walking, 1 = Steering
+        SceneManager.LoadScene("Main");
     }
 }
