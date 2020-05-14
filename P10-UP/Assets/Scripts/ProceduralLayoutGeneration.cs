@@ -26,8 +26,8 @@ public class ProceduralLayoutGeneration : MonoBehaviour
     private List<Vector2> possiblePortalPositions = new List<Vector2>();
     private List<Portal> portals = new List<Portal>();
     private List<DoorLock> portalDoors = new List<DoorLock>();
-    private GameObject roomObject, keyCardToSpawn; // Functions as the index in rooms, tracking which room the player is in
-    private int roomID, portalIterator, keycardIterator;
+    private GameObject keyCardToSpawn; // Functions as the index in rooms, tracking which room the player is in
+    private int roomID, portalIterator;
     private Transform portalParent;
     private List<Tile> gridTiles = new List<Tile>(), previousGridTiles = new List<Tile>(), walkableTiles = new List<Tile>(), doorEventTiles = new List<Tile>();
     private List<Tile> specificTypeTiles = new List<Tile>(), tilesToSpawnObjectOn = new List<Tile>(), tilesToSpawnObjectOnFlipped = new List<Tile>();
@@ -36,7 +36,6 @@ public class ProceduralLayoutGeneration : MonoBehaviour
     private List<List<Vector2>> previousPortalZones = new List<List<Vector2>>();
     private List<List<List<Vector2>>> portalZones = new List<List<List<Vector2>>>();
     public event Action proceduralGenerationFinished; 
-    private int keyCardID;
     private int differentRoomLayer, defaultLayer, interactionLayer, currentPortalLayer, differentPortalLayer;
     public event Action<Room, Portal> roomSwitched;
     public event Action<Portal> disabledPortal;
@@ -249,7 +248,12 @@ public class ProceduralLayoutGeneration : MonoBehaviour
                 // Case 2 - Unlock with keyCard
                 if (randomEvent < keyCardWeighting)
                 {
-                    int roomToSpawnKeyCardIn = Random.Range(math.clamp(doorRoomID - 5, 1, doorRoomID), doorRoomID);
+                    int roomToSpawnKeyCardIn = doorRoomID - Random.Range(0, 2);
+                    if (roomToSpawnKeyCardIn < 1)
+                    {
+                        roomToSpawnKeyCardIn = 1;
+                    }
+
                     doorEventTiles.Clear();
                     doorEventTiles.AddRange(rooms[roomToSpawnKeyCardIn].gameObject.GetComponent<Grid>().GetTilesAsList());
                     int doorEventTilesCount = doorEventTiles.Count;
