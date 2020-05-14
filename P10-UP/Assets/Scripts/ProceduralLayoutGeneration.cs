@@ -718,6 +718,7 @@ public class ProceduralLayoutGeneration : MonoBehaviour
                         if (objectsPerRoom == maxObjectsPerRoom)
                             break;
                         placementTile.Add(specificTypeTiles[j]);
+                        objectsPerRoom++;
                         SpawnObjectOnTile(placementTile, false, objectToSpawn, TileGeneration.TileType.Enemy, roomsToSpawnObjectsIn[i], true);
                         placementTile.Clear();
                     }
