@@ -7,17 +7,20 @@ using System.Globalization;
 using System.Linq;
 using UnityEngine.Networking;
 using UnityEngine;
+using UnityEngine.ProBuilder.MeshOperations;
 using UnityEngine.UI;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
+
 
 public class DataHandler : MonoBehaviour
 {
     public bool OnlyOneLogPerDevice = false;
     public string baseURL = ""; // fill out this and entry IDs in inspector
     public string[] entryIds;
-    public string[] internalData;
+    public int[] sliderIndeces;
+    public StringDataArray internalData;
     [HideInInspector] public int indexToModify;
     [HideInInspector] public bool toggleState;
     private string spec = "G";
@@ -25,7 +28,10 @@ public class DataHandler : MonoBehaviour
 
     private void Start()
     {
-        internalData = new string[entryIds.Length];
+        if (internalData.s.Length != entryIds.Length)
+        {
+            internalData.s = new string[entryIds.Length];
+        }
     }
 
     // Unity UI events only allow 1 argument in the inspector, so adding helper methods for defining data index and toggle states
@@ -41,37 +47,53 @@ public class DataHandler : MonoBehaviour
 
     public void AssignData(string data)
     {
-        internalData[indexToModify] = data;
+        internalData.s[indexToModify] = data;
     }
 
     public void AssignSliderData(float data)
     {
-        internalData[indexToModify] = data.ToString(spec, ci);
+        internalData.s[indexToModify] = data.ToString(spec, ci);
     }
 
     public void AssignMultipleChoiceData(string data)
     {
-        if (toggleState && (string.IsNullOrEmpty(internalData[indexToModify]) || !internalData[indexToModify].Contains(data)))
+        if (toggleState && (string.IsNullOrEmpty(internalData.s[indexToModify]) || !internalData.s[indexToModify].Contains(data)))
         {
-            internalData[indexToModify] += data + ", ";
+            internalData.s[indexToModify] += data + ", ";
         }
-        else if (!toggleState && internalData[indexToModify].Contains(data))
+        else if (!toggleState && internalData.s[indexToModify].Contains(data))
         {
-            internalData[indexToModify] = internalData[indexToModify].Remove(internalData[indexToModify].IndexOf(data), data.Length + 2); // + 2 to include comma and space
+            internalData.s[indexToModify] = internalData.s[indexToModify].Remove(internalData.s[indexToModify].IndexOf(data), data.Length + 2); // + 2 to include comma and space
         }
     }
 
     public void SendInternalData()
     {
         Debug.Log("Sending internal data:");
-        string s = "";
-        for (int i = 0; i < internalData.Length; i++)
+        for (int i = 0; i < internalData.s.Length; i++)
         {
-            Debug.Log("      Question " + (i + 1) + ": " + internalData[i] + ",");
-            s += "      Question " + (i + 1) + ": " + internalData[i] + ",\n";
+            if (string.IsNullOrEmpty(internalData.s[i]))
+            {
+                if (i < internalData.s.Length - 16)
+                {
+                    internalData.s[i] = "None";
+                }
+                else if (sliderIndeces.Contains(i))
+                {
+                    internalData.s[i] = "3";    // When participants do not change the slider value, assign default value
+                }
+                else // Multiple choice data
+                {
+                    internalData.s[i] = "No selection";
+                }
+            }
+            else if (internalData.s[i].EndsWith(","))
+            {
+                internalData.s[i] = internalData.s[i].Remove(internalData.s[i].Length - 1);
+            }
+            Debug.Log("      Question " + (i + 1) + ": " + internalData.s[i]);
         }
-        //Debug.Log("Sending internal data: \n" + s);
-        //StartCoroutine(Post(internalData.ToList()));
+        StartCoroutine(Post(internalData.s.ToList()));
     }
 
     public void SendData(List<float> data) // Call if sending float data only. Otherwise sending a string list is preferred.

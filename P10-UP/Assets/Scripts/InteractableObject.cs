@@ -170,6 +170,7 @@ public class InteractableObject : MonoBehaviour
         Transform transformToAssign = assignParent && transform.parent != null ? transform.parent : transform;
         if (room != null)
         {
+            inRoom?.RemoveObjectFromRoom(transformToAssign);
             inRoom = room;
             if (duplicatedMeshObject == null)
             {
