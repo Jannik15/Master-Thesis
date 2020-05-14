@@ -911,7 +911,7 @@ public class ProceduralLayoutGeneration : MonoBehaviour
             Portal p = currentRoom.GetPortalsInRoom()[i];
 
             // If the connected portal of the current iteration is the portal the player is currently in
-            // Update the stencils for that portal, its connected portal previous room, which that portal is looking at.
+            // update the stencils for that portal, its connected portal previous room, which that portal is looking at.
             if (p.GetConnectedPortal() == currentPortal)
             {
                 // p.GetConnectedPortal cannot be null, so no NullReferences possible
@@ -924,21 +924,29 @@ public class ProceduralLayoutGeneration : MonoBehaviour
                 CustomUtilities.UpdatePortalAndItsConnectedRoom(p, stencilValue, 0, 2000, currentRoomMask, true);
             }
             
-            // Reference list for performance - contains all the portals in the room connected to the portal iteration
+            // Reference list for performance - contains all the portals in the room connected to the portal iteration.
             portalsInConnectedRoom.AddRange(p.GetConnectedRoom().GetPortalsInRoom());
+
+            // Find all portals in the connected room that are not connected to the current room.
+            // Update their stencils and portal shaders which allows for the portal through a portal effect.
             for (int j = 0; j < portalsInConnectedRoom.Count; j++)
             {
                 if (portalsInConnectedRoom[j].GetConnectedPortal() != p)
                 {
-                    CustomUtilities.UpdatePortalAndItsConnectedRoom(portalsInConnectedRoom[j] , otherRoomStencilValue, stencilValue, 2300, otherRoomMask, true);
+                    CustomUtilities.UpdatePortalAndItsConnectedRoom(portalsInConnectedRoom[j] , otherRoomStencilValue, 
+                        stencilValue, 2300, otherRoomMask, true);
+
+                    // Iterate the unique stencil value, and make sure the stencil values for portals through portals is not representable with a single 1 in binary
                     otherRoomStencilValue++;
-                    if (otherRoomStencilValue == 8 || otherRoomStencilValue == 16 || otherRoomStencilValue == 32 || otherRoomStencilValue == 64 || otherRoomStencilValue == 128) // Must never be equal to any iteration of stencilValue
+                    if (otherRoomStencilValue == 8 || otherRoomStencilValue == 16 || otherRoomStencilValue == 32 || otherRoomStencilValue == 64 || otherRoomStencilValue == 128)
                     {
                         otherRoomStencilValue++;
                     }
                 }
             }
+            // Clear the list for later use
             portalsInConnectedRoom.Clear();
+
             //* ThroughPortal culling based on view
             activeThroughPortals.Add(new List<Portal>());
             for (int j = 0; j < p.GetConnectedRoom().GetPortalsInRoom().Count; j++)
@@ -963,8 +971,9 @@ public class ProceduralLayoutGeneration : MonoBehaviour
             }
             //*/
 
-            stencilValue += stencilValue; // BitShift 1 to the left
+            stencilValue += stencilValue; // BitShift 1 to the left, but represented by integer
         }
+        // Tell other scripts that there is a new current room
         roomSwitched?.Invoke(currentRoom, currentPortal);
         #endregion
     }
