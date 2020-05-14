@@ -29,6 +29,10 @@ public class WristPlateUI : MonoBehaviour
         if (keysList.Count > 0)
         {
             keysList[currentCard].SetActive(!keysList[currentCard].activeSelf);
+            if (!keysList[currentCard].activeSelf)
+            {
+                DropZone.SetActive(false);
+            }
         }
     }
 
