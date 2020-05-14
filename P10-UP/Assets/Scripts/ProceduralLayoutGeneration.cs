@@ -395,9 +395,15 @@ public class ProceduralLayoutGeneration : MonoBehaviour
 
                     List<Room> endRooms = new List<Room>(1);
                     endRooms.Add(rooms[roomID]);
-                    SpawnObjectType(endRooms, TileGeneration.TileType.Event, endGameEventObjects, null, 1, new Vector2Int(2, 2), true);
-                    SpawnObjectType(endRooms, TileGeneration.TileType.Event, endGameEventObjects, null, 1, new Vector2Int(1, 2), true);
-                    SpawnObjectType(endRooms, TileGeneration.TileType.Event, endGameEventObjects, null, 1, new Vector2Int(1, 1), true);
+                    bool spawnedEndGameEvent = SpawnObjectType(endRooms, TileGeneration.TileType.Event, endGameEventObjects, null, 1, new Vector2Int(2, 2), true);
+                    if (!spawnedEndGameEvent)
+                    {
+                        spawnedEndGameEvent = SpawnObjectType(endRooms, TileGeneration.TileType.Event, endGameEventObjects, null, 1, new Vector2Int(1, 2), true);
+                    }
+                    if (!spawnedEndGameEvent)
+                    {
+                        SpawnObjectType(endRooms, TileGeneration.TileType.Event, endGameEventObjects, null, 1, new Vector2Int(1, 1), true);
+                    }
                     SpawnObjectType(endRooms, TileGeneration.TileType.Enemy, enemyObjects, null, Random.Range(5, 10), new Vector2Int(1, 1), true);
                     break;
                 case CustomRoomType.Generic:
@@ -674,9 +680,10 @@ public class ProceduralLayoutGeneration : MonoBehaviour
     }
 
     #region Object spawning
-    private void SpawnObjectType(List<Room> roomsToSpawnObjectsIn, TileGeneration.TileType objectTypeToSpawn, GameObject[] objectsToSpawn, GameObject specificObjectToSpawn, 
+    private bool SpawnObjectType(List<Room> roomsToSpawnObjectsIn, TileGeneration.TileType objectTypeToSpawn, GameObject[] objectsToSpawn, GameObject specificObjectToSpawn, 
         int maxObjectsPerRoom, Vector2Int tilesPerObject, bool canCollideWithPlayer)
     {
+        bool hasSpawnedObject = false;
         for (int i = 0; i < roomsToSpawnObjectsIn.Count; i++)
         {
             GameObject objectToSpawn;
@@ -687,7 +694,7 @@ public class ProceduralLayoutGeneration : MonoBehaviour
             else
             {
                 if (objectsToSpawn.Length == 0)
-                    return;
+                    return false;
                 objectToSpawn = objectsToSpawn[Random.Range(0, objectsToSpawn.Length)];
             }
             Grid grid = roomsToSpawnObjectsIn[i].roomGrid;
@@ -719,6 +726,7 @@ public class ProceduralLayoutGeneration : MonoBehaviour
                             break;
                         placementTile.Add(specificTypeTiles[j]);
                         objectsPerRoom++;
+                        hasSpawnedObject = true;
                         SpawnObjectOnTile(placementTile, false, objectToSpawn, TileGeneration.TileType.Enemy, roomsToSpawnObjectsIn[i], false);
                         placementTile.Clear();
                     }
@@ -743,6 +751,7 @@ public class ProceduralLayoutGeneration : MonoBehaviour
                             {
                                 List<Tile> tileSlice = new List<Tile>();
                                 tileSlice.Add(currentTile);
+                                hasSpawnedObject = true;
                                 SpawnObjectOnTile(tileSlice, false, objectToSpawn, objectTypeToSpawn, roomsToSpawnObjectsIn[i], canCollideWithPlayer);
                                 objectsPerRoom++;
                                 continue;
@@ -792,6 +801,7 @@ public class ProceduralLayoutGeneration : MonoBehaviour
                 }
             }
         }
+        return hasSpawnedObject;
     }
 
     private GameObject SpawnObjectOnTile(List<Tile> tilesToSpawnObjectOn, bool flipped, GameObject objectToSpawn, TileGeneration.TileType objectType, Room roomToSpawnIn, bool playerCollision)
