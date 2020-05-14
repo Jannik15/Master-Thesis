@@ -96,7 +96,7 @@ public class ProceduralLayoutGeneration : MonoBehaviour
         playerCollisionHandler = FindObjectOfType<PlayerCollisionHandler>();
     }
 
-    private void FixedUpdate()
+    private void Update()
     {
         if (mainMenuCanvas.activeSelf && Input.GetKeyDown(KeyCode.Y)) // PC Debug only
         {
@@ -118,17 +118,18 @@ public class ProceduralLayoutGeneration : MonoBehaviour
 
             bool isPortalVisible = math.dot((currentRoom.GetPortalsInRoom()[i].transform.position - playerCam.position).normalized, 
                                        currentRoom.GetPortalsInRoom()[i].transform.forward) >= 0;
-            if (!playerCollisionHandler.inPortal)
+
+            // Enable visible portals in the current room unless the portal is the connected portal of the portal the player is inside
+            // 
+            if (playerCollisionHandler.inPortal && playerCollisionHandler.thisPortal != currentRoom.GetPortalsInRoom()[i].GetConnectedPortal()
+                && isPortalVisible && !currentRoom.GetPortalsInRoom()[i].gameObject.activeSelf)
             {
-                if (isPortalVisible && !currentRoom.GetPortalsInRoom()[i].gameObject.activeSelf)
-                {
-                    currentRoom.GetPortalsInRoom()[i].SetActive(true);
-                }
-                else if (!isPortalVisible && currentRoom.GetPortalsInRoom()[i].gameObject.activeSelf)
-                {
-                    currentRoom.GetPortalsInRoom()[i].SetActive(false);
-                    disabledPortal?.Invoke(currentRoom.GetPortalsInRoom()[i]);
-                }
+                currentRoom.GetPortalsInRoom()[i].SetActive(true);
+            }
+            else if (!isPortalVisible && currentRoom.GetPortalsInRoom()[i].gameObject.activeSelf)
+            {
+                currentRoom.GetPortalsInRoom()[i].SetActive(false);
+                disabledPortal?.Invoke(currentRoom.GetPortalsInRoom()[i]);
             }
 
             for (int j = 0; j < activeThroughPortals[i].Count; j++)
@@ -938,21 +939,9 @@ public class ProceduralLayoutGeneration : MonoBehaviour
                 Vector3 dir = (activeThroughPortals[i][j].transform.position - p.transform.position).normalized;
                 if (Vector3.Dot(dir, p.transform.forward) < 0 || Vector3.Dot(dir, activeThroughPortals[i][j].transform.forward) < 0)
                 {
-                    if (Vector3.Dot(dir, activeThroughPortals[i][j].transform.forward) < 0)
-                    {
-                        Debug.Log(activeThroughPortals[i][j].gameObject.name + " has a negative dot product to its own forward - disabling");
-                    }
-                    else
-                    {
-                        Debug.Log(activeThroughPortals[i][j].gameObject.name + " has a negative dot product to portal " + p.gameObject.name + " - disabling");
-                    }
                     activeThroughPortals[i][j].SetActive(false);
                     disabledPortal?.Invoke(activeThroughPortals[i][j]);
                     activeThroughPortals[i].RemoveAt(j);
-                }
-                else
-                {
-                    Debug.Log(activeThroughPortals[i][j].gameObject.name + " has a positive dot product to portal " + p.gameObject.name + " - enabling");
                 }
             }
             //*/
