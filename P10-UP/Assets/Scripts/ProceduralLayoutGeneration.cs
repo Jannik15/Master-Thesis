@@ -783,12 +783,14 @@ public class ProceduralLayoutGeneration : MonoBehaviour
 
                                 if (tilesThatFit == tilesPerObject.x * tilesPerObject.y)
                                 {
+                                    hasSpawnedObject = true;
                                     SpawnObjectOnTile(tilesToSpawnObjectOn, false, objectToSpawn, objectTypeToSpawn, roomsToSpawnObjectsIn[i], canCollideWithPlayer);
                                     objectsPerRoom++;
                                     break;
                                 }
                                 if (tilesThatFitFlipped == tilesPerObject.x * tilesPerObject.y)
                                 {
+                                    hasSpawnedObject = true;
                                     SpawnObjectOnTile(tilesToSpawnObjectOnFlipped, true, objectToSpawn, objectTypeToSpawn, roomsToSpawnObjectsIn[i], canCollideWithPlayer);
                                     objectsPerRoom++;
                                     break;

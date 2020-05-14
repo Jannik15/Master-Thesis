@@ -16,7 +16,6 @@ public class MainStart : MonoBehaviour
         {
             steeringBtn.onClick.Invoke();
         }
-        Debug.Log("Started Main scene with movement type = " + PlayerPrefs.GetInt("MovementType", 0));
 
         if (PlayerPrefs.GetInt("Testing", 0) == 1)
         {
@@ -30,7 +29,6 @@ public class MainStart : MonoBehaviour
             {
                 steeringMenu.SetActive(true);
             }
-            Debug.Log("Started Main when Testing set to 1, disabling movement buttons...");
         }
         else
         {
