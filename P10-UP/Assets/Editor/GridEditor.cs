@@ -338,27 +338,30 @@ public class GridEditor : EditorWindow
 
     private void DrawWall(Rect rect, int xIndex, int yIndex)
     {
-        if (gridWalls[xIndex, yIndex].GetMaterial() != null && _changeWallMaterial)
+        if (gridWalls[xIndex, yIndex] != null)
         {
-            if (gridWalls[xIndex, yIndex].GetHeight() == 0) 
+            if (gridWalls[xIndex, yIndex].GetMaterial() != null && _changeWallMaterial)
             {
-                gridWalls[xIndex, yIndex].SetMaterial(null);
-                return;
+                if (gridWalls[xIndex, yIndex].GetHeight() == 0)
+                {
+                    gridWalls[xIndex, yIndex].SetMaterial(null);
+                    return;
+                }
+                EditorGUI.DrawPreviewTexture(rect, gridWalls[xIndex, yIndex].GetMaterial().mainTexture);
             }
-            EditorGUI.DrawPreviewTexture(rect, gridWalls[xIndex, yIndex].GetMaterial().mainTexture);
+            else
+            {
+                if (gridWalls[xIndex, yIndex].GetHeight() > 1)
+                {
+                    EditorGUI.DrawRect(rect, Color.red);
+                }
+                else if (gridWalls[xIndex, yIndex].GetHeight() > 0)
+                {
+                    EditorGUI.DrawRect(rect, Color.blue);
+                }
+            }
+            wallAreas.Add(rect);
         }
-        else
-        {
-            if (gridWalls[xIndex, yIndex].GetHeight() > 1)
-            {
-                EditorGUI.DrawRect(rect, Color.red);
-            }
-            else if (gridWalls[xIndex, yIndex].GetHeight() > 0)
-            {
-                EditorGUI.DrawRect(rect, Color.blue);
-            }
-        }
-        wallAreas.Add(rect);
     }
 
     private void OnMousedrag(MouseMoveEvent mouseDragEvent)

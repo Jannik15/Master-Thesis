@@ -96,7 +96,7 @@ public class ProceduralLayoutGeneration : MonoBehaviour
         playerCollisionHandler = FindObjectOfType<PlayerCollisionHandler>();
     }
 
-    private void FixedUpdate()
+    private void Update()
     {
         if (mainMenuCanvas.activeSelf && Input.GetKeyDown(KeyCode.Y)) // PC Debug only
         {
@@ -118,17 +118,18 @@ public class ProceduralLayoutGeneration : MonoBehaviour
 
             bool isPortalVisible = math.dot((currentRoom.GetPortalsInRoom()[i].transform.position - playerCam.position).normalized, 
                                        currentRoom.GetPortalsInRoom()[i].transform.forward) >= 0;
-            if (!playerCollisionHandler.inPortal)
+
+            // Enable visible portals in the current room unless the portal is the connected portal of the portal the player is inside
+            // 
+            if (playerCollisionHandler.inPortal && playerCollisionHandler.thisPortal != currentRoom.GetPortalsInRoom()[i].GetConnectedPortal()
+                && isPortalVisible && !currentRoom.GetPortalsInRoom()[i].gameObject.activeSelf)
             {
-                if (isPortalVisible && !currentRoom.GetPortalsInRoom()[i].gameObject.activeSelf)
-                {
-                    currentRoom.GetPortalsInRoom()[i].SetActive(true);
-                }
-                else if (!isPortalVisible && currentRoom.GetPortalsInRoom()[i].gameObject.activeSelf)
-                {
-                    currentRoom.GetPortalsInRoom()[i].SetActive(false);
-                    disabledPortal?.Invoke(currentRoom.GetPortalsInRoom()[i]);
-                }
+                currentRoom.GetPortalsInRoom()[i].SetActive(true);
+            }
+            else if (!isPortalVisible && currentRoom.GetPortalsInRoom()[i].gameObject.activeSelf)
+            {
+                currentRoom.GetPortalsInRoom()[i].SetActive(false);
+                disabledPortal?.Invoke(currentRoom.GetPortalsInRoom()[i]);
             }
 
             for (int j = 0; j < activeThroughPortals[i].Count; j++)
@@ -874,31 +875,6 @@ public class ProceduralLayoutGeneration : MonoBehaviour
         previousRoom.SetLayer(differentRoomLayer, differentRoomLayer);
         currentRoom.SetLayer(defaultLayer, interactionLayer);
 
-        // TODO: Validate and remove
-        //// Deprecated - we now parent rooms to portals, and since the portals get disabled, so do the rooms
-        //#region Disable rooms connected to rooms that are connected to the previous room
-        //if (currentPortal != null)
-        //{
-        //    for (int i = 0; i < previousRoom.GetPortalsInRoom().Count; i++)
-        //    {
-        //        if (previousRoom.GetPortalsInRoom()[i] != currentPortal)
-        //        {
-        //            Room previousRoomConnection = previousRoom.GetPortalsInRoom()[i].GetConnectedRoom();
-
-        //            for (int j = 0; j < previousRoomConnection.GetPortalsInRoom().Count; j++)
-        //            {
-        //                if (previousRoomConnection.GetPortalsInRoom()[j].GetConnectedRoom() != previousRoom)
-        //                {
-        //                    previousRoomConnection.GetPortalsInRoom()[j].GetConnectedRoom().gameObject.SetActive(false);
-        //                }
-        //                previousRoomConnection.GetPortalsInRoom()[j].SetActive(false);
-        //                disabledPortal?.Invoke(previousRoomConnection.GetPortalsInRoom()[j]);
-        //            }
-        //        }
-        //    }
-        //}
-        //#endregion
-
         List<Portal> portalsInConnectedRoom = new List<Portal>();
         #region Enable | Update stencils, render queue, shaders, Shader matrix, and layers for anything except the current room.
         int stencilValue = 8; // BitMask 00001000 - this will be shifted 1 to the left later
@@ -944,25 +920,24 @@ public class ProceduralLayoutGeneration : MonoBehaviour
                     }
                 }
             }
-            // Clear the list for later use
-            portalsInConnectedRoom.Clear();
 
             //* ThroughPortal culling based on view
             activeThroughPortals.Add(new List<Portal>());
-            for (int j = 0; j < p.GetConnectedRoom().GetPortalsInRoom().Count; j++)
+            for (int j = 0; j < portalsInConnectedRoom.Count; j++)
             {
-                Portal pIndex = p.GetConnectedRoom().GetPortalsInRoom()[j];
-                if (pIndex.gameObject.activeSelf && pIndex.GetConnectedPortal() != p)
+                Portal pInConnected = portalsInConnectedRoom[j];
+                if (pInConnected.GetConnectedPortal() != p) // This refers to p.ConnectedPortal(), which is always disabled if p is enabled
                 {
-                    activeThroughPortals[i].Add(pIndex);
+                    activeThroughPortals[i].Add(pInConnected);
                 }
             }
             
+            // Portals that are not visible through the portal in the current room because of their position are disabled
             int activeThroughPortalsCount = activeThroughPortals[i].Count;
             for (int j = activeThroughPortalsCount - 1; j >= 0; j--)
             {
                 Vector3 dir = (activeThroughPortals[i][j].transform.position - p.transform.position).normalized;
-                if (math.dot(dir, p.transform.forward) < 0 || math.dot(dir, activeThroughPortals[i][j].transform.forward) < 0)
+                if (Vector3.Dot(dir, p.transform.forward) < 0 || Vector3.Dot(dir, activeThroughPortals[i][j].transform.forward) < 0)
                 {
                     activeThroughPortals[i][j].SetActive(false);
                     disabledPortal?.Invoke(activeThroughPortals[i][j]);
@@ -970,7 +945,7 @@ public class ProceduralLayoutGeneration : MonoBehaviour
                 }
             }
             //*/
-
+            portalsInConnectedRoom.Clear();
             stencilValue += stencilValue; // BitShift 1 to the left, but represented by integer
         }
         // Tell other scripts that there is a new current room
