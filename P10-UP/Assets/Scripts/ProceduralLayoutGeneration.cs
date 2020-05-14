@@ -328,7 +328,7 @@ public class ProceduralLayoutGeneration : MonoBehaviour
 
         // Spawn objects
         SpawnObjectType(genericRooms, TileGeneration.TileType.Event, genericEventObjects, null, 1, new Vector2Int(1, 1), true);
-        SpawnObjectType(genericRooms, TileGeneration.TileType.Enemy, enemyObjects, null, Random.Range(2,6), new Vector2Int(1, 1), true);
+        SpawnObjectType(genericRooms, TileGeneration.TileType.Enemy, enemyObjects, null, Random.Range(3,6), new Vector2Int(1, 1), true);
         SpawnObjectType(genericRooms, TileGeneration.TileType.Scenery, largeSceneryObjects, null, 1, new Vector2Int(2, 2), true);
         SpawnObjectType(genericRooms, TileGeneration.TileType.Scenery, mediumSceneryObjects, null, 2, new Vector2Int(2, 1), true);
         SpawnObjectType(genericRooms, TileGeneration.TileType.Scenery, smallSceneryObjects, null, 2, new Vector2Int(1, 1), true);
@@ -851,11 +851,17 @@ public class ProceduralLayoutGeneration : MonoBehaviour
     /// <param name="currentPortal"></param>
     public void SwitchCurrentRoom(Room newCurrentRoom, Portal currentPortal)
     {
-        // Set current room and previous room | get the portals from the current room
+        // Update the previous room and the current room
         previousRoom = currentRoom;
         currentRoom = newCurrentRoom;
+
+        // De-parent the current room since it shouldn't be under any portal
         currentRoom.gameObject.transform.parent = null;
+
+        // Set the stencils for geometry in the current room to be visible without a portal
         currentRoom.UpdateRoomStencil(null, 0, 2000);
+
+        // When player enters the portal, parent the previous room to that
         if (currentPortal != null)
         {
             previousRoom.gameObject.transform.parent = currentPortal.transform;
