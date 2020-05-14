@@ -36,17 +36,17 @@ public class SliderText : MonoBehaviour
     public void UpdateDoorEventWeightings()
     {
         int totalWeight = (int)(pressurePlateSlider.value + shootTargetSlider.value + keyCardSlider.value);
-        float remainder = pressurePlateSlider.value / totalWeight % 1;
         int pressurePlateWeighting = (int)(pressurePlateSlider.value / totalWeight * 100);
-        int shootTargetWeighting = (int)(shootTargetSlider.value / totalWeight * 100);
         int keyCardWeighting = (int)(keyCardSlider.value / totalWeight * 100);
+        int shootTargetWeighting = (int)(shootTargetSlider.value / totalWeight * 100);
 
         pressurePlateText.text = pressurePlateWeighting + "%";
-        shootTargetText.text = shootTargetWeighting + "%";
         keyCardText.text = keyCardWeighting + "%";
+        shootTargetText.text = shootTargetWeighting + "%";
 
+        // Pressure plate chance is evaluated first, then keyCards, then shootTarget. The prior chances have to be added on to get the correct result
         proLG.pressurePlateWeighting = pressurePlateWeighting;
-        proLG.shootTargetWeighting = shootTargetWeighting;
-        proLG.keyCardWeighting = keyCardWeighting;
+        proLG.keyCardWeighting = keyCardWeighting + pressurePlateWeighting;
+        proLG.shootTargetWeighting = shootTargetWeighting + pressurePlateWeighting + keyCardWeighting;
     }
 }

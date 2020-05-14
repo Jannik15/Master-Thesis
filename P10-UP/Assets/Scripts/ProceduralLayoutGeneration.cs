@@ -9,7 +9,7 @@ public class ProceduralLayoutGeneration : MonoBehaviour
     // Inspector variables
     public GameObject mainMenuCanvas;
     public int roomAmount = 10;
-    [Range(0, 100)] public int pressurePlateWeighting = 33, shootTargetWeighting = 66, keyCardWeighting = 99, doorSpawnChance = 50;
+    [Range(0, 100)] public int pressurePlateWeighting = 33, keyCardWeighting = 66, shootTargetWeighting = 99, doorSpawnChance = 50;
     [SerializeField] private GameObject[] startGrids, genericGrids, endGrids;
     [SerializeField] private GameObject[] smallSceneryObjects, mediumSceneryObjects, largeSceneryObjects, doorEventObjects, genericEventObjects, enemyObjects, endGameEventObjects;
     [SerializeField] private GameObject[] interactableObjects;
@@ -203,10 +203,10 @@ public class ProceduralLayoutGeneration : MonoBehaviour
                 // Case 1 - Unlock with pressure plate
                 if (randomEvent < pressurePlateWeighting)
                 {
-                    int checkLastXRooms = doorRoomID > 2 ? 3 : doorRoomID;
+                    int checkLastXRooms = doorRoomID > 1 ? 1 : doorRoomID;
 
                     // Randomize input
-                    List<Room> roomSlice = new List<Room>(4);
+                    List<Room> roomSlice = new List<Room>(2);
                     for (int j = 0; j < checkLastXRooms; j++)
                     {
                         EventObjectBase eventInRoom = rooms[doorRoomID - j].gameObject.GetComponentInChildren<EventObjectBase>(true);
@@ -246,28 +246,7 @@ public class ProceduralLayoutGeneration : MonoBehaviour
                         continue;
                 }
 
-                // Case 2 - Unlock by shooting a target
-                if (randomEvent < shootTargetWeighting)
-                {
-                    // Remove button since target should control the door lock
-                    portalDoors[i].RemoveButton();
-
-                    // Instantiate target and place it at the top front of the door
-                    GameObject shootTarget = Instantiate(doorEventObjects[1], Vector3.zero, Quaternion.identity);
-                    shootTarget.transform.parent = portalDoors[i].transform.parent;
-                    shootTarget.transform.position = portalDoors[i].transform.position;
-                    shootTarget.transform.localPosition = new Vector3(shootTarget.transform.localPosition.x, 1, -0.13f);
-                    shootTarget.transform.eulerAngles = portalDoors[i].transform.rotation.eulerAngles;
-                    shootTarget.transform.eulerAngles += new Vector3(0, 90, 0);
-
-                    // Pair and assign room
-                    portalDoors[i].Pair(DoorLock.DoorEvent.ShootTarget, shootTarget);
-                    EventObjectBase shootTargetEvent = shootTarget.GetComponentInChildren<EventObjectBase>(true);
-                    shootTargetEvent.AssignRoom(portalDoors[i].inRoom, false);
-                    continue;
-                }
-
-                // Case 3 - Unlock with keyCard
+                // Case 2 - Unlock with keyCard
                 if (randomEvent < keyCardWeighting)
                 {
                     int roomToSpawnKeyCardIn = Random.Range(math.clamp(doorRoomID - 5, 1, doorRoomID), doorRoomID);
@@ -307,6 +286,28 @@ public class ProceduralLayoutGeneration : MonoBehaviour
                     }
                     continue;
                 }
+
+                // Case 3 - Unlock by shooting a target
+                if (randomEvent < shootTargetWeighting)
+                {
+                    // Remove button since target should control the door lock
+                    portalDoors[i].RemoveButton();
+
+                    // Instantiate target and place it at the top front of the door
+                    GameObject shootTarget = Instantiate(doorEventObjects[1], Vector3.zero, Quaternion.identity);
+                    shootTarget.transform.parent = portalDoors[i].transform.parent;
+                    shootTarget.transform.position = portalDoors[i].transform.position;
+                    shootTarget.transform.localPosition = new Vector3(shootTarget.transform.localPosition.x, 1, -0.13f);
+                    shootTarget.transform.eulerAngles = portalDoors[i].transform.rotation.eulerAngles;
+                    shootTarget.transform.eulerAngles += new Vector3(0, 90, 0);
+
+                    // Pair and assign room
+                    portalDoors[i].Pair(DoorLock.DoorEvent.ShootTarget, shootTarget);
+                    EventObjectBase shootTargetEvent = shootTarget.GetComponentInChildren<EventObjectBase>(true);
+                    shootTargetEvent.AssignRoom(portalDoors[i].inRoom, false);
+                    continue;
+                }
+
                 doorsToDestroy.Add(i);
             }
         }
