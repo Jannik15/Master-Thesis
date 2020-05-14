@@ -70,7 +70,14 @@ public class PlayerInteractions : MonoBehaviour
     public void OnGameComplete()
     {
         //Plays when FadeToWhite animation is finished
-        SceneManager.LoadScene("EndScreen");
+        if (PlayerPrefs.GetInt("Testing", 0) == 1)
+        {
+            SceneManager.LoadScene("TestEnd");
+        }
+        else
+        {
+            SceneManager.LoadScene("EndScreen");
+        }
     }
 
     public void OnFadeComplete()
