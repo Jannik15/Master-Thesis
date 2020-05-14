@@ -65,7 +65,7 @@ public class Gun : MonoBehaviour
                 {
                     GameObject liner = Instantiate(line);
                     liner.GetComponent<LineRenderer>().SetPositions(new Vector3[] { barrelPoint.position, hasHit ? hit.point : barrelPoint.position + barrelPoint.right * 100 });
-                    Destroy(liner, 0.3f);
+                    Destroy(liner, 0.1f);
                 }
             }
             currentAmmo--;
