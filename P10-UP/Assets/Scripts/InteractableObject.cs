@@ -301,8 +301,8 @@ public class InteractableObject : MonoBehaviour
     {
         if (collider.CompareTag("Portal"))
         {
-            if (activePortalCollisions == 0
-            ) // If object has multiple colliders, make sure OnTriggerEnter is only executed for the first collider
+            // If object has multiple colliders, make sure OnTriggerEnter is only executed for the first collider
+            if (activePortalCollisions == 0) 
             {
                 if (isHeld)
                 {
@@ -455,11 +455,6 @@ public class InteractableObject : MonoBehaviour
         if (mainObject)
         {
             CustomUtilities.UpdateStencils(renderers, portalMatrix, stencilValue, renderQueue);
-            if (isHeld)
-            {
-                Debug.Log("Updated stencils for held object main to " + stencilValue);
-            }
-
             for (int i = 0; i < texts.Length; i++)
             {
                 texts[i].material.SetInt("_Stencil", stencilValue);
@@ -480,7 +475,6 @@ public class InteractableObject : MonoBehaviour
         }
         else
         {
-            Debug.Log("Updated stencils for object duplicated to " + stencilValue);
             CustomUtilities.UpdateStencils(duplicatedRenderers, portalMatrix, stencilValue, renderQueue);
             for (int i = 0; i < duplicatedTexts.Length; i++)
             {
