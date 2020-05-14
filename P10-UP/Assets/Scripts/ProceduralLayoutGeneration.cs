@@ -398,6 +398,7 @@ public class ProceduralLayoutGeneration : MonoBehaviour
                     SpawnObjectType(endRooms, TileGeneration.TileType.Event, endGameEventObjects, null, 1, new Vector2Int(2, 2), true);
                     SpawnObjectType(endRooms, TileGeneration.TileType.Event, endGameEventObjects, null, 1, new Vector2Int(1, 2), true);
                     SpawnObjectType(endRooms, TileGeneration.TileType.Event, endGameEventObjects, null, 1, new Vector2Int(1, 1), true);
+                    SpawnObjectType(endRooms, TileGeneration.TileType.Enemy, enemyObjects, null, Random.Range(5, 10), new Vector2Int(1, 1), true);
                     break;
                 case CustomRoomType.Generic:
                     success = CheckIfRoomsCanBePaired(gridObject, grid, ref roomRotation);
@@ -707,71 +708,86 @@ public class ProceduralLayoutGeneration : MonoBehaviour
             }
             if (specificTypeTiles.Count > 0)
             {
-                specificTypeZones.Clear();
-                specificTypeZones.AddRange(CustomUtilities.GetTilesAsZone(specificTypeTiles, gridTiles[0].transform.localScale.x));
-
                 int objectsPerRoom = 0;
-                Rect objectRect = new Rect(Vector2.zero, objectSize);
-                Rect objectRectFlipped = new Rect(Vector2.zero, objectSizeFlipped);
-                for (int j = 0; j < specificTypeZones.Count; j++)
+                if (TileGeneration.TileType.Enemy == objectTypeToSpawn)
                 {
-                    specificTypeZones[j].Randomize();   // Vary the placement of multiple objects of the same type in a room, so they don't spawn all together
-                    for (int k = 0; k < specificTypeZones[j].Count - 1; k++)
+                    specificTypeTiles.Randomize();
+                    List<Tile> placementTile = new List<Tile>(1);
+                    for (int j = 0; j < specificTypeTiles.Count; j++)
                     {
                         if (objectsPerRoom == maxObjectsPerRoom)
                             break;
-                        Tile currentTile = specificTypeZones[j][k];
-                        if (currentTile.GetOccupied())
-                            continue;
-                        if (tileSize == objectSize)
-                        {
-                            List<Tile> tileSlice = new List<Tile>();
-                            tileSlice.Add(currentTile);
-                            SpawnObjectOnTile(tileSlice, false, objectToSpawn, objectTypeToSpawn, roomsToSpawnObjectsIn[i], canCollideWithPlayer);
-                            objectsPerRoom++;
-                            continue;
-                        }
-                        Rect tempRect = new Rect(Vector2.zero, tileSize)
-                        {
-                            center = currentTile.GetPosition()
-                        };
-                        objectRect.position = tempRect.position;
-                        objectRectFlipped.position = tempRect.position;
-                        int tilesThatFit = 1, tilesThatFitFlipped = 1;
-                        tilesToSpawnObjectOn.Clear();
-                        tilesToSpawnObjectOnFlipped.Clear();
-                        tilesToSpawnObjectOn.Add(currentTile);
-                        tilesToSpawnObjectOnFlipped.Add(currentTile);
-                        for (int l = k + 1; l < specificTypeZones[j].Count; l++)
-                        {
-                            Tile evaluatedTile = specificTypeZones[j][l];
-                            if (evaluatedTile.GetPosition().IsWithinRect(objectRect) && !evaluatedTile.GetOccupied())
-                            {
-                                tilesThatFit++;
-                                tilesToSpawnObjectOn.Add(evaluatedTile);
-                            }
-                            else if (evaluatedTile.GetPosition().IsWithinRect(objectRectFlipped) && !evaluatedTile.GetOccupied())
-                            {
-                                tilesThatFitFlipped++;
-                                tilesToSpawnObjectOnFlipped.Add(evaluatedTile);
-                            }
-
-                            if (tilesThatFit == tilesPerObject.x * tilesPerObject.y)
-                            {
-                                SpawnObjectOnTile(tilesToSpawnObjectOn, false, objectToSpawn, objectTypeToSpawn, roomsToSpawnObjectsIn[i], canCollideWithPlayer);
-                                objectsPerRoom++;
-                                break;
-                            }
-                            if (tilesThatFitFlipped == tilesPerObject.x * tilesPerObject.y)
-                            {
-                                SpawnObjectOnTile(tilesToSpawnObjectOnFlipped, true, objectToSpawn, objectTypeToSpawn, roomsToSpawnObjectsIn[i], canCollideWithPlayer);
-                                objectsPerRoom++;
-                                break;
-                            }
-                        }
+                        placementTile.Add(specificTypeTiles[j]);
+                        SpawnObjectOnTile(placementTile, false, objectToSpawn, TileGeneration.TileType.Enemy, roomsToSpawnObjectsIn[i], true);
+                        placementTile.Clear();
                     }
-                    if (objectsPerRoom == maxObjectsPerRoom)
-                        break;
+                }
+                else
+                {
+                    Rect objectRect = new Rect(Vector2.zero, objectSize);
+                    Rect objectRectFlipped = new Rect(Vector2.zero, objectSizeFlipped);
+                    specificTypeZones.Clear();
+                    specificTypeZones.AddRange(CustomUtilities.GetTilesAsZone(specificTypeTiles, gridTiles[0].transform.localScale.x));
+                    for (int j = 0; j < specificTypeZones.Count; j++)
+                    {
+                        specificTypeZones[j].Randomize();   // Vary the placement of multiple objects of the same type in a room, so they don't spawn all together
+                        for (int k = 0; k < specificTypeZones[j].Count - 1; k++)
+                        {
+                            if (objectsPerRoom == maxObjectsPerRoom)
+                                break;
+                            Tile currentTile = specificTypeZones[j][k];
+                            if (currentTile.GetOccupied())
+                                continue;
+                            if (tileSize == objectSize)
+                            {
+                                List<Tile> tileSlice = new List<Tile>();
+                                tileSlice.Add(currentTile);
+                                SpawnObjectOnTile(tileSlice, false, objectToSpawn, objectTypeToSpawn, roomsToSpawnObjectsIn[i], canCollideWithPlayer);
+                                objectsPerRoom++;
+                                continue;
+                            }
+                            Rect tempRect = new Rect(Vector2.zero, tileSize)
+                            {
+                                center = currentTile.GetPosition()
+                            };
+                            objectRect.position = tempRect.position;
+                            objectRectFlipped.position = tempRect.position;
+                            int tilesThatFit = 1, tilesThatFitFlipped = 1;
+                            tilesToSpawnObjectOn.Clear();
+                            tilesToSpawnObjectOnFlipped.Clear();
+                            tilesToSpawnObjectOn.Add(currentTile);
+                            tilesToSpawnObjectOnFlipped.Add(currentTile);
+                            for (int l = k + 1; l < specificTypeZones[j].Count; l++)
+                            {
+                                Tile evaluatedTile = specificTypeZones[j][l];
+                                if (evaluatedTile.GetPosition().IsWithinRect(objectRect) && !evaluatedTile.GetOccupied())
+                                {
+                                    tilesThatFit++;
+                                    tilesToSpawnObjectOn.Add(evaluatedTile);
+                                }
+                                else if (evaluatedTile.GetPosition().IsWithinRect(objectRectFlipped) && !evaluatedTile.GetOccupied())
+                                {
+                                    tilesThatFitFlipped++;
+                                    tilesToSpawnObjectOnFlipped.Add(evaluatedTile);
+                                }
+
+                                if (tilesThatFit == tilesPerObject.x * tilesPerObject.y)
+                                {
+                                    SpawnObjectOnTile(tilesToSpawnObjectOn, false, objectToSpawn, objectTypeToSpawn, roomsToSpawnObjectsIn[i], canCollideWithPlayer);
+                                    objectsPerRoom++;
+                                    break;
+                                }
+                                if (tilesThatFitFlipped == tilesPerObject.x * tilesPerObject.y)
+                                {
+                                    SpawnObjectOnTile(tilesToSpawnObjectOnFlipped, true, objectToSpawn, objectTypeToSpawn, roomsToSpawnObjectsIn[i], canCollideWithPlayer);
+                                    objectsPerRoom++;
+                                    break;
+                                }
+                            }
+                        }
+                        if (objectsPerRoom == maxObjectsPerRoom)
+                            break;
+                    }
                 }
             }
         }
