@@ -139,7 +139,7 @@ public class OVRGrabbable : MonoBehaviour
         m_grabbedBy = null;
         m_grabbedCollider = null;
 
-        if (prevSlide.activeSelf && tutorialMode)
+        if (tutorialMode && prevSlide.activeSelf)
         {
             prevSlide.SetActive(false);
             nextSlide.SetActive(true);
