@@ -98,7 +98,7 @@ LightmapSettings:
     m_TrainingDataDestination: TrainingData
     m_LightProbeSampleCountMultiplier: 4
   m_LightingDataAsset: {fileID: 0}
-  m_UseShadowmask: 1
+  m_UseShadowmask: 0
 --- !u!196 &4
 NavMeshSettings:
   serializedVersion: 2
@@ -838,14 +838,50 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 9028967233697168038, guid: 62ac2dedd4921ce4ea0ea96f5f51a8c7,
         type: 3}
+      propertyPath: genericGrids.Array.size
+      value: 7
+      objectReference: {fileID: 0}
+    - target: {fileID: 9028967233697168038, guid: 62ac2dedd4921ce4ea0ea96f5f51a8c7,
+        type: 3}
       propertyPath: mainMenuCanvas
       value: 
       objectReference: {fileID: 5001838487416720226}
     - target: {fileID: 9028967233697168038, guid: 62ac2dedd4921ce4ea0ea96f5f51a8c7,
         type: 3}
-      propertyPath: doorSpawnChance
-      value: 0
-      objectReference: {fileID: 0}
+      propertyPath: endGrids.Array.data[0]
+      value: 
+      objectReference: {fileID: 9116217711546760843, guid: d259e120ff562c64780f379f52ef66f5,
+        type: 3}
+    - target: {fileID: 9028967233697168038, guid: 62ac2dedd4921ce4ea0ea96f5f51a8c7,
+        type: 3}
+      propertyPath: endGrids.Array.data[1]
+      value: 
+      objectReference: {fileID: 5020317866564032946, guid: 928dc49fc60317844a4416b49974aa31,
+        type: 3}
+    - target: {fileID: 9028967233697168038, guid: 62ac2dedd4921ce4ea0ea96f5f51a8c7,
+        type: 3}
+      propertyPath: endGrids.Array.data[2]
+      value: 
+      objectReference: {fileID: 4030361830226159286, guid: de7ba298c2951f646bf9ee54d69341ac,
+        type: 3}
+    - target: {fileID: 9028967233697168038, guid: 62ac2dedd4921ce4ea0ea96f5f51a8c7,
+        type: 3}
+      propertyPath: genericGrids.Array.data[5]
+      value: 
+      objectReference: {fileID: 7689523768072155447, guid: 2dc6ac5d9bb5dd742bb6f313dad16b58,
+        type: 3}
+    - target: {fileID: 9028967233697168038, guid: 62ac2dedd4921ce4ea0ea96f5f51a8c7,
+        type: 3}
+      propertyPath: genericGrids.Array.data[6]
+      value: 
+      objectReference: {fileID: 5208215935282725788, guid: 5fdc018ab479c934c82890f9b4fd4695,
+        type: 3}
+    - target: {fileID: 9028967233697168038, guid: 62ac2dedd4921ce4ea0ea96f5f51a8c7,
+        type: 3}
+      propertyPath: genericGrids.Array.data[7]
+      value: 
+      objectReference: {fileID: 7689523768072155447, guid: 2dc6ac5d9bb5dd742bb6f313dad16b58,
+        type: 3}
     m_RemovedComponents:
     - {fileID: 7363107968417053452, guid: 62ac2dedd4921ce4ea0ea96f5f51a8c7, type: 3}
   m_SourcePrefab: {fileID: 100100000, guid: 62ac2dedd4921ce4ea0ea96f5f51a8c7, type: 3}
