@@ -82,9 +82,20 @@ public class DataHandler : MonoBehaviour
                 {
                     internalData.s[i] = "3";    // When participants do not change the slider value, assign default value
                 }
-                else // Multiple choice data
+                else if (i < internalData.s.Length - 1)// Multiple choice data
                 {
                     internalData.s[i] = "No selection";
+                }
+                else // Last question (Movement type from player prefs)
+                {
+                    if (PlayerPrefs.GetInt("MovementType") == 1)
+                    {
+                        internalData.s[i] = "Natural_walking";
+                    }
+                    else
+                    {
+                        internalData.s[i] = "Steering";
+                    }
                 }
             }
             else if (internalData.s[i].EndsWith(","))

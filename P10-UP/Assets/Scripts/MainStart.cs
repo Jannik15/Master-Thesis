@@ -5,7 +5,7 @@ using UnityEngine.UI;
 public class MainStart : MonoBehaviour
 {
     [SerializeField] private Button naturalWalkingBtn, steeringBtn;
-    [SerializeField] private GameObject naturalWalkingText, naturalWalkingTextDisabled, steeringText, steeringTextDisabled;
+    [SerializeField] private GameObject normalMenu, TestMenu, naturalWalkingMenu, steeringMenu;
     void Start()
     {
         if (PlayerPrefs.GetInt("MovementType", 0) == 0) // 0 = Natural Walking, 1 = Steering
@@ -20,13 +20,21 @@ public class MainStart : MonoBehaviour
 
         if (PlayerPrefs.GetInt("Testing", 0) == 1)
         {
-            naturalWalkingBtn.enabled = false;
-            steeringBtn.enabled = false;
-            naturalWalkingText.SetActive(false);
-            naturalWalkingTextDisabled.SetActive(true);
-            steeringText.SetActive(false);
-            steeringTextDisabled.SetActive(true);
+            normalMenu.SetActive(false);
+            TestMenu.SetActive(true);
+            if (PlayerPrefs.GetInt("MovementType", 0) == 0)
+            {
+                naturalWalkingMenu.SetActive(true);
+            }
+            else
+            {
+                steeringMenu.SetActive(true);
+            }
             Debug.Log("Started Main when Testing set to 1, disabling movement buttons...");
+        }
+        else
+        {
+            normalMenu.SetActive(true);
         }
     }
 
