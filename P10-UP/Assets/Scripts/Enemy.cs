@@ -7,7 +7,6 @@ public class Enemy : MonoBehaviour
     public GameObject nextSlide;
     public GameObject part4;
 
-
     public Room inRoom;
 
     public float Health = 1f;
@@ -93,8 +92,9 @@ public class Enemy : MonoBehaviour
                 nextSlide.SetActive(true);
             }
             Destroy(gameObject, 5f);
-            part4.SetActive(false);
+            
         }
+
 
 
     }

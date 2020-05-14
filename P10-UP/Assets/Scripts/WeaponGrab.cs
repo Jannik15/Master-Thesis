@@ -429,6 +429,11 @@ public class WeaponGrab : MonoBehaviour
         {
             if (prevSlide2.activeSelf)
             {
+                if (part4.activeSelf)
+                {
+                    part4.SetActive(false);
+                }
+
                 prevSlide2.SetActive(false);
                 nextSlide2.SetActive(true);
                 part6.SetActive(true);
