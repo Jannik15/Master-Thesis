@@ -69,10 +69,6 @@ public class Tile : MonoBehaviour
             objectOnTile = objectToPlace;
             isOccupied = true;
         }
-        else
-        {
-            Debug.Log("Tried placing object " + objectToPlace + " on tile " + gameObject.name + ", but it was occupied");
-        }
     }
 
     public bool GetOccupied()
