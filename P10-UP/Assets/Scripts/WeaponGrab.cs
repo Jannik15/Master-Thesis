@@ -360,7 +360,7 @@ public class WeaponGrab : MonoBehaviour
             currentGun = weaponHeld.GetComponentInChildren<Gun>();
             finger?.gameObject.SetActive(false);
             gunGrabEvent?.Invoke(weaponHeld.gameObject, true,
-                handRight ? OVRInput.Controller.RTouch : OVRInput.Controller.LTouch);
+                handRight ? OVRInput.Controller.RTouch : OVRInput.Controller.LTouch, false);
         }
         else
         {
@@ -383,7 +383,7 @@ public class WeaponGrab : MonoBehaviour
             currentGun = weaponHeld.GetComponentInChildren<Gun>();
             finger?.gameObject.SetActive(false);
             gunGrabEvent?.Invoke(weaponHeld.gameObject, true,
-                handRight ? OVRInput.Controller.RTouch : OVRInput.Controller.LTouch);
+                handRight ? OVRInput.Controller.RTouch : OVRInput.Controller.LTouch, false);
             
             if (tutorialMode)
             {
