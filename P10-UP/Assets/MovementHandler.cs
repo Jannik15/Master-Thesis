@@ -9,6 +9,8 @@ public class MovementHandler : MonoBehaviour
     
     void Awake()
     {
+        MovementType = PlayerPrefs.GetInt("MovementType");
+
         if (MovementType == 0) //Walking Selected
         {
             NextWalking.SetActive(true);
