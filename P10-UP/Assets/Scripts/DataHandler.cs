@@ -8,9 +8,11 @@ using System.Linq;
 using UnityEngine.Networking;
 using UnityEngine;
 using UnityEngine.ProBuilder.MeshOperations;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 #if UNITY_EDITOR
 using UnityEditor;
+
 #endif
 
 
@@ -57,19 +59,83 @@ public class DataHandler : MonoBehaviour
 
     public void AssignMultipleChoiceData(string data)
     {
-        if (toggleState && (string.IsNullOrEmpty(internalData.s[indexToModify]) || !internalData.s[indexToModify].Contains(data)))
+        if (toggleState && (string.IsNullOrEmpty(internalData.s[indexToModify]) ||
+                            !internalData.s[indexToModify].Contains(data)))
         {
             internalData.s[indexToModify] += data + ", ";
         }
         else if (!toggleState && internalData.s[indexToModify].Contains(data))
         {
-            internalData.s[indexToModify] = internalData.s[indexToModify].Remove(internalData.s[indexToModify].IndexOf(data), data.Length + 2); // + 2 to include comma and space
+            internalData.s[indexToModify] = internalData.s[indexToModify]
+                .Remove(internalData.s[indexToModify].IndexOf(data), data.Length + 2); // + 2 to include comma and space
         }
+    }
+
+    private void Update()
+    {
+        if (OVRInput.GetDown(OVRInput.Button.Two))
+        {
+            for (int i = 0; i < internalData.s.Length; i++)
+            {
+                if (!string.IsNullOrEmpty(internalData.s[i]))
+                {
+                    Debug.Log("Question " + (i + 1) + " is " + internalData.s[i]);
+                }
+                else
+                {
+                    Debug.Log("Question " + (i + 1) + " is null or empty");
+                }
+            }
+        }
+
+        //if (OVRInput.GetDown(OVRInput.Button.Three))
+        //{
+        //    SceneManager.LoadScene("TestEnd");
+        //}
     }
 
     public void SendInternalData()
     {
         Debug.Log("Sending internal data:");
+        // Hard-coding some questions that depend on each other
+        if (!string.IsNullOrEmpty(internalData.s[0]) && internalData.s[0] == "None") // Steering general discomfort
+        {
+            for (int j = 1; j < 8; j++)
+            {
+                internalData.s[j] = "None";
+            }
+        }
+        else if (!string.IsNullOrEmpty(internalData.s[4]) && internalData.s[4] == "None") // Steering Dizzyness 
+        {
+            internalData.s[5] = "None"; // Setting steering Vertigo to "None"
+        }
+        if (!string.IsNullOrEmpty(internalData.s[8]) && internalData.s[8] == "No") // Steering problems with vision
+        {
+            for (int j = 9; j < 12; j++)
+            {
+                internalData.s[j] = "None";
+            }
+        }
+
+        if (!string.IsNullOrEmpty(internalData.s[16]) && internalData.s[16] == "None") // Walking general discomfort
+        {
+            for (int j = 17; j < 24; j++)
+            {
+                internalData.s[j] = "None";
+            }
+        }
+        else if (!string.IsNullOrEmpty(internalData.s[20]) && internalData.s[20] == "None") // Walking Dizzyness 
+        {
+            internalData.s[21] = "None"; // Setting walking Vertigo to "None"
+        }
+        if (!string.IsNullOrEmpty(internalData.s[24]) && internalData.s[24] == "No") // Walking problems with vision
+        {
+            for (int j = 25; j < 28; j++)
+            {
+                internalData.s[j] = "None";
+            }
+        }
+
         for (int i = 0; i < internalData.s.Length; i++)
         {
             if (string.IsNullOrEmpty(internalData.s[i]))
@@ -80,9 +146,9 @@ public class DataHandler : MonoBehaviour
                 }
                 else if (sliderIndeces.Contains(i))
                 {
-                    internalData.s[i] = "3";    // When participants do not change the slider value, assign default value
+                    internalData.s[i] = "3"; // When participants do not change the slider value, assign default value
                 }
-                else if (i < internalData.s.Length - 1)// Multiple choice data
+                else if (i < internalData.s.Length - 1) // Multiple choice data
                 {
                     internalData.s[i] = "No selection";
                 }
@@ -98,16 +164,21 @@ public class DataHandler : MonoBehaviour
                     }
                 }
             }
-            else if (internalData.s[i].EndsWith(","))
+            else
             {
-                internalData.s[i] = internalData.s[i].Remove(internalData.s[i].Length - 1);
+                // Remove commas at the end of multiple choice
+                if (internalData.s[i].EndsWith(","))
+                {
+                    internalData.s[i] = internalData.s[i].Remove(internalData.s[i].Length - 1);
+                }
             }
             Debug.Log("      Question " + (i + 1) + ": " + internalData.s[i]);
         }
         StartCoroutine(Post(internalData.s.ToList()));
     }
 
-    public void SendData(List<float> data) // Call if sending float data only. Otherwise sending a string list is preferred.
+    public void
+        SendData(List<float> data) // Call if sending float data only. Otherwise sending a string list is preferred.
     {
         List<string> tempConvertedData = new List<string>();
 
@@ -121,7 +192,8 @@ public class DataHandler : MonoBehaviour
         StartCoroutine(Post(tempConvertedData));
     }
 
-    public void SendData(List<string> data) // Preferred to use this function, and do the float conversion as seen above elsewhere if needed.
+    public void
+        SendData(List<string> data) // Preferred to use this function, and do the float conversion as seen above elsewhere if needed.
     {
         StartCoroutine(Post(data));
     }
@@ -137,7 +209,8 @@ public class DataHandler : MonoBehaviour
         }
         else if (finalData.Count != entryIds.Length)
         {
-            Debug.LogError("Result POST error: data list received is not the same length as entry ID array. Make sure they have the same length.");
+            Debug.LogError(
+                "Result POST error: data list received is not the same length as entry ID array. Make sure they have the same length.");
             sendData = false;
         }
 
@@ -175,11 +248,11 @@ public class DataHandler : MonoBehaviour
         }
         else
             yield return null;
-
     }
 }
 
 #region CustomInspector
+
 #if UNITY_EDITOR
 [CustomEditor(typeof(DataHandler))]
 public class DataHandler_Editor : UnityEditor.Editor
@@ -188,8 +261,11 @@ public class DataHandler_Editor : UnityEditor.Editor
     {
         var script = target as DataHandler;
 
-        EditorGUILayout.HelpBox("The order and the amount of entry IDs must be the same as on your Google Form", MessageType.Info);
-        EditorGUILayout.HelpBox("This means the data sent to this data handler script must be in the same order to send the data to the correct entry IDs on Google Forms.", MessageType.None);
+        EditorGUILayout.HelpBox("The order and the amount of entry IDs must be the same as on your Google Form",
+            MessageType.Info);
+        EditorGUILayout.HelpBox(
+            "This means the data sent to this data handler script must be in the same order to send the data to the correct entry IDs on Google Forms.",
+            MessageType.None);
 
         DrawDefaultInspector();
 
@@ -199,4 +275,5 @@ public class DataHandler_Editor : UnityEditor.Editor
     }
 }
 #endif
+
 #endregion

@@ -123,4 +123,12 @@ public class EnemyAI : MonoBehaviour
         }
         Instantiate(laserBullet, barrelPoint.position, Quaternion.LookRotation(barrelPoint.forward));
     }
+
+    private void OnDestroy()
+    {
+        if (layout != null)
+        {
+            layout.roomSwitched -= UpdatePlayerRoom;
+        }
+    }
 }

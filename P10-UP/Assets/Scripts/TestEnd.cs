@@ -19,6 +19,16 @@ public class TestEnd : MonoBehaviour
         steeringToLocomotionText;
     void Start()
     {
+        naturalWalkingSSQ.SetActive(false);
+        steeringSSQ.SetActive(false);
+        naturalWalkingNextTestBtn.SetActive(false);
+        naturalWalkingNextTestText.SetActive(false);
+        naturalWalkingToLocomotionBtn.SetActive(false);
+        naturalWalkingToLocomotionText.SetActive(false);
+        steeringNextTestBtn.SetActive(false);
+        steeringNextTestText.SetActive(false);
+        steeringToLocomotionBtn.SetActive(false);
+        steeringToLocomotionText.SetActive(false);
         if (PlayerPrefs.GetInt("MovementType") == 0)
         {
             naturalWalkingSSQ.SetActive(true);
