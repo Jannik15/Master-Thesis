@@ -22,7 +22,7 @@ public class DataHandler : MonoBehaviour
     public string baseURL = ""; // fill out this and entry IDs in inspector
     public string[] entryIds;
     public int[] sliderIndeces;
-    public StringDataArray internalData;
+    private PersistentDataContainer persistentData;
     [HideInInspector] public int indexToModify;
     [HideInInspector] public bool toggleState;
     private string spec = "G";
@@ -30,9 +30,10 @@ public class DataHandler : MonoBehaviour
 
     private void Start()
     {
-        if (internalData.s.Length != entryIds.Length)
+        persistentData = FindObjectOfType<PersistentDataContainer>();
+        if (persistentData.container.s.Length != entryIds.Length)
         {
-            internalData.s = new string[entryIds.Length];
+            persistentData.container.s = new string[entryIds.Length];
         }
     }
 
@@ -49,25 +50,25 @@ public class DataHandler : MonoBehaviour
 
     public void AssignData(string data)
     {
-        internalData.s[indexToModify] = data;
+        persistentData.container.s[indexToModify] = data;
     }
 
     public void AssignSliderData(float data)
     {
-        internalData.s[indexToModify] = data.ToString(spec, ci);
+        persistentData.container.s[indexToModify] = data.ToString(spec, ci);
     }
 
     public void AssignMultipleChoiceData(string data)
     {
-        if (toggleState && (string.IsNullOrEmpty(internalData.s[indexToModify]) ||
-                            !internalData.s[indexToModify].Contains(data)))
+        if (toggleState && (string.IsNullOrEmpty(persistentData.container.s[indexToModify]) ||
+                            !persistentData.container.s[indexToModify].Contains(data)))
         {
-            internalData.s[indexToModify] += data + ", ";
+            persistentData.container.s[indexToModify] += data + ", ";
         }
-        else if (!toggleState && internalData.s[indexToModify].Contains(data))
+        else if (!toggleState && persistentData.container.s[indexToModify].Contains(data))
         {
-            internalData.s[indexToModify] = internalData.s[indexToModify]
-                .Remove(internalData.s[indexToModify].IndexOf(data), data.Length + 2); // + 2 to include comma and space
+            persistentData.container.s[indexToModify] = persistentData.container.s[indexToModify]
+                .Remove(persistentData.container.s[indexToModify].IndexOf(data), data.Length + 2); // + 2 to include comma and space
         }
     }
 
@@ -75,11 +76,11 @@ public class DataHandler : MonoBehaviour
     {
         if (OVRInput.GetDown(OVRInput.Button.Two))
         {
-            for (int i = 0; i < internalData.s.Length; i++)
+            for (int i = 0; i < persistentData.container.s.Length; i++)
             {
-                if (!string.IsNullOrEmpty(internalData.s[i]))
+                if (!string.IsNullOrEmpty(persistentData.container.s[i]))
                 {
-                    Debug.Log("Question " + (i + 1) + " is " + internalData.s[i]);
+                    Debug.Log("Question " + (i + 1) + " is " + persistentData.container.s[i]);
                 }
                 else
                 {
@@ -98,83 +99,83 @@ public class DataHandler : MonoBehaviour
     {
         Debug.Log("Sending internal data:");
         // Hard-coding some questions that depend on each other
-        if (!string.IsNullOrEmpty(internalData.s[0]) && internalData.s[0] == "None") // Steering general discomfort
+        if (!string.IsNullOrEmpty(persistentData.container.s[0]) && persistentData.container.s[0] == "None") // Steering general discomfort
         {
             for (int j = 1; j < 8; j++)
             {
-                internalData.s[j] = "None";
+                persistentData.container.s[j] = "None";
             }
         }
-        else if (!string.IsNullOrEmpty(internalData.s[4]) && internalData.s[4] == "None") // Steering Dizzyness 
+        else if (!string.IsNullOrEmpty(persistentData.container.s[4]) && persistentData.container.s[4] == "None") // Steering Dizzyness 
         {
-            internalData.s[5] = "None"; // Setting steering Vertigo to "None"
+            persistentData.container.s[5] = "None"; // Setting steering Vertigo to "None"
         }
-        if (!string.IsNullOrEmpty(internalData.s[8]) && internalData.s[8] == "No") // Steering problems with vision
+        if (!string.IsNullOrEmpty(persistentData.container.s[8]) && persistentData.container.s[8] == "No") // Steering problems with vision
         {
             for (int j = 9; j < 12; j++)
             {
-                internalData.s[j] = "None";
+                persistentData.container.s[j] = "None";
             }
         }
 
-        if (!string.IsNullOrEmpty(internalData.s[16]) && internalData.s[16] == "None") // Walking general discomfort
+        if (!string.IsNullOrEmpty(persistentData.container.s[16]) && persistentData.container.s[16] == "None") // Walking general discomfort
         {
             for (int j = 17; j < 24; j++)
             {
-                internalData.s[j] = "None";
+                persistentData.container.s[j] = "None";
             }
         }
-        else if (!string.IsNullOrEmpty(internalData.s[20]) && internalData.s[20] == "None") // Walking Dizzyness 
+        else if (!string.IsNullOrEmpty(persistentData.container.s[20]) && persistentData.container.s[20] == "None") // Walking Dizzyness 
         {
-            internalData.s[21] = "None"; // Setting walking Vertigo to "None"
+            persistentData.container.s[21] = "None"; // Setting walking Vertigo to "None"
         }
-        if (!string.IsNullOrEmpty(internalData.s[24]) && internalData.s[24] == "No") // Walking problems with vision
+        if (!string.IsNullOrEmpty(persistentData.container.s[24]) && persistentData.container.s[24] == "No") // Walking problems with vision
         {
             for (int j = 25; j < 28; j++)
             {
-                internalData.s[j] = "None";
+                persistentData.container.s[j] = "None";
             }
         }
 
-        for (int i = 0; i < internalData.s.Length; i++)
+        for (int i = 0; i < persistentData.container.s.Length; i++)
         {
-            if (string.IsNullOrEmpty(internalData.s[i]))
+            if (string.IsNullOrEmpty(persistentData.container.s[i]))
             {
-                if (i < internalData.s.Length - 16)
+                if (i < persistentData.container.s.Length - 16)
                 {
-                    internalData.s[i] = "None";
+                    persistentData.container.s[i] = "None";
                 }
                 else if (sliderIndeces.Contains(i))
                 {
-                    internalData.s[i] = "3"; // When participants do not change the slider value, assign default value
+                    persistentData.container.s[i] = "3"; // When participants do not change the slider value, assign default value
                 }
-                else if (i < internalData.s.Length - 1) // Multiple choice data
+                else if (i < persistentData.container.s.Length - 1) // Multiple choice data
                 {
-                    internalData.s[i] = "No selection";
+                    persistentData.container.s[i] = "No selection";
                 }
                 else // Last question (Movement type from player prefs)
                 {
                     if (PlayerPrefs.GetInt("MovementType") == 1)
                     {
-                        internalData.s[i] = "Natural_walking";
+                        persistentData.container.s[i] = "Natural_walking";
                     }
                     else
                     {
-                        internalData.s[i] = "Steering";
+                        persistentData.container.s[i] = "Steering";
                     }
                 }
             }
             else
             {
                 // Remove commas at the end of multiple choice
-                if (internalData.s[i].EndsWith(","))
+                if (persistentData.container.s[i].EndsWith(","))
                 {
-                    internalData.s[i] = internalData.s[i].Remove(internalData.s[i].Length - 1);
+                    persistentData.container.s[i] = persistentData.container.s[i].Remove(persistentData.container.s[i].Length - 1);
                 }
             }
-            Debug.Log("      Question " + (i + 1) + ": " + internalData.s[i]);
+            Debug.Log("      Question " + (i + 1) + ": " + persistentData.container.s[i]);
         }
-        StartCoroutine(Post(internalData.s.ToList()));
+        StartCoroutine(Post(persistentData.container.s.ToList()));
     }
 
     public void
