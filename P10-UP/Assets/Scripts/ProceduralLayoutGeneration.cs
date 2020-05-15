@@ -404,7 +404,7 @@ public class ProceduralLayoutGeneration : MonoBehaviour
                     {
                         SpawnObjectType(endRooms, TileGeneration.TileType.Event, endGameEventObjects, null, 1, new Vector2Int(1, 1), true);
                     }
-                    SpawnObjectType(endRooms, TileGeneration.TileType.Enemy, enemyObjects, null, Random.Range(5, 10), new Vector2Int(1, 1), true);
+                    SpawnObjectType(endRooms, TileGeneration.TileType.Enemy, enemyObjects, null, Random.Range(3, 6), new Vector2Int(1, 1), true);
                     break;
                 case CustomRoomType.Generic:
                     success = CheckIfRoomsCanBePaired(gridObject, grid, ref roomRotation);
