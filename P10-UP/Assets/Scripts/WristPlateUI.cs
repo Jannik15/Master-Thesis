@@ -95,7 +95,7 @@ public class WristPlateUI : MonoBehaviour
 
     public void TakeOutCard(GameObject card)
     {
-        Debug.Log("Took out card of inventory");
+        //Debug.Log("Took out card of inventory");
         keysList.Remove(card);
         currentCard = 0;
     }
