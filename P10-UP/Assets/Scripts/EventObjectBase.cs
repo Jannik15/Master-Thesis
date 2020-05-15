@@ -149,10 +149,13 @@ public class EventObjectBase : MonoBehaviour
             case EventObjectType.ThisType.PressurePlate:
                 if (collider.CompareTag("Button"))
                 {
-                    if (connectedDoor.isOpen)
-                    {
-                        connectedDoor.CloseDoor();
-                    }
+                    //// This is ideally the approach we would have with the pressure plate,
+                    //// but due to various bugs involving physics and layer changing, we decided for testing
+                    //// To instead disable this behaviour
+                    //if (connectedDoor.isOpen)
+                    //{
+                    //    connectedDoor.CloseDoor();
+                    //}
                 }
                 break;
         }
