@@ -13,7 +13,7 @@ public class CenterButton : MonoBehaviour
     {
         if (steeringController == null)
         {
-            Debug.Log("Steering controller was null, attempting to find...");
+            //Debug.Log("Steering controller was null, attempting to find...");
             steeringController = FindObjectOfType<CharacterController>();
             ovrSteeringController = steeringController.GetComponent<OVRPlayerController>();
         }

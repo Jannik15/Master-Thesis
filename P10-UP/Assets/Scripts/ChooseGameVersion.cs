@@ -19,7 +19,7 @@ public class ChooseGameVersion : MonoBehaviour
     {
         PlayerPrefs.SetInt("Testing", 1);
         PlayerPrefs.SetInt("MovementType", Random.Range(0, 2)); // 0 = Natural Walking, 1 = Steering
-        Debug.Log("Random movement type was: " + PlayerPrefs.GetInt("MovementType"));
+        //Debug.Log("Random movement type was: " + PlayerPrefs.GetInt("MovementType"));
         SceneManager.LoadScene("TestStart");
     }
 
