@@ -138,7 +138,6 @@ public class GridEditor : EditorWindow
     {
         Vector2 matContainerSize = new Vector2(335, 20);
         baseMaterialContainer = (MaterialContainer)EditorGUI.ObjectField(new Rect(screenMiddle-matContainerSize/2 - new Vector2(0,70), matContainerSize), "Add a Material container:", baseMaterialContainer, typeof(MaterialContainer));
-        
         // Grid input
         gridDimensions = EditorGUI.Vector2IntField(new Rect(screenMiddle - new Vector2(110, 100) / 2, new Vector2(110, 15)), "Grid dimensions:", 
             new Vector2Int(Mathf.Clamp(gridDimensions.x,0,25),Mathf.Clamp(gridDimensions.y,0,25))); // Clamped to max 10

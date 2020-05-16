@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -16,6 +17,7 @@ public class ChooseGameVersion : MonoBehaviour
         else
         {
             PlayerPrefs.SetInt("MovementType", Random.Range(0, 2)); // 0 = Natural Walking, 1 = Steering
+            PlayerPrefs.SetInt("Testing", 1);
             SceneManager.LoadScene("TestStart");
         }
     }
