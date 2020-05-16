@@ -18,6 +18,9 @@ public class ChooseGameVersion : MonoBehaviour
         {
             PlayerPrefs.SetInt("MovementType", Random.Range(0, 2)); // 0 = Natural Walking, 1 = Steering
             PlayerPrefs.SetInt("Testing", 1);
+            PlayerPrefs.SetInt("CompletedCondition", 0);
+            PlayerPrefs.SetInt("ConditionsCompleted", 0);
+
             SceneManager.LoadScene("TestStart");
         }
     }

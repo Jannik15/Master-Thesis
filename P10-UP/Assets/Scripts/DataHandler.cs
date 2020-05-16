@@ -72,32 +72,8 @@ public class DataHandler : MonoBehaviour
         }
     }
 
-    private void Update()
-    {
-        if (OVRInput.GetDown(OVRInput.Button.Two))
-        {
-            for (int i = 0; i < persistentData.container.s.Length; i++)
-            {
-                if (!string.IsNullOrEmpty(persistentData.container.s[i]))
-                {
-                    Debug.Log("Question " + (i + 1) + " is " + persistentData.container.s[i]);
-                }
-                else
-                {
-                    Debug.Log("Question " + (i + 1) + " is null or empty");
-                }
-            }
-        }
-
-        //if (OVRInput.GetDown(OVRInput.Button.Three))
-        //{
-        //    SceneManager.LoadScene("TestEnd");
-        //}
-    }
-
     public void SendInternalData()
     {
-        Debug.Log("Sending internal data:");
         // Hard-coding some questions that depend on each other
         if (!string.IsNullOrEmpty(persistentData.container.s[0]) && persistentData.container.s[0] == "None") // Steering general discomfort
         {
@@ -173,7 +149,6 @@ public class DataHandler : MonoBehaviour
                     persistentData.container.s[i] = persistentData.container.s[i].Remove(persistentData.container.s[i].Length - 1);
                 }
             }
-            Debug.Log("      Question " + (i + 1) + ": " + persistentData.container.s[i]);
         }
         StartCoroutine(Post(persistentData.container.s.ToList()));
     }
