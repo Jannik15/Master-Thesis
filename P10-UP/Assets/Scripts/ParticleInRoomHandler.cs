@@ -7,9 +7,11 @@ public class ParticleInRoomHandler : MonoBehaviour
     public GameObject particleParent;
     private ProceduralLayoutGeneration layout;
     private Room inRoom;
+    private Renderer[] particleRenderers;
     void Start()
     {
         layout = FindObjectOfType<ProceduralLayoutGeneration>();
+        particleRenderers = particleParent.GetComponentsInChildren<Renderer>(true);
 
         layout.roomSwitched += OnRoomSwitch;
         inRoom = CustomUtilities.FindParentRoom(GetComponentInParent<Grid>().gameObject, layout.rooms);
@@ -20,7 +22,6 @@ public class ParticleInRoomHandler : MonoBehaviour
         if (inRoom == newCurrentRoom)
         {
             particleParent.SetActive(true);
-            Renderer[] particleRenderers = particleParent.GetComponentsInChildren<Renderer>();
             for (int i = 0; i < particleRenderers.Length; i++)
             {
                 for (int j = 0; j < particleRenderers[i].materials.Length; j++)

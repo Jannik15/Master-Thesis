@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using Unity.Mathematics;
 using UnityEngine;
@@ -8,12 +9,13 @@ public class ProceduralLayoutGeneration : MonoBehaviour
 {
     // Inspector variables
     public GameObject mainMenuCanvas;
+    public GameObject playerController;
     public int roomAmount = 10;
     [Range(0, 100)] public int pressurePlateWeighting = 33, keyCardWeighting = 66, shootTargetWeighting = 99, doorSpawnChance = 50;
     [SerializeField] private GameObject[] startGrids, genericGrids, endGrids;
     [SerializeField] private GameObject[] smallSceneryObjects, mediumSceneryObjects, largeSceneryObjects, doorEventObjects, genericEventObjects, enemyObjects, endGameEventObjects;
     [SerializeField] private GameObject[] interactableObjects;
-    [SerializeField] private GameObject portalPrefab, portalDoorPrefab, depthClearer, keyCard;
+    [SerializeField] private GameObject portalPrefab, portalDoorPrefab, depthClearer, keyCard, gun;
     [SerializeField] private Shader currentRoomMask, otherRoomMask;
 
     // Public non-inspector variables
@@ -26,7 +28,6 @@ public class ProceduralLayoutGeneration : MonoBehaviour
     private List<Vector2> possiblePortalPositions = new List<Vector2>();
     private List<Portal> portals = new List<Portal>();
     private List<DoorLock> portalDoors = new List<DoorLock>();
-    private GameObject keyCardToSpawn; // Functions as the index in rooms, tracking which room the player is in
     private int roomID, portalIterator;
     private Transform portalParent;
     private List<Tile> gridTiles = new List<Tile>(), previousGridTiles = new List<Tile>(), walkableTiles = new List<Tile>(), doorEventTiles = new List<Tile>();
@@ -184,6 +185,12 @@ public class ProceduralLayoutGeneration : MonoBehaviour
         // TODO: If 3+ PortalZones, try creating another path, and diverging the layout in the generation
 
         portalParent = new GameObject("Portals").transform;
+        if (playerController == null)
+        {
+            playerController = FindObjectOfType<CharacterController>().gameObject;
+        }
+        
+        playerController.layer = LayerMask.NameToLayer("NoCollision");
 
         CreateRooms(roomAmount - 2, genericGrids, CustomRoomType.Generic);
         CreateRooms(1, endGrids, CustomRoomType.End);
@@ -266,7 +273,7 @@ public class ProceduralLayoutGeneration : MonoBehaviour
                         }
                     }
                     int keyCardTileIndex = Random.Range(0, doorEventTiles.Count);
-                    keyCardToSpawn = doorEventTiles[keyCardTileIndex].PlaceObject(keyCard, rooms[roomToSpawnKeyCardIn].gameObject.transform);
+                    GameObject keyCardToSpawn = doorEventTiles[keyCardTileIndex].PlaceObject(keyCard, rooms[roomToSpawnKeyCardIn].gameObject.transform);
                     rooms[roomToSpawnKeyCardIn].AddObjectToRoom(keyCardToSpawn.transform, false);
                     keyCardToSpawn.GetComponentInChildren<InteractableObject>().inRoom = rooms[roomToSpawnKeyCardIn];
                     keysList.Add(keyCardToSpawn);
@@ -309,7 +316,24 @@ public class ProceduralLayoutGeneration : MonoBehaviour
                     // Pair and assign room
                     portalDoors[i].Pair(DoorLock.DoorEvent.ShootTarget, shootTarget);
                     EventObjectBase shootTargetEvent = shootTarget.GetComponentInChildren<EventObjectBase>(true);
-                    shootTargetEvent.AssignRoom(portalDoors[i].inRoom, false);
+                    shootTargetEvent.AssignRoom(portalDoorRoom, false);
+
+                    // Spawn gun in the same room as the shoot target to avoid players getting stuck
+                    doorEventTiles.Clear();
+                    doorEventTiles.AddRange(portalDoorRoom.gameObject.GetComponent<Grid>().GetTilesAsList());
+                    doorEventTiles.Randomize();
+                    int doorEventTilesCount = doorEventTiles.Count;
+                    for (int j = doorEventTilesCount - 1; j >= 0; j--)
+                    {
+                        if (!doorEventTiles[j].GetWalkable() || doorEventTiles[j].GetOccupied())
+                        {
+                            doorEventTiles.RemoveAt(j);
+                        }
+                    }
+                    int gunTileIndex = Random.Range(0, doorEventTiles.Count);
+
+                    GameObject gunToSpawn = doorEventTiles[gunTileIndex].PlaceObject(gun, portalDoorRoom.gameObject.transform);
+                    gunToSpawn.GetComponentInChildren<InteractableObject>(true).AssignRoom(portalDoorRoom, true);
                     continue;
                 }
 
@@ -349,9 +373,16 @@ public class ProceduralLayoutGeneration : MonoBehaviour
 
         roomID = 0;
         currentRoom = rooms[roomID];
+
+        StartCoroutine(SetPlayerLayer(LayerMask.NameToLayer("Player")));
         proceduralGenerationFinished?.Invoke();
     }
 
+    IEnumerator SetPlayerLayer(int layer)
+    {
+        yield return new WaitForSeconds(0.5f);
+        playerController.layer = layer;
+    }
     private void CreateRooms(int roomCount, GameObject[] gridInputList, CustomRoomType roomType)
     {
         // Iterates over the amount of rooms specified in the constructor
@@ -860,7 +891,7 @@ public class ProceduralLayoutGeneration : MonoBehaviour
                 }
                 else
                 {
-                    // Objects without EventObjectBase script
+                    objectOnTile.GetComponentInChildren<InteractableObject>(true)?.AssignRoom(roomToSpawnIn, true);
                 }
                 break;
             case TileGeneration.TileType.Enemy:

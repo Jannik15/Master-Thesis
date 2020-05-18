@@ -124,13 +124,13 @@ public class InteractableObject : MonoBehaviour
                 weaponGrabbers[i].gunGrabEvent += GrabEventListener;
             }
 
-                layout = FindObjectOfType<ProceduralLayoutGeneration>();
-                if (layout != null)
-                {
-                    layout.roomSwitched += OnRoomSwitch;
-                    layout.disabledPortal += PortalExit;
-                }
-                player = FindObjectOfType<PlayerCollisionHandler>();
+            layout = FindObjectOfType<ProceduralLayoutGeneration>();
+            if (layout != null)
+            {
+                layout.roomSwitched += OnRoomSwitch;
+                layout.disabledPortal += PortalExit;
+            }
+            player = FindObjectOfType<PlayerCollisionHandler>();
 
             differentRoomLayer = LayerMask.NameToLayer("DifferentRoom");
             interactableLayer = LayerMask.NameToLayer("Interactable");
