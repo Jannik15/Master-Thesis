@@ -1,10 +1,11 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class CenterButton : MonoBehaviour
 {
-    public GameObject nextButton, greyButton, nextButton2Walking, nextButton2Steering, greyButton2, slide, slide2;
+    public GameObject nextButton, greyButton, nextButton2, greyButton2, slide, slide2;
     private int MovementType;
     public CharacterController steeringController;
     public OVRPlayerController ovrSteeringController;
@@ -33,14 +34,7 @@ public class CenterButton : MonoBehaviour
             }
             else if (slide2.activeSelf)
             {
-                if (MovementType == 0)
-                {
-                    nextButton2Walking.SetActive(true);
-                }
-                else if (MovementType == 1)
-                {
-                    nextButton2Steering.SetActive(true);
-                }
+                nextButton2.SetActive(true);
                 greyButton2.SetActive(false);
             }
 
@@ -72,19 +66,15 @@ public class CenterButton : MonoBehaviour
             }
             else if (slide2.activeSelf)
             {
-                if (MovementType == 0)
-                {
-                    nextButton2Walking.SetActive(false);
-                }
-                else if (MovementType == 1)
-                {
-                    nextButton2Steering.SetActive(false);
-                }
+                nextButton2.SetActive(false);
                 greyButton2.SetActive(true);
             }
         }
-
-
     }
 
+    public void ExitTutorial()
+    {
+        PlayerPrefs.SetInt("CompletedTutorial", 1);
+        SceneManager.LoadScene("Main");
+    }
 }

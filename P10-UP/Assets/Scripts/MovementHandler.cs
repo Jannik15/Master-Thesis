@@ -22,10 +22,4 @@ public class MovementHandler : MonoBehaviour
             NextSteering.SetActive(true);
         }
     }
-
-
-    void Update()
-    {
-        
-    }
 }

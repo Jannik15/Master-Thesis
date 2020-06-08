@@ -131,7 +131,11 @@ public class MenuManager : MonoBehaviour
         {
             SceneManager.LoadScene("Main");
         }
+    }
 
+    public void StartTutorial()
+    {
+        SceneManager.LoadScene("Tutorial");
     }
 
     public void TestClose()

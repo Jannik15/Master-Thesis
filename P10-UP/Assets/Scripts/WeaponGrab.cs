@@ -5,6 +5,7 @@ using UnityEngine;
 
 public class WeaponGrab : MonoBehaviour
 {
+    #region Hardcoded tutorial
     public bool tutorialMode;
     public GameObject prevSlide;
     public GameObject nextSlide;
@@ -16,9 +17,10 @@ public class WeaponGrab : MonoBehaviour
 
     public GameObject prevSlide3;
     public GameObject nextSlide3;
+    #endregion
 
     public LayerMask layerMask;
-    public Transform trackingSpace;
+    [SerializeField] private Transform trackingSpace;
     [SerializeField] private FingerPress finger;
     [SerializeField] private float fireRate = 3f, fireDelay;
     [SerializeField] private WeaponGrab otherHand;
@@ -112,15 +114,13 @@ public class WeaponGrab : MonoBehaviour
         if (weaponHeld == null) // Can't pick up new weapon if another weapon is already held
         {
             // RayCast pickup
-            if (Physics.SphereCast(transform.position, 0.15f, transform.forward, out RaycastHit hit, 5, layerMask)
-            ) //right Hand cast
+            if (Physics.SphereCast(transform.position, 0.15f, transform.forward, out RaycastHit hit, 5, layerMask))
             {
                 if (hit.transform.CompareTag("Weapon") && hit.transform != weaponHit &&
                     hit.transform != otherHand.weaponHit || hit.transform.CompareTag("Keycard") &&
                     hit.transform != weaponHit && hit.transform != otherHand.weaponHit)
                 {
-                    if (weaponHit != null
-                    ) // When raycast hit's a new weapon, before the previous hit has had its materials reset
+                    if (weaponHit != null) // When raycast hit's a new weapon, hit has had its materials reset
                     {
                         for (int i = 0; i < weaponHitRends.Length; i++)
                         {
@@ -150,7 +150,7 @@ public class WeaponGrab : MonoBehaviour
                     }
                 }
             }
-            else if (weaponHit != null) // When raycast doesn't hit anything
+            else if (weaponHit != null) // When raycast stops hitting the weapon
             {
                 for (int i = 0; i < weaponHitRends.Length; i++)
                 {

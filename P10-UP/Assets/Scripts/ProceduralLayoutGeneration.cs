@@ -36,8 +36,8 @@ public class ProceduralLayoutGeneration : MonoBehaviour
     private List<List<Tile>> specificTypeZones = new List<List<Tile>>();
     private List<List<Vector2>> previousPortalZones = new List<List<Vector2>>();
     private List<List<List<Vector2>>> portalZones = new List<List<List<Vector2>>>();
-    public event Action proceduralGenerationFinished; 
     private int differentRoomLayer, defaultLayer, interactionLayer, currentPortalLayer, differentPortalLayer;
+    public event Action proceduralGenerationFinished;
     public event Action<Room, Portal> roomSwitched;
     public event Action<Portal> disabledPortal;
     private Transform playerCam;

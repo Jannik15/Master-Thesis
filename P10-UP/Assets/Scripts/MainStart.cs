@@ -1,11 +1,20 @@
 ﻿using System.Collections;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class MainStart : MonoBehaviour
 {
     [SerializeField] private Button naturalWalkingBtn, steeringBtn;
     [SerializeField] private GameObject normalMenu, TestMenu, naturalWalkingMenu, steeringMenu;
+
+    void Awake()
+    {
+        if (PlayerPrefs.GetInt("CompletedTutorial", 0) == 0)
+        {
+            SceneManager.LoadScene("Tutorial");
+        }
+    }
     void Start()
     {
         if (PlayerPrefs.GetInt("MovementType", 0) == 0) // 0 = Natural Walking, 1 = Steering
